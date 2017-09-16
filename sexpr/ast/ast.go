@@ -116,12 +116,12 @@ func (l *List) String() string {
 	return l.Quoted + "(" + strings.Join(ss, " ") + ")"
 }
 
-func NewAssosiation(v string, s *SExpr) *SExpr {
+func NewAssosiation(v, s *SExpr) *SExpr {
 	return &SExpr{
 		List: &List{
-			Quoted: "",
+			Quoted: "`",
 			Items: []*SExpr{
-				NewVariable(v),
+				v,
 				NewSymbol("."),
 				s,
 			},
