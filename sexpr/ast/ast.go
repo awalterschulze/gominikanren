@@ -78,8 +78,10 @@ func NewList(quoted bool, sexprs ...*SExpr) *SExpr {
 }
 
 func Prepend(quoted bool, s *SExpr, l *List) *SExpr {
-	l.Items = append([]*SExpr{s}, l.Items...)
-	return NewList(quoted, l.Items...)
+	es := make([]*SExpr, len(l.Items)+1)
+	copy(es[1:], l.Items)
+	es[0] = s
+	return NewList(quoted, es...)
 }
 
 func Append(l *List, s *SExpr) *List {
@@ -131,7 +133,7 @@ func (l *List) String() string {
 func NewAssosiation(v, s *SExpr) *SExpr {
 	return &SExpr{
 		List: &List{
-			Quoted: "`",
+			Quoted: "",
 			Items: []*SExpr{
 				v,
 				NewSymbol("."),

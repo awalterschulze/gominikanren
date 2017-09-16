@@ -1,6 +1,8 @@
 package micro
 
-import "github.com/awalterschulze/gominikanren/sexpr/ast"
+import (
+	"github.com/awalterschulze/gominikanren/sexpr/ast"
+)
 
 /*
 (define (unify u v s)
@@ -56,10 +58,12 @@ func unify(u, v *ast.SExpr, s Substitution) (Substitution, bool) {
 		return s, true
 	}
 	if uu.IsVariable() {
-		return exts(uu, vv, s)
+		ss, sok := exts(uu, vv, s)
+		return ss, sok
 	}
 	if vv.IsVariable() {
-		return exts(vv, uu, s)
+		ss, sok := exts(vv, uu, s)
+		return ss, sok
 	}
 	if uu.List != nil && vv.List != nil {
 		ss, sok := unify(uu.List.Car(), vv.List.Car(), s)

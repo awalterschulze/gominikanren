@@ -1,6 +1,7 @@
 package micro
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/sexpr"
@@ -114,5 +115,36 @@ func TestAlwaysO(t *testing.T) {
 	}
 	if sok == nil {
 		t.Fatalf("expected never ending")
+	}
+}
+
+func TestRunGoalAlways3(t *testing.T) {
+	ss := RunGoal(3, AlwaysO())
+	if len(ss) != 3 {
+		t.Fatalf("expected 3 got %d", len(ss))
+	}
+	sss := deriveFmaps(func(s Substitution) string {
+		return s.String()
+	}, ss)
+	got := "(" + strings.Join(sss, " ") + ")"
+	want := "(`() `() `())"
+	if got != want {
+		t.Fatalf("got %s != want %s", got, want)
+	}
+}
+
+func TestRunGoalDisj2(t *testing.T) {
+	e1 := EqualO(
+		ast.NewSymbol("olive"),
+		ast.NewVariable("x"),
+	)
+	e2 := EqualO(
+		ast.NewSymbol("oil"),
+		ast.NewVariable("x"),
+	)
+	g := DisjointO(e1, e2)
+	ss := RunGoal(5, g)
+	if len(ss) != 2 {
+		t.Fatalf("expected 2, got %d: %v", len(ss), ss)
 	}
 }

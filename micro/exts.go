@@ -27,9 +27,8 @@ func exts(x, v *ast.SExpr, s Substitution) (Substitution, bool) {
 		return nil, false
 	}
 	pair := ast.NewAssosiation(x, v)
-	pair.List.Quoted = ""
-	list := ast.Prepend(s.IsQuoted(), pair, s)
-	return list.List, true
+	l := ast.Prepend(s.IsQuoted(), pair, s)
+	return l.List, true
 }
 
 /*
