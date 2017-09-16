@@ -22,7 +22,7 @@ func (stream StreamOfSubstitutions) String() string {
 
 type Goal func(Substitution) StreamOfSubstitutions
 
-func Success() Goal {
+func SuccessO() Goal {
 	return func(s Substitution) StreamOfSubstitutions {
 		return NewSingletonStream(s)
 	}
@@ -34,7 +34,7 @@ func NewSingletonStream(s Substitution) StreamOfSubstitutions {
 	}
 }
 
-func Failure() Goal {
+func FailureO() Goal {
 	return func(s Substitution) StreamOfSubstitutions {
 		return nil
 	}
@@ -50,7 +50,7 @@ func EmptySubstitution() Substitution {
 	return ast.NewList(true).List
 }
 
-func Equal(u, v *ast.SExpr) Goal {
+func EqualO(u, v *ast.SExpr) Goal {
 	return func(s Substitution) StreamOfSubstitutions {
 		ss, sok := unify(u, v, s)
 		if sok {
@@ -62,4 +62,48 @@ func Equal(u, v *ast.SExpr) Goal {
 
 func eqv(s, ss *ast.SExpr) bool {
 	return s.Equal(ss)
+}
+
+/*
+(define (nevero) 
+	(lambda (s)
+		(lambda () 
+			((nevero) s)
+		)
+	)
+)
+*/
+func NeverO() Goal {
+	return func(s Substitution) StreamOfSubstitutions {
+		return func() (Substitution, StreamOfSubstitutions) {
+			return nil, NeverO()(s)
+		}
+	}
+}
+
+/*
+(define (alwayso) 
+	(lambda (s)
+		(lambda ()
+			(
+				(disj 
+					S 
+					(alwayso)
+				)
+				s
+			)
+		)
+	)
+)
+*/
+func AlwaysO() Goal {
+	return func(s Substitution) StreamOfSubstitutions {
+		return func() (Substitution, StreamOfSubstitutions) {
+			d := DisjointO(
+				SuccessO(),
+				AlwaysO(),
+			)(s)
+			return nil, d
+		}
+	}
 }
