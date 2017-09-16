@@ -56,7 +56,7 @@ func assv(v *ast.Variable, s Substitution) (*ast.SExpr, bool) {
 		left := pair.List.Car()
 		fmt.Printf("left %v\n", left)
 		if left.IsVariable() {
-			if eqv(v, left.Atom.Var) {
+			if v.Equal(left.Atom.Var) {
 				fmt.Printf("got pair %v\n", pair)
 				return pair, true
 			}

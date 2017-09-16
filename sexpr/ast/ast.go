@@ -37,6 +37,14 @@ func (s *SExpr) IsAssosiation() bool {
 	return false
 }
 
+func (s *SExpr) Equal(ss *SExpr) bool {
+	return deriveEqual(s, ss)
+}
+
+func (s *SExpr) GoString() string {
+	return deriveGoString(s)
+}
+
 func (s *SExpr) IsVariable() bool {
 	if s.Atom == nil {
 		return false
@@ -94,6 +102,10 @@ func (l *List) Cdr() *SExpr {
 	return NewList(l.IsQuoted(), l.Items[1:]...)
 }
 
+func (l *List) GoString() string {
+	return deriveGoStringList(l)
+}
+
 func (l *List) IsQuoted() bool {
 	return len(l.Quoted) > 0
 }
@@ -135,6 +147,10 @@ type Atom struct {
 	Float  *float64
 	Int    *int64
 	Var    *Variable
+}
+
+func (a *Atom) GoString() string {
+	return deriveGoStringAtom(a)
 }
 
 func (a *Atom) String() string {
@@ -233,4 +249,16 @@ type Variable struct {
 
 func (v *Variable) String() string {
 	return "," + v.Name
+}
+
+func (v *Variable) GoString() string {
+	return deriveGoStringVar(v)
+}
+
+// TODO compare IDs rather than names
+func (v *Variable) Equal(vv *Variable) bool {
+	if v == nil || vv == nil {
+		return v == nil && vv == nil
+	}
+	return v.Name == vv.Name
 }

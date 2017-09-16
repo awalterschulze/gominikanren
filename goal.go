@@ -1,14 +1,24 @@
 package gominikanren
 
 import (
-	"fmt"
-
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
+
+	"strings"
 )
 
 type Substitution = *ast.List
 
 type StreamOfSubstitutions func() (Substitution, StreamOfSubstitutions)
+
+func (stream StreamOfSubstitutions) String() string {
+	buf := []string{}
+	var s Substitution
+	for stream != nil {
+		s, stream = stream()
+		buf = append(buf, s.String())
+	}
+	return "(" + strings.Join(buf, " ") + ")"
+}
 
 type Goal func(Substitution) StreamOfSubstitutions
 
@@ -36,8 +46,20 @@ func Suspension(s StreamOfSubstitutions) StreamOfSubstitutions {
 	}
 }
 
-// TODO compare IDs rather than names
-func eqv(v, vv *ast.Variable) bool {
-	fmt.Printf("(eqv? %v %v)\n", v, vv)
-	return v.Name == vv.Name
+func EmptySubstitution() Substitution {
+	return ast.NewList(true).List
+}
+
+func Equal(u, v *ast.SExpr) Goal {
+	return func(s Substitution) StreamOfSubstitutions {
+		ss, sok := unify(u, v, s)
+		if sok {
+			return NewSingletonStream(ss)
+		}
+		return nil
+	}
+}
+
+func eqv(s, ss *ast.SExpr) bool {
+	return s.Equal(ss)
 }

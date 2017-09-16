@@ -9,13 +9,14 @@ import (
 
 func TestWalk(t *testing.T) {
 	tests := []func() (string, string, string){
-		deriveTuple("z", "`((,z . a) (,x . ,w) (,y . ,z))", "a"),
-		deriveTuple("y", "`((,z . a) (,x . ,w) (,y . ,z))", "a"),
-		deriveTuple("x", "`((,z . a) (,x . ,w) (,y . ,z))", ",w"),
-		deriveTuple("x", "`((,x . ,y) (,v . ,x) (,w . ,x))", ",y"),
-		deriveTuple("v", "`((,x . ,y) (,v . ,x) (,w . ,x))", ",y"),
-		deriveTuple("w", "`((,x . ,y) (,v . ,x) (,w . ,x))", ",y"),
-		deriveTuple("w", "`((,x . b) (,z . ,y) (,w . (,x e ,z)))", "`(,x e ,z)"),
+		deriveTuple3("z", "`((,z . a) (,x . ,w) (,y . ,z))", "a"),
+		deriveTuple3("y", "`((,z . a) (,x . ,w) (,y . ,z))", "a"),
+		deriveTuple3("x", "`((,z . a) (,x . ,w) (,y . ,z))", ",w"),
+		deriveTuple3("x", "`((,x . ,y) (,v . ,x) (,w . ,x))", ",y"),
+		deriveTuple3("v", "`((,x . ,y) (,v . ,x) (,w . ,x))", ",y"),
+		deriveTuple3("w", "`((,x . ,y) (,v . ,x) (,w . ,x))", ",y"),
+		deriveTuple3("w", "`((,x . b) (,z . ,y) (,w . (,x e ,z)))", "`(,x e ,z)"),
+		deriveTuple3("y", "`((,x . e) (,z . ,x) (,y . ,z))", "e"),
 	}
 	for _, test := range tests {
 		q, input, want := test()

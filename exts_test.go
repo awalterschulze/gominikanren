@@ -40,6 +40,7 @@ func TestExts(t *testing.T) {
 		deriveTupleE(",x", "a", "`()", "`((,x . a))"),
 		deriveTupleE(",x", "`(,x)", "`()", ""),
 		deriveTupleE(",x", "`(,y)", "`((,y . ,x))", ""),
+		deriveTupleE(",x", "e", "`((,z . ,x) (,y . ,z))", "`((,x . e) (,z . ,x) (,y . ,z))"),
 	}
 	for _, test := range tests {
 		x, v, s, want := test()

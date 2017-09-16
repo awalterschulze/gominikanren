@@ -2,14 +2,6 @@
 
 package gominikanren
 
-// deriveTupleE returns a function, which returns the input values.
-// Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTupleE(v0 string, v1 string, v2 string, v3 string) func() (string, string, string, string) {
-	return func() (string, string, string, string) {
-		return v0, v1, v2, v3
-	}
-}
-
 // deriveTupleO returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
 func deriveTupleO(v0 string, v1 string, v2 string, v3 bool) func() (string, string, string, bool) {
@@ -18,9 +10,17 @@ func deriveTupleO(v0 string, v1 string, v2 string, v3 bool) func() (string, stri
 	}
 }
 
-// deriveTuple returns a function, which returns the input values.
+// deriveTupleE returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTuple(v0 string, v1 string, v2 string) func() (string, string, string) {
+func deriveTupleE(v0 string, v1 string, v2 string, v3 string) func() (string, string, string, string) {
+	return func() (string, string, string, string) {
+		return v0, v1, v2, v3
+	}
+}
+
+// deriveTuple3 returns a function, which returns the input values.
+// Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
+func deriveTuple3(v0 string, v1 string, v2 string) func() (string, string, string) {
 	return func() (string, string, string) {
 		return v0, v1, v2
 	}

@@ -62,7 +62,7 @@ func exts(x, v *ast.SExpr, s Substitution) (Substitution, bool) {
 func occurs(x, v *ast.SExpr, s Substitution) bool {
 	vv := walk(v, s)
 	if vv.IsVariable() {
-		return x.IsVariable() && eqv(vv.Atom.Var, x.Atom.Var)
+		return eqv(vv, x)
 	}
 	if vv.List != nil {
 		return occurs(x, vv.List.Car(), s) || occurs(x, vv.List.Cdr(), s)
