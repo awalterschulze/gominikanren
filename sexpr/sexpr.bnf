@@ -1,0 +1,86 @@
+_decimal_digit : '0' - '9' ;
+
+_upcase : 'A'-'Z' ;
+_lowcase : 'a'-'z' ;
+_startchar : _upcase | _lowcase | _decimal_digit | '#' | '?' | '@' | '!' | '$' | '.' ;
+_char : _startchar | '-' | '\\' ' ' ;
+
+symbol : _startchar { _char } ;
+
+variable : ',' _lowcase ;
+
+_octal_digit : '0' - '7' ;
+_hex_digit : '0' - '9' | 'A' - 'F' | 'a' - 'f';
+_hex_byte_u_value   : '\\' 'x' _hex_digit _hex_digit ;
+_octal_byte_u_value : '\\' _octal_digit _octal_digit _octal_digit ;
+_byte_value       : _octal_byte_u_value | _hex_byte_u_value ;
+_big_u_value      : '\\' 'U' _hex_digit _hex_digit _hex_digit _hex_digit
+                            _hex_digit _hex_digit _hex_digit _hex_digit ;
+_little_u_value   : '\\' 'u' _hex_digit _hex_digit _hex_digit _hex_digit ;
+_escaped_char     : '\\' ( 'a' | 'b' | 'f' | 'n' | 'r' | 't' | 'v' | '\\' | '\'' | '"' ) ;
+_unicode_value    : . | _little_u_value | _big_u_value | _escaped_char ;
+_interpreted_string : '"' { _unicode_value | _byte_value } '"' ;
+
+string_lit : _interpreted_string ;
+
+_decimal_lit : ( '1' - '9' ) { _decimal_digit } ;
+_octal_lit   : '0' { _octal_digit } ;
+_hex_lit     : '0' ( 'x' | 'X' ) _hex_digit { _hex_digit } ;
+_int_lit     : _decimal_lit | _octal_lit | _hex_lit ;
+
+int_lit : [ '-' ] _int_lit ;
+
+_decimals  : _decimal_digit { _decimal_digit } ;
+_exponent  : ( 'e' | 'E' ) [ '+' | '-' ] _decimals ;
+
+_float_lit : ( _decimals '.' _decimals _exponent )
+	| ( _decimals '.' ( _decimals | _exponent ) )
+	| ( '.' ( _decimals | _exponent ) )
+	| ( _decimals _exponent )
+	;
+
+float_lit : [ '-' ] _float_lit ;
+
+_ws : ' ' | '\t' | '\n' | '\r' ;
+space : _ws { _ws } ;
+
+backtick : '`' ;
+
+<<
+import (
+    . "github.com/awalterschulze/gominikanren/sexpr/ast"
+    "github.com/awalterschulze/gominikanren/sexpr/token"
+)
+
+func getStr(v interface{}) string {
+    t := v.(*token.Token)
+    return string(t.Lit)
+}
+
+>>
+
+SExpr           : Atom
+                | List
+                | QuotedList
+                ;
+
+List            : "(" ")"                           << NewList(false), nil >>
+                | "(" SExpr ")"                     << NewList(false, $1.(*SExpr)), nil >>
+                | "(" SExpr space ContinueList ")"  << Prepend(false, $1.(*SExpr), $3.(*List)), nil >>
+                ;
+
+ContinueList    : SExpr                             << &List{Items: []*SExpr{$0.(*SExpr)}}, nil >>
+                | ContinueList space SExpr          << Append($0.(*List), $2.(*SExpr)), nil >>
+                ;
+
+QuotedList      : backtick "(" ")"                                << NewList(true), nil >>
+                | backtick "(" SExpr ")"                          << NewList(true, $2.(*SExpr)), nil >>
+                | backtick "(" SExpr space ContinueList ")"       << Prepend(true, $2.(*SExpr), $4.(*List)), nil >>
+                ;
+
+Atom            : symbol         << NewSymbol(getStr($0)), nil >>
+                | int_lit        << ParseInt(getStr($0)) >>
+                | float_lit      << ParseFloat(getStr($0)) >>
+                | string_lit     << ParseString(getStr($0)) >>
+                | variable       << ParseVariable(getStr($0)) >>
+                ;
