@@ -1,4 +1,4 @@
-package gominikanren
+package micro
 
 import (
 	"testing"

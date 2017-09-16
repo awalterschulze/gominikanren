@@ -1,4 +1,4 @@
-package gominikanren
+package micro
 
 import "github.com/awalterschulze/gominikanren/sexpr/ast"
 
