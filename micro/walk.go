@@ -68,3 +68,49 @@ func assv(v *ast.Variable, s Substitution) (*ast.SExpr, bool) {
 	}
 	return assv(v, tail.List)
 }
+
+/*
+(define (walkStar v s)
+	(let
+		(
+			(v (walk v s))
+		)
+		(cond
+			(
+				(var? v)
+				v
+			)
+			(
+				(pair? v)
+				(cons
+					(walkStar (car v) s)
+					(walkStar (cdr v) s)
+				)
+			)
+			(else v)
+		)
+	)
+)
+*/
+func walkStar(v *ast.SExpr, s Substitution) *ast.SExpr {
+	vv := walk(v, s)
+	if vv.IsVariable() {
+		return vv
+	}
+	if vv.IsPair() {
+		car := vv.List.Car()
+		cdr := vv.List.Cdr()
+		fmt.Printf("input: %v, car: %v, cdr: %v\n", vv, car, cdr)
+		wcar := walkStar(car, s)
+		wcdr := walkStar(cdr, s)
+		var w *ast.SExpr
+		if wcdr.List != nil {
+			w = ast.Prepend(vv.List.IsQuoted(), wcar, wcdr.List)
+		} else {
+			w = ast.NewList(vv.List.IsQuoted(), wcar, wcdr)
+		}
+		fmt.Printf("output: %v, car: %v, cdr: %v\n", w, wcar, wcdr)
+		return w
+	}
+	return vv
+}

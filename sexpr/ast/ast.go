@@ -37,6 +37,18 @@ func (s *SExpr) IsAssosiation() bool {
 	return false
 }
 
+// IsPair returns whether we can take the car and the cdr of a List without problems.
+func (s *SExpr) IsPair() bool {
+	if s.List == nil {
+		fmt.Printf("list == nil: %v\n", s)
+		return false
+	}
+	if len(s.List.Items) < 1 {
+		return false
+	}
+	return true
+}
+
 func (s *SExpr) Equal(ss *SExpr) bool {
 	return deriveEqual(s, ss)
 }

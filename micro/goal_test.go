@@ -148,3 +148,40 @@ func TestRunGoalDisj2(t *testing.T) {
 		t.Fatalf("expected 2, got %d: %v", len(ss), ss)
 	}
 }
+
+func TestRunGoalConj2NoResults(t *testing.T) {
+	e1 := EqualO(
+		ast.NewSymbol("olive"),
+		ast.NewVariable("x"),
+	)
+	e2 := EqualO(
+		ast.NewSymbol("oil"),
+		ast.NewVariable("x"),
+	)
+	g := ConjunctionO(e1, e2)
+	ss := RunGoal(5, g)
+	if len(ss) != 0 {
+		t.Fatalf("expected 0, got %d: %v", len(ss), ss)
+	}
+}
+
+func TestRunGoalConj2OneResults(t *testing.T) {
+	e1 := EqualO(
+		ast.NewSymbol("olive"),
+		ast.NewVariable("x"),
+	)
+	e2 := EqualO(
+		ast.NewSymbol("olive"),
+		ast.NewVariable("x"),
+	)
+	g := ConjunctionO(e1, e2)
+	ss := RunGoal(5, g)
+	if len(ss) != 1 {
+		t.Fatalf("expected 1, got %d: %v", len(ss), ss)
+	}
+	got := ss[0].String()
+	want := "`((,x . olive))"
+	if got != want {
+		t.Fatalf("got %s != want %s", got, want)
+	}
+}

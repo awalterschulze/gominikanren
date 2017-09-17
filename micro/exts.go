@@ -63,7 +63,7 @@ func occurs(x, v *ast.SExpr, s Substitution) bool {
 	if vv.IsVariable() {
 		return eqv(vv, x)
 	}
-	if vv.List != nil {
+	if vv.IsPair() {
 		return occurs(x, vv.List.Car(), s) || occurs(x, vv.List.Cdr(), s)
 	}
 	return false

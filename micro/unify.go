@@ -58,14 +58,12 @@ func unify(u, v *ast.SExpr, s Substitution) (Substitution, bool) {
 		return s, true
 	}
 	if uu.IsVariable() {
-		ss, sok := exts(uu, vv, s)
-		return ss, sok
+		return exts(uu, vv, s)
 	}
 	if vv.IsVariable() {
-		ss, sok := exts(vv, uu, s)
-		return ss, sok
+		return exts(vv, uu, s)
 	}
-	if uu.List != nil && vv.List != nil {
+	if uu.IsPair() && vv.IsPair() {
 		ss, sok := unify(uu.List.Car(), vv.List.Car(), s)
 		if !sok {
 			return nil, false
