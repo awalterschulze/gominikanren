@@ -61,11 +61,11 @@ func appendMapInf(g Goal, s StreamOfSubstitutions) StreamOfSubstitutions {
 			),
 		)
 	} else {
-		return func() (Substitution, StreamOfSubstitutions) {
-			return nil, appendMapInf(
+		return Suspension(func() StreamOfSubstitutions {
+			return appendMapInf(
 				g,
 				cdr,
 			)
-		}
+		})
 	}
 }

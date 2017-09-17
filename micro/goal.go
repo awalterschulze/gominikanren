@@ -59,9 +59,9 @@ func eqv(s, ss *ast.SExpr) bool {
 */
 func NeverO() Goal {
 	return func(s Substitution) StreamOfSubstitutions {
-		return func() (Substitution, StreamOfSubstitutions) {
-			return nil, NeverO()(s)
-		}
+		return Suspension(func() StreamOfSubstitutions {
+			return NeverO()(s)
+		})
 	}
 }
 
@@ -82,12 +82,11 @@ func NeverO() Goal {
 */
 func AlwaysO() Goal {
 	return func(s Substitution) StreamOfSubstitutions {
-		return func() (Substitution, StreamOfSubstitutions) {
-			d := DisjointO(
+		return Suspension(func() StreamOfSubstitutions {
+			return DisjointO(
 				SuccessO(),
 				AlwaysO(),
 			)(s)
-			return nil, d
-		}
+		})
 	}
 }

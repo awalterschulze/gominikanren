@@ -22,9 +22,9 @@ func NewSingletonStream(s Substitution) StreamOfSubstitutions {
 	}
 }
 
-func Suspension(s StreamOfSubstitutions) StreamOfSubstitutions {
+func Suspension(s func() StreamOfSubstitutions) StreamOfSubstitutions {
 	return func() (Substitution, StreamOfSubstitutions) {
-		return nil, s
+		return nil, s()
 	}
 }
 
@@ -60,7 +60,9 @@ func appendInf(s1, s2 StreamOfSubstitutions) StreamOfSubstitutions {
 			return car, appendInf(cdr, s2)
 		}
 	}
-	return Suspension(appendInf(s2, cdr))
+	return Suspension(func() StreamOfSubstitutions {
+		return appendInf(s2, cdr)
+	})
 }
 
 /*

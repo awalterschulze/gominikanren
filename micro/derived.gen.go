@@ -38,3 +38,12 @@ func deriveFmaps(f func(*ast.List) string, list []*ast.List) []string {
 	}
 	return out
 }
+
+// deriveFmapR returns a list where each element of the input list has been morphed by the input function.
+func deriveFmapR(f func(*ast.List) *ast.SExpr, list []*ast.List) []*ast.SExpr {
+	out := make([]*ast.SExpr, len(list))
+	for i, elem := range list {
+		out[i] = f(elem)
+	}
+	return out
+}

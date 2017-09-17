@@ -44,3 +44,22 @@ func TestReify(t *testing.T) {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
+
+func TestNoReify(t *testing.T) {
+	e1 := EqualO(
+		ast.NewSymbol("olive"),
+		ast.NewVariable("x"),
+	)
+	e2 := EqualO(
+		ast.NewSymbol("oil"),
+		ast.NewVariable("x"),
+	)
+	g := DisjointO(e1, e2)
+	es := deriveFmapR(reify(ast.NewVariable("x")), RunGoal(5, g))
+	l := ast.NewList(false, es...)
+	got := l.String()
+	want := "(olive oil)"
+	if got != want {
+		t.Fatalf("got %s != want %s", got, want)
+	}
+}
