@@ -3,8 +3,7 @@ package micro
 /*
 (define (ifte g1 g2 g3)
 	(lambda (s)
-		(let
-			loop
+		(let loop
 			(
 				(s1 (g1 s))
 			)
@@ -29,11 +28,11 @@ package micro
 */
 func IfThenElseO(g1, g2, g3 Goal) Goal {
 	return func(s Substitution) StreamOfSubstitutions {
-		return loop(g2, g3, s, g1(s))
+		return ifThenElseLoop(g2, g3, s, g1(s))
 	}
 }
 
-func loop(g2, g3 Goal, s Substitution, sinf StreamOfSubstitutions) StreamOfSubstitutions {
+func ifThenElseLoop(g2, g3 Goal, s Substitution, sinf StreamOfSubstitutions) StreamOfSubstitutions {
 	if sinf == nil {
 		return g3(s)
 	}
@@ -42,7 +41,7 @@ func loop(g2, g3 Goal, s Substitution, sinf StreamOfSubstitutions) StreamOfSubst
 		return appendMapInf(g2, sinf)
 	}
 	return Suspension(func() StreamOfSubstitutions {
-		return loop(g2, g3, s, cdr)
+		return ifThenElseLoop(g2, g3, s, cdr)
 	})
 }
 
