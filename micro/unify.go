@@ -54,7 +54,7 @@ where cycles in substitutions can lead to (ok = false)
 func unify(u, v *ast.SExpr, s Substitution) (Substitution, bool) {
 	uu := walk(u, s)
 	vv := walk(v, s)
-	if eqv(uu, vv) {
+	if uu.IsVariable() && vv.IsVariable() && uu.Atom.Var.Equal(uu.Atom.Var) {
 		return s, true
 	}
 	if uu.IsVariable() {
@@ -64,11 +64,14 @@ func unify(u, v *ast.SExpr, s Substitution) (Substitution, bool) {
 		return exts(vv, uu, s)
 	}
 	if uu.IsPair() && vv.IsPair() {
-		ss, sok := unify(uu.List.Car(), vv.List.Car(), s)
+		scar, sok := unify(uu.List.Car(), vv.List.Car(), s)
 		if !sok {
 			return nil, false
 		}
-		return unify(uu.List.Cdr(), vv.List.Cdr(), ss)
+		return unify(uu.List.Cdr(), vv.List.Cdr(), scar)
+	}
+	if uu.Equal(vv) {
+		return s, true
 	}
 	return nil, false
 }

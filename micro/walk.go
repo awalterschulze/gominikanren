@@ -36,10 +36,10 @@ func walk(v *ast.SExpr, s Substitution) *ast.SExpr {
 	if !ok {
 		return v
 	}
-	if a.List == nil {
-		return v
+	if a.IsPair() {
+		return walk(a.List.Cdr(), s)
 	}
-	return walk(a.List.Cdr(), s)
+	return v
 }
 
 /*

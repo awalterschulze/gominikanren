@@ -90,6 +90,14 @@ func deriveGoStringVar(this *Variable) string {
 	return buf.String()
 }
 
+// deriveEqualVar returns whether this and that are equal.
+func deriveEqualVar(this, that *Variable) bool {
+	return (this == nil && that == nil) ||
+		this != nil && that != nil &&
+			this.Name == that.Name &&
+			this.ID == that.ID
+}
+
 // deriveEqual returns whether this and that are equal.
 func deriveEqual(this, that *SExpr) bool {
 	return (this == nil && that == nil) ||

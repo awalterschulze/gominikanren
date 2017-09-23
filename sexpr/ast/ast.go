@@ -269,10 +269,6 @@ func (v *Variable) GoString() string {
 	return deriveGoStringVar(v)
 }
 
-// TODO compare IDs rather than names
 func (v *Variable) Equal(vv *Variable) bool {
-	if v == nil || vv == nil {
-		return v == nil && vv == nil
-	}
-	return v.Name == vv.Name
+	return deriveEqualVar(v, vv)
 }
