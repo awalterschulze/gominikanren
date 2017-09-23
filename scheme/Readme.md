@@ -3,9 +3,9 @@
 This folder is meant for sanity checking the scheme version of microKanren against the Go implementation of microKanren.
 
 This folder contains:
-    - Scheme Docker
-    - Copy of MicroKanren
-    - Makefile to tie the two together
+  - Scheme Docker
+  - Copy of MicroKanren
+  - Makefile to tie the two together
 
 This repo is meant for a Go implementation of microKanren, 
 so we assume that most developers will not have scheme installed.
