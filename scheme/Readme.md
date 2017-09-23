@@ -9,8 +9,7 @@ This folder contains:
 
 This repo is meant for a Go implementation of microKanren, 
 so we assume that most developers will not have scheme installed.
-This is why we include a dockered version of Scheme.
-The Dockerfile was found here: https://hub.docker.com/r/kleinpa/chez/
+This is why we include a dockered version of Scheme, which was copied from https://hub.docker.com/r/kleinpa/chez/
 
 The version of microKanren has been copied from https://github.com/jasonhemann/microKanren
 this is why a LICENSE file has been included.
