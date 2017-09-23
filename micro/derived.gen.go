@@ -6,14 +6,6 @@ import (
 	ast "github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-// deriveTuple3 returns a function, which returns the input values.
-// Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTuple3(v0 string, v1 string, v2 string) func() (string, string, string) {
-	return func() (string, string, string) {
-		return v0, v1, v2
-	}
-}
-
 // deriveTupleO returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
 func deriveTupleO(v0 string, v1 string, v2 string, v3 bool) func() (string, string, string, bool) {
@@ -30,18 +22,26 @@ func deriveTupleE(v0 string, v1 string, v2 string, v3 string) func() (string, st
 	}
 }
 
-// deriveFmapR returns a list where each element of the input list has been morphed by the input function.
-func deriveFmapR(f func(*ast.List) *ast.SExpr, list []*ast.List) []*ast.SExpr {
-	out := make([]*ast.SExpr, len(list))
+// deriveTuple3 returns a function, which returns the input values.
+// Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
+func deriveTuple3(v0 string, v1 string, v2 string) func() (string, string, string) {
+	return func() (string, string, string) {
+		return v0, v1, v2
+	}
+}
+
+// deriveFmaps returns a list where each element of the input list has been morphed by the input function.
+func deriveFmaps(f func(*ast.List) string, list []*ast.List) []string {
+	out := make([]string, len(list))
 	for i, elem := range list {
 		out[i] = f(elem)
 	}
 	return out
 }
 
-// deriveFmaps returns a list where each element of the input list has been morphed by the input function.
-func deriveFmaps(f func(*ast.List) string, list []*ast.List) []string {
-	out := make([]string, len(list))
+// deriveFmapR returns a list where each element of the input list has been morphed by the input function.
+func deriveFmapR(f func(*ast.List) *ast.SExpr, list []*ast.List) []*ast.SExpr {
+	out := make([]*ast.SExpr, len(list))
 	for i, elem := range list {
 		out[i] = f(elem)
 	}

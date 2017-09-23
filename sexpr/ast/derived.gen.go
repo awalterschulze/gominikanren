@@ -98,14 +98,6 @@ func deriveEqual(this, that *SExpr) bool {
 			deriveEqual_1(this.Atom, that.Atom)
 }
 
-// deriveEqualVar returns whether this and that are equal.
-func deriveEqualVar(this, that *Variable) bool {
-	return (this == nil && that == nil) ||
-		this != nil && that != nil &&
-			this.Name == that.Name &&
-			this.ID == that.ID
-}
-
 // deriveGoString_ returns a recursive representation of this as a valid go string.
 func deriveGoString_(this []*SExpr) string {
 	buf := bytes.NewBuffer(nil)
