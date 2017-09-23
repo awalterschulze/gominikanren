@@ -44,10 +44,6 @@ func EqualO(u, v *ast.SExpr) Goal {
 	}
 }
 
-func eqv(s, ss *ast.SExpr) bool {
-	return s.Equal(ss)
-}
-
 /*
 (define (nevero) 
 	(lambda (s)

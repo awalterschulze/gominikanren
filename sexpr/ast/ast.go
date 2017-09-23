@@ -110,8 +110,11 @@ func (l *List) Car() *SExpr {
 }
 
 func (l *List) Cdr() *SExpr {
+	if len(l.Items) == 2 {
+		return l.Items[1]
+	}
 	if len(l.Items) == 3 && l.Items[1].String() == "." {
-		return pushQuote(l.IsQuoted(), l.Items[2])
+		return l.Items[2]
 	}
 	return NewList(l.IsQuoted(), l.Items[1:]...)
 }
@@ -269,10 +272,6 @@ func (v *Variable) GoString() string {
 	return deriveGoStringVar(v)
 }
 
-// TODO compare IDs rather than names
 func (v *Variable) Equal(vv *Variable) bool {
-	if v == nil || vv == nil {
-		return v == nil && vv == nil
-	}
-	return v.Name == vv.Name
+	return deriveEqualVar(v, vv)
 }
