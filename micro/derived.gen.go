@@ -30,18 +30,18 @@ func deriveTuple3(v0 string, v1 string, v2 string) func() (string, string, strin
 	}
 }
 
-// deriveFmaps returns a list where each element of the input list has been morphed by the input function.
-func deriveFmaps(f func(*ast.List) string, list []*ast.List) []string {
-	out := make([]string, len(list))
+// deriveFmapR returns a list where each element of the input list has been morphed by the input function.
+func deriveFmapR(f func(*ast.List) *ast.SExpr, list []*ast.List) []*ast.SExpr {
+	out := make([]*ast.SExpr, len(list))
 	for i, elem := range list {
 		out[i] = f(elem)
 	}
 	return out
 }
 
-// deriveFmapR returns a list where each element of the input list has been morphed by the input function.
-func deriveFmapR(f func(*ast.List) *ast.SExpr, list []*ast.List) []*ast.SExpr {
-	out := make([]*ast.SExpr, len(list))
+// deriveFmaps returns a list where each element of the input list has been morphed by the input function.
+func deriveFmaps(f func(*ast.List) string, list []*ast.List) []string {
+	out := make([]string, len(list))
 	for i, elem := range list {
 		out[i] = f(elem)
 	}

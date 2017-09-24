@@ -11,6 +11,9 @@ func (stream StreamOfSubstitutions) String() string {
 	var s Substitution
 	for stream != nil {
 		s, stream = stream()
+		for i := range s.Items {
+			s.Items[i].RemoveIDs()
+		}
 		buf = append(buf, s.String())
 	}
 	return "(" + strings.Join(buf, " ") + ")"

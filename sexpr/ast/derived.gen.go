@@ -90,20 +90,36 @@ func deriveGoStringVar(this *Variable) string {
 	return buf.String()
 }
 
-// deriveEqualVar returns whether this and that are equal.
-func deriveEqualVar(this, that *Variable) bool {
-	return (this == nil && that == nil) ||
-		this != nil && that != nil &&
-			this.Name == that.Name &&
-			this.ID == that.ID
+// deriveEqualItems returns whether this and that are equal.
+func deriveEqualItems(this, that []*SExpr) bool {
+	if this == nil || that == nil {
+		return this == nil && that == nil
+	}
+	if len(this) != len(that) {
+		return false
+	}
+	for i := 0; i < len(this); i++ {
+		if !(this[i].Equal(that[i])) {
+			return false
+		}
+	}
+	return true
 }
 
 // deriveEqual returns whether this and that are equal.
 func deriveEqual(this, that *SExpr) bool {
 	return (this == nil && that == nil) ||
 		this != nil && that != nil &&
-			deriveEqual_(this.List, that.List) &&
-			deriveEqual_1(this.Atom, that.Atom)
+			this.List.Equal(that.List) &&
+			deriveEqual_(this.Atom, that.Atom)
+}
+
+// deriveEqualVar returns whether this and that are equal.
+func deriveEqualVar(this, that *Variable) bool {
+	return (this == nil && that == nil) ||
+		this != nil && that != nil &&
+			this.Name == that.Name &&
+			this.ID == that.ID
 }
 
 // deriveGoString_ returns a recursive representation of this as a valid go string.
@@ -124,15 +140,7 @@ func deriveGoString_(this []*SExpr) string {
 }
 
 // deriveEqual_ returns whether this and that are equal.
-func deriveEqual_(this, that *List) bool {
-	return (this == nil && that == nil) ||
-		this != nil && that != nil &&
-			this.Quoted == that.Quoted &&
-			deriveEqual_2(this.Items, that.Items)
-}
-
-// deriveEqual_1 returns whether this and that are equal.
-func deriveEqual_1(this, that *Atom) bool {
+func deriveEqual_(this, that *Atom) bool {
 	return (this == nil && that == nil) ||
 		this != nil && that != nil &&
 			((this.Str == nil && that.Str == nil) || (this.Str != nil && that.Str != nil && *(this.Str) == *(that.Str))) &&
@@ -140,20 +148,4 @@ func deriveEqual_1(this, that *Atom) bool {
 			((this.Float == nil && that.Float == nil) || (this.Float != nil && that.Float != nil && *(this.Float) == *(that.Float))) &&
 			((this.Int == nil && that.Int == nil) || (this.Int != nil && that.Int != nil && *(this.Int) == *(that.Int))) &&
 			this.Var.Equal(that.Var)
-}
-
-// deriveEqual_2 returns whether this and that are equal.
-func deriveEqual_2(this, that []*SExpr) bool {
-	if this == nil || that == nil {
-		return this == nil && that == nil
-	}
-	if len(this) != len(that) {
-		return false
-	}
-	for i := 0; i < len(this); i++ {
-		if !(this[i].Equal(that[i])) {
-			return false
-		}
-	}
-	return true
 }

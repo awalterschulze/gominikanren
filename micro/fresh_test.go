@@ -30,6 +30,9 @@ func TestFreshKiwi(t *testing.T) {
 		t.Fatalf("expected %d, but got %d results", 1, len(ss))
 	}
 	want := "`((,kiwi . plum))"
+	for i := range ss[0].Items {
+		ss[0].Items[i].RemoveIDs()
+	}
 	got := ss[0].String()
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)

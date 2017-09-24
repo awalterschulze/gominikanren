@@ -64,7 +64,7 @@ func occurs(x, v *ast.SExpr, s Substitution) bool {
 		return vv.Atom.Var.Equal(x.Atom.Var)
 	}
 	if vv.IsPair() {
-		return occurs(x, vv.List.Car(), s) || occurs(x, vv.List.Cdr(), s)
+		return occurs(x, vv.Car(), s) || occurs(x, vv.Cdr(), s)
 	}
 	return false
 }

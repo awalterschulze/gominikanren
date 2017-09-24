@@ -74,9 +74,9 @@ func reifys(v *ast.SExpr, r Substitution) Substitution {
 		return s
 	}
 	if vv.IsPair() {
-		car := vv.List.Car()
+		car := vv.List.Head()
 		rr := reifys(car, r)
-		cdr := vv.List.Cdr()
+		cdr := vv.List.Tail()
 		return reifys(cdr, rr)
 	}
 	return r

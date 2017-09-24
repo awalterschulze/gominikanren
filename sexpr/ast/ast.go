@@ -13,40 +13,100 @@ type SExpr struct {
 
 func (s *SExpr) IsAssosiation() bool {
 	if s.List == nil {
-		fmt.Printf("list == nil: %v\n", s)
+		//fmt.Printf("list == nil: %v\n", s)
 		return false
 	}
 	if len(s.List.Items) < 1 {
-		fmt.Printf("list2 == nil\n")
+		//fmt.Printf("list2 == nil\n")
 		return false
 	}
 	if !s.List.Items[0].IsVariable() {
-		fmt.Printf("not var %v\n", s.List.Items[0])
+		//fmt.Printf("not var %v\n", s.List.Items[0])
 		return false
 	}
 	if len(s.List.Items) == 2 {
 		return true
 	}
 	if len(s.List.Items) == 3 {
-		fmt.Printf("3\n")
+		//fmt.Printf("3\n")
 		if s.List.Items[1].String() == "." {
 			return true
 		}
-		fmt.Printf("not .\n")
+		//fmt.Printf("not .\n")
 	}
 	return false
 }
 
 // IsPair returns whether we can take the car and the cdr of a List without problems.
 func (s *SExpr) IsPair() bool {
-	if s.List == nil {
-		fmt.Printf("list == nil: %v\n", s)
-		return false
+	if s.List != nil {
+		return len(s.List.Items) >= 1
 	}
-	if len(s.List.Items) < 1 {
-		return false
+	return false
+}
+
+func (s *SExpr) Car() *SExpr {
+	if s.List != nil {
+		return s.List.Head()
 	}
-	return true
+	return s
+}
+
+func (s *SExpr) RemoveIDs() {
+	if s.Atom != nil && s.Atom.Var != nil {
+		s.Atom.Var.ID = 0
+	}
+	if s.List != nil {
+		for i := range s.List.Items {
+			s.List.Items[i].RemoveIDs()
+		}
+	}
+}
+
+func (s *SExpr) RemoveQuotes() {
+	if s.List != nil {
+		s.List.Quoted = ""
+		for i := range s.List.Items {
+			s.List.Items[i].RemoveQuotes()
+		}
+	}
+}
+
+func (l *List) Head() *SExpr {
+	return pushQuote(l.IsQuoted(), l.Items[0])
+}
+
+func Cons(car, cdr *SExpr) *SExpr {
+	items := []*SExpr{car}
+	quoted := false
+	if car.List != nil {
+		quoted = car.List.IsQuoted()
+	}
+	if cdr.List != nil {
+		items = append(items, cdr.List.Items...)
+		quoted = quoted || cdr.List.IsQuoted()
+	} else {
+		items = append(items, cdr)
+	}
+	return NewList(quoted, items...)
+}
+
+func (s *SExpr) Cdr() *SExpr {
+	if s.List != nil {
+		tail := s.List.Tail()
+		if len(tail.List.Items) == 1 {
+			return pushQuote(tail.List.IsQuoted(), tail.List.Items[0])
+		}
+		return tail
+	}
+	return NewList(false)
+}
+
+func (l *List) Tail() *SExpr {
+	if len(l.Items) > 2 && l.Items[1].String() == "." {
+		return NewList(l.IsQuoted(), l.Items[2:]...)
+	}
+	return NewList(l.IsQuoted(), l.Items[1:]...)
 }
 
 func (s *SExpr) Equal(ss *SExpr) bool {
@@ -105,15 +165,17 @@ func (l *List) IsNil() bool {
 	return len(l.Items) == 0
 }
 
-func (l *List) Car() *SExpr {
-	return pushQuote(l.IsQuoted(), l.Items[0])
-}
-
-func (l *List) Cdr() *SExpr {
-	if len(l.Items) == 3 && l.Items[1].String() == "." {
-		return pushQuote(l.IsQuoted(), l.Items[2])
+func (l *List) Equal(ll *List) bool {
+	if l == nil && ll == nil {
+		return true
 	}
-	return NewList(l.IsQuoted(), l.Items[1:]...)
+	if l == nil || ll == nil {
+		return false
+	}
+	if len(l.Items) == 0 && len(ll.Items) == 0 {
+		return true
+	}
+	return deriveEqualItems(l.Items, ll.Items)
 }
 
 func (l *List) GoString() string {
@@ -262,7 +324,10 @@ type Variable struct {
 }
 
 func (v *Variable) String() string {
-	return "," + v.Name
+	if v.ID == 0 {
+		return "," + v.Name
+	}
+	return "," + v.Name + "_" + strconv.Itoa(int(v.ID))
 }
 
 func (v *Variable) GoString() string {
