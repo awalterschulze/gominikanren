@@ -53,18 +53,18 @@ func Suspension(s func() StreamOfSubstitutions) StreamOfSubstitutions {
 	)
 )
 */
-func appendInf(s1, s2 StreamOfSubstitutions) StreamOfSubstitutions {
+func appendStream(s1, s2 StreamOfSubstitutions) StreamOfSubstitutions {
 	if s1 == nil {
 		return s2
 	}
 	car, cdr := s1()
 	if car != nil {
 		return func() (Substitution, StreamOfSubstitutions) {
-			return car, appendInf(cdr, s2)
+			return car, appendStream(cdr, s2)
 		}
 	}
 	return Suspension(func() StreamOfSubstitutions {
-		return appendInf(s2, cdr)
+		return appendStream(s2, cdr)
 	})
 }
 
@@ -99,7 +99,7 @@ func appendInf(s1, s2 StreamOfSubstitutions) StreamOfSubstitutions {
 )
 */
 // n == -1 results in the whole stream being returned.
-func takeInf(n int, s StreamOfSubstitutions) []Substitution {
+func takeStream(n int, s StreamOfSubstitutions) []Substitution {
 	if n == 0 {
 		return nil
 	}
@@ -108,8 +108,8 @@ func takeInf(n int, s StreamOfSubstitutions) []Substitution {
 	}
 	car, cdr := s()
 	if car != nil {
-		ss := takeInf(n-1, cdr)
+		ss := takeStream(n-1, cdr)
 		return append([]Substitution{car}, ss...)
 	}
-	return takeInf(n, cdr)
+	return takeStream(n, cdr)
 }

@@ -19,6 +19,6 @@ func DisjointO(gs ...Goal) Goal {
 	return func(s Substitution) StreamOfSubstitutions {
 		g1s := g1(s)
 		g2s := g2(s)
-		return appendInf(g1s, g2s)
+		return appendStream(g1s, g2s)
 	}
 }

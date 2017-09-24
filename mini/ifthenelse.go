@@ -1,4 +1,8 @@
-package micro
+package mini
+
+import (
+	"github.com/awalterschulze/gominikanren/micro"
+)
 
 /*
 (define (ifte g1 g2 g3)
@@ -26,21 +30,21 @@ package micro
 	)
 )
 */
-func IfThenElseO(g1, g2, g3 Goal) Goal {
-	return func(s Substitution) StreamOfSubstitutions {
+func IfThenElseO(g1, g2, g3 micro.Goal) micro.Goal {
+	return func(s micro.Substitution) micro.StreamOfSubstitutions {
 		return ifThenElseLoop(g2, g3, s, g1(s))
 	}
 }
 
-func ifThenElseLoop(g2, g3 Goal, s Substitution, sinf StreamOfSubstitutions) StreamOfSubstitutions {
+func ifThenElseLoop(g2, g3 micro.Goal, s micro.Substitution, sinf micro.StreamOfSubstitutions) micro.StreamOfSubstitutions {
 	if sinf == nil {
 		return g3(s)
 	}
 	car, cdr := sinf()
 	if car != nil {
-		return appendMapInf(g2, sinf)
+		return micro.Bind(g2, sinf)
 	}
-	return Suspension(func() StreamOfSubstitutions {
+	return micro.Suspension(func() micro.StreamOfSubstitutions {
 		return ifThenElseLoop(g2, g3, s, cdr)
 	})
 }

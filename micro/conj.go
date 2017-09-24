@@ -18,7 +18,7 @@ func ConjunctionO(gs ...Goal) Goal {
 	g2 := ConjunctionO(gs[1:]...)
 	return func(s Substitution) StreamOfSubstitutions {
 		g1s := g1(s)
-		return appendMapInf(g2, g1s)
+		return Bind(g2, g1s)
 	}
 }
 
@@ -47,22 +47,22 @@ func ConjunctionO(gs ...Goal) Goal {
 	)
 )
 */
-func appendMapInf(g Goal, s StreamOfSubstitutions) StreamOfSubstitutions {
+func Bind(g Goal, s StreamOfSubstitutions) StreamOfSubstitutions {
 	if s == nil {
 		return nil
 	}
 	car, cdr := s()
 	if car != nil {
-		return appendInf(
+		return appendStream(
 			g(car),
-			appendMapInf(
+			Bind(
 				g,
 				cdr,
 			),
 		)
 	} else {
 		return Suspension(func() StreamOfSubstitutions {
-			return appendMapInf(
+			return Bind(
 				g,
 				cdr,
 			)

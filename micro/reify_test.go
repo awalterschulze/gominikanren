@@ -37,7 +37,7 @@ func TestReify(t *testing.T) {
 		t.Fatalf("expected list")
 	}
 	x := ast.NewVariable("x")
-	gote := reify(x)(e.List)
+	gote := Reify(x)(e.List)
 	got := gote.String()
 	want := "`(_0 `(_1 _0) corn _2 `(`(ice) _2))"
 	if got != want {
@@ -55,7 +55,7 @@ func TestNoReify(t *testing.T) {
 		ast.NewVariable("x"),
 	)
 	g := DisjointO(e1, e2)
-	es := deriveFmapR(reify(ast.NewVariable("x")), RunGoal(5, g))
+	es := deriveFmapR(Reify(ast.NewVariable("x")), RunGoal(5, g))
 	l := ast.NewList(false, es...)
 	got := l.String()
 	want := "(olive oil)"

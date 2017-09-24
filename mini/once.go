@@ -1,4 +1,8 @@
-package micro
+package mini
+
+import (
+	"github.com/awalterschulze/gominikanren/micro"
+)
 
 /*
 (define (once g)
@@ -26,22 +30,22 @@ package micro
 	)
 )
 */
-func OnceO(g Goal) Goal {
-	return func(s Substitution) StreamOfSubstitutions {
+func OnceO(g micro.Goal) micro.Goal {
+	return func(s micro.Substitution) micro.StreamOfSubstitutions {
 		return onceLoop(g(s))
 	}
 }
 
-func onceLoop(ss StreamOfSubstitutions) StreamOfSubstitutions {
+func onceLoop(ss micro.StreamOfSubstitutions) micro.StreamOfSubstitutions {
 	if ss == nil {
 		return nil
 	}
 	car, cdr := ss()
 	if car != nil {
-		return NewSingletonStream(car)
+		return micro.NewSingletonStream(car)
 	}
-	return Suspension(
-		func() StreamOfSubstitutions {
+	return micro.Suspension(
+		func() micro.StreamOfSubstitutions {
 			return onceLoop(cdr)
 		},
 	)

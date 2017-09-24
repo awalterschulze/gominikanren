@@ -19,7 +19,7 @@ type Goal func(Substitution) StreamOfSubstitutions
 */
 func RunGoal(n int, g Goal) []Substitution {
 	ss := g(EmptySubstitution())
-	return takeInf(n, ss)
+	return takeStream(n, ss)
 }
 
 func SuccessO() Goal {

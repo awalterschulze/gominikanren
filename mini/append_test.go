@@ -1,8 +1,9 @@
-package micro
+package mini
 
 import (
 	"testing"
 
+	"github.com/awalterschulze/gominikanren/micro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -32,12 +33,12 @@ import (
 */
 // results in all the combinations of two lists that when appended will result in (cake & ice d t)
 func TestAppendOAllCombinations(t *testing.T) {
-	subs := RunGoal(
+	subs := micro.RunGoal(
 		-1,
-		CallFresh("x", func(x *ast.SExpr) Goal {
-			return CallFresh("y", func(y *ast.SExpr) Goal {
-				return ConjunctionO(
-					EqualO(
+		micro.CallFresh("x", func(x *ast.SExpr) micro.Goal {
+			return micro.CallFresh("y", func(y *ast.SExpr) micro.Goal {
+				return micro.ConjunctionO(
+					micro.EqualO(
 						ast.NewList(true, x, y),
 						ast.NewVariable("q"),
 					),
@@ -56,7 +57,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 			})
 		}),
 	)
-	r := reify(ast.NewVariable("q"))
+	r := micro.Reify(ast.NewVariable("q"))
 	ss := deriveFmapR(r, subs)
 	got := ast.NewList(false, ss...).String()
 	want := ""
@@ -66,7 +67,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 }
 
 func TestAppendOSingleList(t *testing.T) {
-	subs := RunGoal(
+	subs := micro.RunGoal(
 		-1,
 		AppendO(
 			ast.NewList(false,
@@ -78,7 +79,7 @@ func TestAppendOSingleList(t *testing.T) {
 			ast.NewVariable("q"),
 		),
 	)
-	r := reify(ast.NewVariable("q"))
+	r := micro.Reify(ast.NewVariable("q"))
 	ss := deriveFmapR(r, subs)
 	got := ast.NewList(false, ss...).String()
 	want := "(`(a b))"
@@ -88,7 +89,7 @@ func TestAppendOSingleList(t *testing.T) {
 }
 
 func TestAppendOSingleAtom(t *testing.T) {
-	subs := RunGoal(
+	subs := micro.RunGoal(
 		-1,
 		AppendO(
 			ast.NewList(false,
@@ -98,7 +99,7 @@ func TestAppendOSingleAtom(t *testing.T) {
 			ast.NewVariable("q"),
 		),
 	)
-	r := reify(ast.NewVariable("q"))
+	r := micro.Reify(ast.NewVariable("q"))
 	ss := deriveFmapR(r, subs)
 	got := ast.NewList(false, ss...).String()
 	want := "(`(a b))"
@@ -119,10 +120,10 @@ func TestCarO(t *testing.T) {
 			),
 			ast.NewSymbol("a"),
 		),
-		EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
-		EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
+		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
+		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 	)
-	ss := ifte(EmptySubstitution())
+	ss := ifte(micro.EmptySubstitution())
 	got := ss.String()
 	want := "(`((,y . #t) (,d . (c o r n))))"
 	if got != want {

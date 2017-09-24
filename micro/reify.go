@@ -99,7 +99,7 @@ func reifys(v *ast.SExpr, r Substitution) Substitution {
 	)
 )
 */
-func reify(v *ast.SExpr) func(Substitution) *ast.SExpr {
+func Reify(v *ast.SExpr) func(Substitution) *ast.SExpr {
 	return func(s Substitution) *ast.SExpr {
 		vv := walkStar(v, s)
 		r := reifyS(vv)
