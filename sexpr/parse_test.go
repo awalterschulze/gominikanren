@@ -8,7 +8,6 @@ import (
 var pass = []string{
 	`(x . y)`,
 	`(x y z)`,
-	`(x . (y . (z . ())))`,
 	`(1 () (2 . 3) (4))`,
 	`with-hyphen`,
 	`?@!$`,
@@ -54,6 +53,19 @@ func TestParseSuccess(t *testing.T) {
 				t.Fatalf("got %s want %s", got, want)
 			}
 		})
+	}
+}
+
+func TestParseDiff(t *testing.T) {
+	input := `(x . (y . (z . ())))`
+	want := "(x y z)"
+	sexpr, err := Parse(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := sexpr.String()
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
 

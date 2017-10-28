@@ -11,5 +11,8 @@ func Parse(s string) (*ast.SExpr, error) {
 	if err != nil {
 		return nil, err
 	}
+	if r == nil {
+		return nil, nil
+	}
 	return r.(*ast.SExpr), nil
 }

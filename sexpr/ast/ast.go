@@ -3,110 +3,57 @@ package ast
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
+func Cons(car *SExpr, cdr *SExpr) *SExpr {
+	return &SExpr{Pair: &Pair{Car: car, Cdr: cdr}}
+}
+
 type SExpr struct {
-	List *List
+	Pair *Pair
 	Atom *Atom
 }
 
-func (s *SExpr) IsAssosiation() bool {
-	if s.List == nil {
-		//fmt.Printf("list == nil: %v\n", s)
-		return false
+func (s *SExpr) Cdr() *SExpr {
+	if s.Pair != nil {
+		return s.Pair.Cdr
 	}
-	if len(s.List.Items) < 1 {
-		//fmt.Printf("list2 == nil\n")
-		return false
-	}
-	if !s.List.Items[0].IsVariable() {
-		//fmt.Printf("not var %v\n", s.List.Items[0])
-		return false
-	}
-	if len(s.List.Items) == 2 {
-		return true
-	}
-	if len(s.List.Items) == 3 {
-		//fmt.Printf("3\n")
-		if s.List.Items[1].String() == "." {
-			return true
-		}
-		//fmt.Printf("not .\n")
-	}
-	return false
-}
-
-// IsPair returns whether we can take the car and the cdr of a List without problems.
-func (s *SExpr) IsPair() bool {
-	if s.List != nil {
-		return len(s.List.Items) >= 1
-	}
-	return false
+	panic("not implemented for atom")
 }
 
 func (s *SExpr) Car() *SExpr {
-	if s.List != nil {
-		return s.List.Head()
+	if s.Pair != nil {
+		return s.Pair.Car
 	}
-	return s
+	panic("not implemented for atom")
 }
 
-func (s *SExpr) RemoveIDs() {
-	if s.Atom != nil && s.Atom.Var != nil {
-		s.Atom.Var.ID = 0
-	}
-	if s.List != nil {
-		for i := range s.List.Items {
-			s.List.Items[i].RemoveIDs()
-		}
-	}
+type Pair struct {
+	Car *SExpr
+	Cdr *SExpr
 }
 
-func (s *SExpr) RemoveQuotes() {
-	if s.List != nil {
-		s.List.Quoted = ""
-		for i := range s.List.Items {
-			s.List.Items[i].RemoveQuotes()
-		}
+func (s *SExpr) String() string {
+	if s == nil {
+		return "()"
 	}
+	if s.Atom != nil {
+		return s.Atom.String()
+	}
+	return "(" + s.Pair.String() + ")"
 }
 
-func (l *List) Head() *SExpr {
-	return pushQuote(l.IsQuoted(), l.Items[0])
-}
-
-func Cons(car, cdr *SExpr) *SExpr {
-	items := []*SExpr{car}
-	quoted := false
-	if car.List != nil {
-		quoted = car.List.IsQuoted()
+func (p *Pair) String() string {
+	if p == nil {
+		return ""
 	}
-	if cdr.List != nil {
-		items = append(items, cdr.List.Items...)
-		quoted = quoted || cdr.List.IsQuoted()
-	} else {
-		items = append(items, cdr)
+	if p.Cdr == nil {
+		return p.Car.String()
 	}
-	return NewList(quoted, items...)
-}
-
-func (s *SExpr) Cdr() *SExpr {
-	if s.List != nil {
-		tail := s.List.Tail()
-		if len(tail.List.Items) == 1 {
-			return pushQuote(tail.List.IsQuoted(), tail.List.Items[0])
-		}
-		return tail
+	if p.Cdr.Pair != nil {
+		return p.Car.String() + " " + p.Cdr.Pair.String()
 	}
-	return NewList(false)
-}
-
-func (l *List) Tail() *SExpr {
-	if len(l.Items) > 2 && l.Items[1].String() == "." {
-		return NewList(l.IsQuoted(), l.Items[2:]...)
-	}
-	return NewList(l.IsQuoted(), l.Items[1:]...)
+	return p.Car.String() + " . " + p.Cdr.String()
 }
 
 func (s *SExpr) Equal(ss *SExpr) bool {
@@ -118,103 +65,7 @@ func (s *SExpr) GoString() string {
 }
 
 func (s *SExpr) IsVariable() bool {
-	if s.Atom == nil {
-		return false
-	}
-	return s.Atom.Var != nil
-}
-
-func (s *SExpr) String() string {
-	if s.List != nil {
-		return s.List.String()
-	}
-	return s.Atom.String()
-}
-
-type List struct {
-	Quoted string
-	Items  []*SExpr
-}
-
-func NewList(quoted bool, sexprs ...*SExpr) *SExpr {
-	q := ""
-	if quoted {
-		q = "`"
-	}
-	return &SExpr{
-		List: &List{
-			Quoted: q,
-			Items:  sexprs,
-		},
-	}
-}
-
-func Prepend(quoted bool, s *SExpr, l *List) *SExpr {
-	es := make([]*SExpr, len(l.Items)+1)
-	copy(es[1:], l.Items)
-	es[0] = s
-	return NewList(quoted, es...)
-}
-
-func Append(l *List, s *SExpr) *List {
-	l.Items = append(l.Items, s)
-	return l
-}
-
-func (l *List) IsNil() bool {
-	return len(l.Items) == 0
-}
-
-func (l *List) Equal(ll *List) bool {
-	if l == nil && ll == nil {
-		return true
-	}
-	if l == nil || ll == nil {
-		return false
-	}
-	if len(l.Items) == 0 && len(ll.Items) == 0 {
-		return true
-	}
-	return deriveEqualItems(l.Items, ll.Items)
-}
-
-func (l *List) GoString() string {
-	return deriveGoStringList(l)
-}
-
-func (l *List) IsQuoted() bool {
-	return len(l.Quoted) > 0
-}
-
-func pushQuote(quoted bool, s *SExpr) *SExpr {
-	if !quoted {
-		return s
-	}
-	if s.List == nil {
-		return s
-	}
-	return NewList(quoted, s.List.Items...)
-}
-
-func (l *List) String() string {
-	ss := make([]string, len(l.Items))
-	for i := range l.Items {
-		ss[i] = l.Items[i].String()
-	}
-	return l.Quoted + "(" + strings.Join(ss, " ") + ")"
-}
-
-func NewAssosiation(v, s *SExpr) *SExpr {
-	return &SExpr{
-		List: &List{
-			Quoted: "",
-			Items: []*SExpr{
-				v,
-				NewSymbol("."),
-				s,
-			},
-		},
-	}
+	return s.Atom != nil && s.Atom.Var != nil
 }
 
 type Atom struct {
@@ -320,14 +171,10 @@ func NewVariable(s string) *SExpr {
 
 type Variable struct {
 	Name string
-	ID   int64
 }
 
 func (v *Variable) String() string {
-	if v.ID == 0 {
-		return "," + v.Name
-	}
-	return "," + v.Name + "_" + strconv.Itoa(int(v.ID))
+	return "," + v.Name
 }
 
 func (v *Variable) GoString() string {

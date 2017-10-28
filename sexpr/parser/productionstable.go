@@ -12,6 +12,17 @@ func getStr(v interface{}) string {
     return string(t.Lit)
 }
 
+func getSExpr(v interface{}) *SExpr {
+    if v == nil {
+        return nil
+    }
+    vv := v.(*SExpr)
+    if vv.Pair == nil && vv.Atom == nil {
+        return nil
+    }
+    return vv
+}
+
 type (
 	//TODO: change type and variable names to be consistent with other tables
 	ProdTab      [numProductions]ProdTabEntry
@@ -49,7 +60,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `SExpr : List	<<  >>`,
+		String: `SExpr : Pair	<<  >>`,
 		Id:         "SExpr",
 		NTType:     1,
 		Index:      2,
@@ -59,100 +70,70 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `SExpr : QuotedList	<<  >>`,
-		Id:         "SExpr",
-		NTType:     1,
-		Index:      3,
-		NumSymbols: 1,
-		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return X[0], nil
-		},
-	},
-	ProdTabEntry{
-		String: `List : "(" ")"	<< NewList(false), nil >>`,
-		Id:         "List",
+		String: `Pair : "(" ")"	<< nil, nil >>`,
+		Id:         "Pair",
 		NTType:     2,
-		Index:      4,
+		Index:      3,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return NewList(false), nil
+			return nil, nil
 		},
 	},
 	ProdTabEntry{
-		String: `List : "(" SExpr ")"	<< NewList(false, X[1].(*SExpr)), nil >>`,
-		Id:         "List",
+		String: `Pair : "(" SExpr ")"	<< Cons(getSExpr(X[1]), nil), nil >>`,
+		Id:         "Pair",
 		NTType:     2,
-		Index:      5,
+		Index:      4,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return NewList(false, X[1].(*SExpr)), nil
+			return Cons(getSExpr(X[1]), nil), nil
 		},
 	},
 	ProdTabEntry{
-		String: `List : "(" SExpr space ContinueList ")"	<< Prepend(false, X[1].(*SExpr), X[3].(*List)), nil >>`,
-		Id:         "List",
+		String: `Pair : "(" SExpr space ContinueList ")"	<< Cons(getSExpr(X[1]), getSExpr(X[3])), nil >>`,
+		Id:         "Pair",
 		NTType:     2,
-		Index:      6,
+		Index:      5,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return Prepend(false, X[1].(*SExpr), X[3].(*List)), nil
+			return Cons(getSExpr(X[1]), getSExpr(X[3])), nil
 		},
 	},
 	ProdTabEntry{
-		String: `ContinueList : SExpr	<< &List{Items: []*SExpr{X[0].(*SExpr)}}, nil >>`,
+		String: `Pair : "(" SExpr space "." space SExpr ")"	<< Cons(getSExpr(X[1]), getSExpr(X[5])), nil >>`,
+		Id:         "Pair",
+		NTType:     2,
+		Index:      6,
+		NumSymbols: 7,
+		ReduceFunc: func(X []Attrib) (Attrib, error) {
+			return Cons(getSExpr(X[1]), getSExpr(X[5])), nil
+		},
+	},
+	ProdTabEntry{
+		String: `ContinueList : SExpr	<< Cons(getSExpr(X[0]), nil), nil >>`,
 		Id:         "ContinueList",
 		NTType:     3,
 		Index:      7,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return &List{Items: []*SExpr{X[0].(*SExpr)}}, nil
+			return Cons(getSExpr(X[0]), nil), nil
 		},
 	},
 	ProdTabEntry{
-		String: `ContinueList : ContinueList space SExpr	<< Append(X[0].(*List), X[2].(*SExpr)), nil >>`,
+		String: `ContinueList : SExpr space ContinueList	<< Cons(getSExpr(X[0]), getSExpr(X[2])), nil >>`,
 		Id:         "ContinueList",
 		NTType:     3,
 		Index:      8,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return Append(X[0].(*List), X[2].(*SExpr)), nil
-		},
-	},
-	ProdTabEntry{
-		String: `QuotedList : backtick "(" ")"	<< NewList(true), nil >>`,
-		Id:         "QuotedList",
-		NTType:     4,
-		Index:      9,
-		NumSymbols: 3,
-		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return NewList(true), nil
-		},
-	},
-	ProdTabEntry{
-		String: `QuotedList : backtick "(" SExpr ")"	<< NewList(true, X[2].(*SExpr)), nil >>`,
-		Id:         "QuotedList",
-		NTType:     4,
-		Index:      10,
-		NumSymbols: 4,
-		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return NewList(true, X[2].(*SExpr)), nil
-		},
-	},
-	ProdTabEntry{
-		String: `QuotedList : backtick "(" SExpr space ContinueList ")"	<< Prepend(true, X[2].(*SExpr), X[4].(*List)), nil >>`,
-		Id:         "QuotedList",
-		NTType:     4,
-		Index:      11,
-		NumSymbols: 6,
-		ReduceFunc: func(X []Attrib) (Attrib, error) {
-			return Prepend(true, X[2].(*SExpr), X[4].(*List)), nil
+			return Cons(getSExpr(X[0]), getSExpr(X[2])), nil
 		},
 	},
 	ProdTabEntry{
 		String: `Atom : symbol	<< NewSymbol(getStr(X[0])), nil >>`,
 		Id:         "Atom",
-		NTType:     5,
-		Index:      12,
+		NTType:     4,
+		Index:      9,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
 			return NewSymbol(getStr(X[0])), nil
@@ -161,8 +142,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Atom : int_lit	<< ParseInt(getStr(X[0])) >>`,
 		Id:         "Atom",
-		NTType:     5,
-		Index:      13,
+		NTType:     4,
+		Index:      10,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
 			return ParseInt(getStr(X[0]))
@@ -171,8 +152,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Atom : float_lit	<< ParseFloat(getStr(X[0])) >>`,
 		Id:         "Atom",
-		NTType:     5,
-		Index:      14,
+		NTType:     4,
+		Index:      11,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
 			return ParseFloat(getStr(X[0]))
@@ -181,8 +162,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Atom : string_lit	<< ParseString(getStr(X[0])) >>`,
 		Id:         "Atom",
-		NTType:     5,
-		Index:      15,
+		NTType:     4,
+		Index:      12,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
 			return ParseString(getStr(X[0]))
@@ -191,8 +172,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Atom : variable	<< ParseVariable(getStr(X[0])) >>`,
 		Id:         "Atom",
-		NTType:     5,
-		Index:      16,
+		NTType:     4,
+		Index:      13,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib) (Attrib, error) {
 			return ParseVariable(getStr(X[0]))

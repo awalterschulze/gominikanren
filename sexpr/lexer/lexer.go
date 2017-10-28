@@ -11,7 +11,7 @@ import (
 
 const (
 	NoState    = -1
-	NumStates  = 94
+	NumStates  = 93
 	NumSymbols = 59
 )
 
@@ -116,9 +116,9 @@ Lexer symbols:
 0: ','
 1: '-'
 2: '-'
-3: '`'
-4: '('
-5: ')'
+3: '('
+4: ')'
+5: '.'
 6: '#'
 7: '?'
 8: '@'

@@ -44,8 +44,6 @@ float_lit : [ '-' ] _float_lit ;
 _ws : ' ' | '\t' | '\n' | '\r' ;
 space : _ws { _ws } ;
 
-backtick : '`' ;
-
 <<
 import (
     . "github.com/awalterschulze/gominikanren/sexpr/ast"
@@ -57,25 +55,35 @@ func getStr(v interface{}) string {
     return string(t.Lit)
 }
 
+func getSExpr(v interface{}) *SExpr {
+    if v == nil {
+        return nil
+    }
+    vv := v.(*SExpr)
+    if vv.Pair == nil && vv.Atom == nil {
+        return nil
+    }
+    return vv
+}
+
 >>
 
 SExpr           : Atom
-                | List
-                | QuotedList
+                | Pair
                 ;
 
-List            : "(" ")"                           << NewList(false), nil >>
-                | "(" SExpr ")"                     << NewList(false, $1.(*SExpr)), nil >>
-                | "(" SExpr space ContinueList ")"  << Prepend(false, $1.(*SExpr), $3.(*List)), nil >>
+Pair            : "(" ")"                           
+                << nil, nil >>
+                | "(" SExpr ")"                     
+                << Cons(getSExpr($1), nil), nil >>
+                | "(" SExpr space ContinueList ")"  
+                << Cons(getSExpr($1), getSExpr($3)), nil >>
+                | "(" SExpr space "." space SExpr ")"  
+                << Cons(getSExpr($1), getSExpr($5)), nil >>
                 ;
 
-ContinueList    : SExpr                             << &List{Items: []*SExpr{$0.(*SExpr)}}, nil >>
-                | ContinueList space SExpr          << Append($0.(*List), $2.(*SExpr)), nil >>
-                ;
-
-QuotedList      : backtick "(" ")"                                << NewList(true), nil >>
-                | backtick "(" SExpr ")"                          << NewList(true, $2.(*SExpr)), nil >>
-                | backtick "(" SExpr space ContinueList ")"       << Prepend(true, $2.(*SExpr), $4.(*List)), nil >>
+ContinueList    : SExpr                             << Cons(getSExpr($0), nil), nil >>
+                | SExpr space ContinueList          << Cons(getSExpr($0), getSExpr($2)), nil >>
                 ;
 
 Atom            : symbol         << NewSymbol(getStr($0)), nil >>

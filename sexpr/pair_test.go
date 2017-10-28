@@ -8,8 +8,8 @@ import (
 
 func TestCons(t *testing.T) {
 	tests := []func() (string, string, string){
-		deriveTuple3("a", "b", "(a b)"),
-		deriveTuple3("(a)", "b", "((a) b)"),
+		deriveTuple3("a", "b", "(a . b)"),
+		deriveTuple3("(a)", "b", "((a) . b)"),
 		deriveTuple3("(a)", "(b)", "((a) b)"),
 		deriveTuple3("a", "(b)", "(a b)"),
 		deriveTuple3("(a)", "(b c)", "((a) b c)"),
@@ -45,9 +45,6 @@ func TestCons(t *testing.T) {
 			}
 			gotcdrexpr := gotexpr.Cdr()
 			gotcdr := gotcdrexpr.String()
-			if cdrexpr.List != nil && len(cdrexpr.List.Items) == 1 {
-				cdr = cdrexpr.List.Items[0].String()
-			}
 			if gotcdr != cdr {
 				t.Fatalf("cdr: got %s want %s", gotcdr, cdr)
 			}
@@ -57,7 +54,7 @@ func TestCons(t *testing.T) {
 
 func TestCar(t *testing.T) {
 	tests := []func() (string, string){
-		deriveTuple("`(,z . a)", ",z"),
+		deriveTuple("(,z . a)", ",z"),
 		deriveTuple(`(z a)`, "z"),
 	}
 	for _, test := range tests {
@@ -77,12 +74,12 @@ func TestCar(t *testing.T) {
 
 func TestCdr(t *testing.T) {
 	tests := []func() (string, string){
-		deriveTuple("`(,z . b)", "b"),
-		deriveTuple("`(,z . (,x e ,y))", "`(,x e ,y)"),
-		deriveTuple(`(z a)`, "a"),
-		deriveTuple(`a`, "()"),
-		deriveTuple("`((,z . b) (,x . ,y))", "`(,x . ,y)"),
-		deriveTuple("`((,z . b) (,x . ,y) (,y . a))", "`((,x . ,y) (,y . a))"),
+		deriveTuple("(,z . b)", "b"),
+		deriveTuple("(,z . (,x e ,y))", "(,x e ,y)"),
+		deriveTuple(`(z a)`, "(a)"),
+		//deriveTuple(`a`, "()"),
+		deriveTuple("((,z . b) (,x . ,y))", "((,x . ,y))"),
+		deriveTuple("((,z . b) (,x . ,y) (,y . a))", "((,x . ,y) (,y . a))"),
 	}
 	for _, test := range tests {
 		input, want := test()
@@ -93,7 +90,7 @@ func TestCdr(t *testing.T) {
 			}
 			got := s.Cdr().String()
 			if want != got {
-				t.Fatalf("got %s want %s", got, want)
+				t.Fatalf("got %s want %s parsed %s", got, want, s)
 			}
 		})
 	}

@@ -15,29 +15,11 @@ func deriveGoString(this *SExpr) string {
 		fmt.Fprintf(buf, "return nil\n")
 	} else {
 		fmt.Fprintf(buf, "this := &ast.SExpr{}\n")
-		if this.List != nil {
-			fmt.Fprintf(buf, "this.List = %s\n", deriveGoStringList(this.List))
+		if this.Pair != nil {
+			fmt.Fprintf(buf, "this.Pair = %s\n", deriveGoString_(this.Pair))
 		}
 		if this.Atom != nil {
 			fmt.Fprintf(buf, "this.Atom = %s\n", deriveGoStringAtom(this.Atom))
-		}
-		fmt.Fprintf(buf, "return this\n")
-	}
-	fmt.Fprintf(buf, "}()\n")
-	return buf.String()
-}
-
-// deriveGoStringList returns a recursive representation of this as a valid go string.
-func deriveGoStringList(this *List) string {
-	buf := bytes.NewBuffer(nil)
-	fmt.Fprintf(buf, "func() *ast.List {\n")
-	if this == nil {
-		fmt.Fprintf(buf, "return nil\n")
-	} else {
-		fmt.Fprintf(buf, "this := &ast.List{}\n")
-		fmt.Fprintf(buf, "this.Quoted = %#v\n", this.Quoted)
-		if this.Items != nil {
-			fmt.Fprintf(buf, "this.Items = %s\n", deriveGoString_(this.Items))
 		}
 		fmt.Fprintf(buf, "return this\n")
 	}
@@ -83,7 +65,6 @@ func deriveGoStringVar(this *Variable) string {
 	} else {
 		fmt.Fprintf(buf, "this := &ast.Variable{}\n")
 		fmt.Fprintf(buf, "this.Name = %#v\n", this.Name)
-		fmt.Fprintf(buf, "this.ID = %#v\n", this.ID)
 		fmt.Fprintf(buf, "return this\n")
 	}
 	fmt.Fprintf(buf, "}()\n")
@@ -94,44 +75,30 @@ func deriveGoStringVar(this *Variable) string {
 func deriveEqual(this, that *SExpr) bool {
 	return (this == nil && that == nil) ||
 		this != nil && that != nil &&
-			this.List.Equal(that.List) &&
-			deriveEqual_(this.Atom, that.Atom)
-}
-
-// deriveEqualItems returns whether this and that are equal.
-func deriveEqualItems(this, that []*SExpr) bool {
-	if this == nil || that == nil {
-		return this == nil && that == nil
-	}
-	if len(this) != len(that) {
-		return false
-	}
-	for i := 0; i < len(this); i++ {
-		if !(this[i].Equal(that[i])) {
-			return false
-		}
-	}
-	return true
+			deriveEqual_(this.Pair, that.Pair) &&
+			deriveEqual_1(this.Atom, that.Atom)
 }
 
 // deriveEqualVar returns whether this and that are equal.
 func deriveEqualVar(this, that *Variable) bool {
 	return (this == nil && that == nil) ||
 		this != nil && that != nil &&
-			this.Name == that.Name &&
-			this.ID == that.ID
+			this.Name == that.Name
 }
 
 // deriveGoString_ returns a recursive representation of this as a valid go string.
-func deriveGoString_(this []*SExpr) string {
+func deriveGoString_(this *Pair) string {
 	buf := bytes.NewBuffer(nil)
-	fmt.Fprintf(buf, "func() []*ast.SExpr {\n")
+	fmt.Fprintf(buf, "func() *ast.Pair {\n")
 	if this == nil {
 		fmt.Fprintf(buf, "return nil\n")
 	} else {
-		fmt.Fprintf(buf, "this := make([]*ast.SExpr, %d)\n", len(this))
-		for i := range this {
-			fmt.Fprintf(buf, "this[%d] = %s\n", i, deriveGoString(this[i]))
+		fmt.Fprintf(buf, "this := &ast.Pair{}\n")
+		if this.Car != nil {
+			fmt.Fprintf(buf, "this.Car = %s\n", deriveGoString(this.Car))
+		}
+		if this.Cdr != nil {
+			fmt.Fprintf(buf, "this.Cdr = %s\n", deriveGoString(this.Cdr))
 		}
 		fmt.Fprintf(buf, "return this\n")
 	}
@@ -140,7 +107,15 @@ func deriveGoString_(this []*SExpr) string {
 }
 
 // deriveEqual_ returns whether this and that are equal.
-func deriveEqual_(this, that *Atom) bool {
+func deriveEqual_(this, that *Pair) bool {
+	return (this == nil && that == nil) ||
+		this != nil && that != nil &&
+			this.Car.Equal(that.Car) &&
+			this.Cdr.Equal(that.Cdr)
+}
+
+// deriveEqual_1 returns whether this and that are equal.
+func deriveEqual_1(this, that *Atom) bool {
 	return (this == nil && that == nil) ||
 		this != nil && that != nil &&
 			((this.Str == nil && that.Str == nil) || (this.Str != nil && that.Str != nil && *(this.Str) == *(that.Str))) &&
