@@ -33,7 +33,7 @@ import (
 */
 // results in all the combinations of two lists that when appended will result in (cake & ice d t)
 func TestAppendOAllCombinations(t *testing.T) {
-	subs := micro.RunGoal(
+	states := micro.RunGoal(
 		-1,
 		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
 			return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
@@ -45,7 +45,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 					AppendO(
 						x,
 						y,
-						newList(
+						ast.NewList(
 							ast.NewSymbol("cake"),
 							ast.NewSymbol("&"),
 							ast.NewSymbol("ice"),
@@ -57,9 +57,8 @@ func TestAppendOAllCombinations(t *testing.T) {
 			})
 		}),
 	)
-	r := micro.ReifyVarFromState(ast.NewVariable("q"))
-	ss := deriveFmapR(r, subs)
-	got := newList(ss...).String()
+	sexprs := micro.Reify(ast.NewVariable("q"), states)
+	got := ast.NewList(sexprs...).String()
 	want := "((() (cake & ice d t)) ((cake) (& ice d t)) ((cake &) (ice d t)) ((cake & ice) (d t)) ((cake & ice d) (t)) ((cake & ice d t) ()))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -75,9 +74,8 @@ func TestAppendOSingleList(t *testing.T) {
 			ast.NewVariable("q"),
 		),
 	)
-	r := micro.ReifyVarFromState(ast.NewVariable("q"))
-	ss := deriveFmapR(r, subs)
-	got := newList(ss...).String()
+	ss := micro.Reify(ast.NewVariable("q"), subs)
+	got := ast.NewList(ss...).String()
 	want := "((a b))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -93,9 +91,8 @@ func TestAppendOSingleAtom(t *testing.T) {
 			ast.NewVariable("q"),
 		),
 	)
-	r := micro.ReifyVarFromState(ast.NewVariable("q"))
-	ss := deriveFmapR(r, subs)
-	got := newList(ss...).String()
+	ss := micro.Reify(ast.NewVariable("q"), subs)
+	got := ast.NewList(ss...).String()
 	want := "((a . b))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -105,7 +102,7 @@ func TestAppendOSingleAtom(t *testing.T) {
 func TestCarO(t *testing.T) {
 	ifte := IfThenElseO(
 		CarO(
-			newList(
+			ast.NewList(
 				ast.NewSymbol("a"),
 				ast.NewSymbol("c"),
 				ast.NewSymbol("o"),
@@ -123,14 +120,4 @@ func TestCarO(t *testing.T) {
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
-}
-
-func newList(ss ...*ast.SExpr) *ast.SExpr {
-	if len(ss) == 0 {
-		return nil
-	}
-	if len(ss) == 1 {
-		return ast.Cons(ss[0], nil)
-	}
-	return ast.Cons(ss[0], newList(ss[1:]...))
 }

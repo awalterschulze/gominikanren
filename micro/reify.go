@@ -87,3 +87,8 @@ func ReifyVarFromState(v *ast.SExpr) func(s *State) *ast.SExpr {
 		return walkStar(vv, r)
 	}
 }
+
+// Reify reifies the input variable for the given input states.
+func Reify(v *ast.SExpr, ss []*State) []*ast.SExpr {
+	return deriveFmapRs(ReifyVarFromState(v), ss)
+}

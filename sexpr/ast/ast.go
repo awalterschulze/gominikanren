@@ -188,3 +188,13 @@ func (v *Variable) GoString() string {
 func (v *Variable) Equal(vv *Variable) bool {
 	return deriveEqualVar(v, vv)
 }
+
+func NewList(ss ...*SExpr) *SExpr {
+	if len(ss) == 0 {
+		return nil
+	}
+	if len(ss) == 1 {
+		return Cons(ss[0], nil)
+	}
+	return Cons(ss[0], NewList(ss[1:]...))
+}
