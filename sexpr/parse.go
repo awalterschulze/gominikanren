@@ -1,3 +1,4 @@
+// Package sexpr implements a parser of symbolic expressions.
 package sexpr
 
 import (
