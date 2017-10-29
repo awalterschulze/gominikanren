@@ -8,23 +8,26 @@ import (
 /*
 AppendO is a goal that appends two lists into the third list.
 
-(define (appendo l t out)
-	(lambda (s)
-		(lambda ()
-			(
-				(disj
-					(conj (nullo l) (== t out))
-					(call/fresh 'a
-						(lambda (a)
-							(call/fresh 'd
-								(lambda (d)
-									(call/fresh 'res
-										(lambda (res)
-											(conj
-												(conso a d l)
+scheme code:
+
+	(define (appendo l t out)
+		(lambda (s)
+			(lambda ()
+				(
+					(disj
+						(conj (nullo l) (== t out))
+						(call/fresh 'a
+							(lambda (a)
+								(call/fresh 'd
+									(lambda (d)
+										(call/fresh 'res
+											(lambda (res)
 												(conj
-													(conso a res out)
-													(appendo d t res)
+													(conso a d l)
+													(conj
+														(conso a res out)
+														(appendo d t res)
+													)
 												)
 											)
 										)
@@ -34,11 +37,10 @@ AppendO is a goal that appends two lists into the third list.
 						)
 					)
 				)
+				s
 			)
-			s
 		)
 	)
-)
 */
 func AppendO(l, t, out *ast.SExpr) micro.Goal {
 	return func(s *micro.State) micro.StreamOfStates {
