@@ -31,6 +31,16 @@ func DisjointO(gs ...Goal) Goal {
 		(else (cons (car $1) (mplus (cdr $1) $2)))
 	)
 )
+
+OR
+
+(define (mplus $1 $2)
+	(cond
+		((null? $1) $2)
+		((procedure? $1) (λ_$ () (mplus $2 ($1))))
+		(else (cons (car $1) (mplus $2 (cdr $1))))
+	)
+)
 */
 func mplus(g1, g2 StreamOfSubstitutions) StreamOfSubstitutions {
 	if g1 == nil {
