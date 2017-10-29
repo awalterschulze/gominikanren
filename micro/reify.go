@@ -85,7 +85,7 @@ func length(s Substitution) int {
 */
 func reifyState1stVar(s *State) *ast.SExpr {
 	v := ast.NewVariable(fmt.Sprintf("v%d", 0))
-	return reifyStateVar(v, s)
+	return ReifyVarFromState(v)(s)
 }
 
 /*
@@ -97,8 +97,10 @@ func mKreify(ss []*State) []*ast.SExpr {
 	return deriveFmapReify(reifyState1stVar, ss)
 }
 
-func reifyStateVar(v *ast.SExpr, s *State) *ast.SExpr {
-	vv := walkStar(v, s.Substitution)
-	r := reifyS(vv)
-	return walkStar(vv, r)
+func ReifyVarFromState(v *ast.SExpr) func(s *State) *ast.SExpr {
+	return func(s *State) *ast.SExpr {
+		vv := walkStar(v, s.Substitution)
+		r := reifyS(vv)
+		return walkStar(vv, r)
+	}
 }

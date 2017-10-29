@@ -35,17 +35,17 @@ import (
 func TestAppendOAllCombinations(t *testing.T) {
 	subs := micro.RunGoal(
 		-1,
-		micro.CallFresh("x", func(x *ast.SExpr) micro.Goal {
-			return micro.CallFresh("y", func(y *ast.SExpr) micro.Goal {
+		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
+			return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
 				return micro.ConjunctionO(
 					micro.EqualO(
-						ast.NewList(true, x, y),
+						ast.Cons(x, ast.Cons(y, nil)),
 						ast.NewVariable("q"),
 					),
 					AppendO(
 						x,
 						y,
-						ast.NewList(true,
+						newList(
 							ast.NewSymbol("cake"),
 							ast.NewSymbol("&"),
 							ast.NewSymbol("ice"),
@@ -57,10 +57,10 @@ func TestAppendOAllCombinations(t *testing.T) {
 			})
 		}),
 	)
-	r := micro.Reify(ast.NewVariable("q"))
+	r := micro.ReifyVarFromState(ast.NewVariable("q"))
 	ss := deriveFmapR(r, subs)
-	got := ast.NewList(false, ss...).String()
-	want := ""
+	got := newList(ss...).String()
+	want := "((() (cake & ice d t)) ((cake) (& ice d t)) ((cake &) (ice d t)) ((cake & ice) (d t)) ((cake & ice d) (t)) ((cake & ice d t) ()))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -70,19 +70,15 @@ func TestAppendOSingleList(t *testing.T) {
 	subs := micro.RunGoal(
 		-1,
 		AppendO(
-			ast.NewList(false,
-				ast.NewSymbol("a"),
-			),
-			ast.NewList(false,
-				ast.NewSymbol("b"),
-			),
+			ast.Cons(ast.NewSymbol("a"), nil),
+			ast.Cons(ast.NewSymbol("b"), nil),
 			ast.NewVariable("q"),
 		),
 	)
-	r := micro.Reify(ast.NewVariable("q"))
+	r := micro.ReifyVarFromState(ast.NewVariable("q"))
 	ss := deriveFmapR(r, subs)
-	got := ast.NewList(false, ss...).String()
-	want := "(`(a b))"
+	got := newList(ss...).String()
+	want := "((a b))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -92,17 +88,15 @@ func TestAppendOSingleAtom(t *testing.T) {
 	subs := micro.RunGoal(
 		-1,
 		AppendO(
-			ast.NewList(false,
-				ast.NewSymbol("a"),
-			),
+			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.NewSymbol("b"),
 			ast.NewVariable("q"),
 		),
 	)
-	r := micro.Reify(ast.NewVariable("q"))
+	r := micro.ReifyVarFromState(ast.NewVariable("q"))
 	ss := deriveFmapR(r, subs)
-	got := ast.NewList(false, ss...).String()
-	want := "(`(a b))"
+	got := newList(ss...).String()
+	want := "((a . b))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -111,7 +105,7 @@ func TestAppendOSingleAtom(t *testing.T) {
 func TestCarO(t *testing.T) {
 	ifte := IfThenElseO(
 		CarO(
-			ast.NewList(false,
+			newList(
 				ast.NewSymbol("a"),
 				ast.NewSymbol("c"),
 				ast.NewSymbol("o"),
@@ -123,10 +117,20 @@ func TestCarO(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 	)
-	ss := ifte(micro.EmptySubstitution())
+	ss := ifte(micro.EmptyState())
 	got := ss.String()
-	want := "(`((,y . #t) (,d . (c o r n))))"
+	want := "(((,y . #t) (,v0 c o r n) . 1))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
+}
+
+func newList(ss ...*ast.SExpr) *ast.SExpr {
+	if len(ss) == 0 {
+		return nil
+	}
+	if len(ss) == 1 {
+		return ast.Cons(ss[0], nil)
+	}
+	return ast.Cons(ss[0], newList(ss[1:]...))
 }

@@ -31,18 +31,18 @@ import (
 )
 */
 func IfThenElseO(g1, g2, g3 micro.Goal) micro.Goal {
-	return func(s micro.Substitution) micro.StreamOfSubstitutions {
+	return func(s *micro.State) micro.StreamOfSubstitutions {
 		return ifThenElseLoop(g2, g3, s, g1(s))
 	}
 }
 
-func ifThenElseLoop(g2, g3 micro.Goal, s micro.Substitution, sinf micro.StreamOfSubstitutions) micro.StreamOfSubstitutions {
+func ifThenElseLoop(g2, g3 micro.Goal, s *micro.State, sinf micro.StreamOfSubstitutions) micro.StreamOfSubstitutions {
 	if sinf == nil {
 		return g3(s)
 	}
 	car, cdr := sinf()
 	if car != nil {
-		return micro.Bind(g2, sinf)
+		return micro.Bind(sinf, g2)
 	}
 	return micro.Suspension(func() micro.StreamOfSubstitutions {
 		return ifThenElseLoop(g2, g3, s, cdr)

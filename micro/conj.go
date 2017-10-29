@@ -18,7 +18,7 @@ func ConjunctionO(gs ...Goal) Goal {
 	g2 := ConjunctionO(gs[1:]...)
 	return func(s *State) StreamOfSubstitutions {
 		g1s := g1(s)
-		return bind(g1s, g2)
+		return Bind(g1s, g2)
 	}
 }
 
@@ -31,7 +31,7 @@ func ConjunctionO(gs ...Goal) Goal {
 	)
 )
 */
-func bind(s StreamOfSubstitutions, g Goal) StreamOfSubstitutions {
+func Bind(s StreamOfSubstitutions, g Goal) StreamOfSubstitutions {
 	if s == nil {
 		return nil
 	}
@@ -39,14 +39,14 @@ func bind(s StreamOfSubstitutions, g Goal) StreamOfSubstitutions {
 	if car != nil { // not a suspension => procedure? == false
 		return mplus(
 			g(car),
-			bind(
+			Bind(
 				cdr,
 				g,
 			),
 		)
 	}
 	return Suspension(func() StreamOfSubstitutions {
-		return bind(
+		return Bind(
 			cdr,
 			g,
 		)

@@ -3,11 +3,12 @@
 package mini
 
 import (
+	micro "github.com/awalterschulze/gominikanren/micro"
 	ast "github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 // deriveFmapR returns a list where each element of the input list has been morphed by the input function.
-func deriveFmapR(f func(*ast.List) *ast.SExpr, list []*ast.List) []*ast.SExpr {
+func deriveFmapR(f func(*micro.State) *ast.SExpr, list []*micro.State) []*ast.SExpr {
 	out := make([]*ast.SExpr, len(list))
 	for i, elem := range list {
 		out[i] = f(elem)

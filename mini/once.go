@@ -31,7 +31,7 @@ import (
 )
 */
 func OnceO(g micro.Goal) micro.Goal {
-	return func(s micro.Substitution) micro.StreamOfSubstitutions {
+	return func(s *micro.State) micro.StreamOfSubstitutions {
 		return onceLoop(g(s))
 	}
 }

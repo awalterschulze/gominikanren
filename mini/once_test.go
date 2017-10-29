@@ -16,9 +16,9 @@ func TestOnce(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
 	)
-	ss := ifte(micro.EmptySubstitution())
+	ss := ifte(micro.EmptyState())
 	got := ss.String()
-	want := "(`((,y . #f) (,x . #t)))"
+	want := "(((,y . #f) (,x . #t) . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}

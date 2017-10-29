@@ -13,9 +13,9 @@ func TestIfThenElseSuccess(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
 	)
-	ss := ifte(micro.EmptySubstitution())
+	ss := ifte(micro.EmptyState())
 	got := ss.String()
-	want := "(`((,y . #f)))"
+	want := "(((,y . #f) . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -27,9 +27,9 @@ func TestIfThenElseFailure(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
 	)
-	ss := ifte(micro.EmptySubstitution())
+	ss := ifte(micro.EmptyState())
 	got := ss.String()
-	want := "(`((,y . #t)))"
+	want := "(((,y . #t) . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -41,9 +41,9 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
 	)
-	ss := ifte(micro.EmptySubstitution())
+	ss := ifte(micro.EmptyState())
 	got := ss.String()
-	want := "(`((,y . #f) (,x . #t)))"
+	want := "(((,y . #f) (,x . #t) . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -58,9 +58,9 @@ func TestIfThenElseDisjoint(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
 	)
-	ss := ifte(micro.EmptySubstitution())
+	ss := ifte(micro.EmptyState())
 	got := ss.String()
-	want := "(`((,y . #f) (,x . #t)) `((,y . #f) (,x . #f)))"
+	want := "(((,y . #f) (,x . #t) . 0) ((,y . #f) (,x . #f) . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}

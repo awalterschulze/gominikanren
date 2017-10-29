@@ -41,7 +41,7 @@ import (
 )
 */
 func AppendO(l, t, out *ast.SExpr) micro.Goal {
-	return func(s micro.Substitution) micro.StreamOfSubstitutions {
+	return func(s *micro.State) micro.StreamOfSubstitutions {
 		fmt.Printf("Appendo %v %v %v\n", l, t, out)
 		return micro.Suspension(
 			func() micro.StreamOfSubstitutions {
@@ -50,9 +50,9 @@ func AppendO(l, t, out *ast.SExpr) micro.Goal {
 						NullO(l),
 						micro.EqualO(t, out),
 					),
-					micro.CallFresh("a", func(a *ast.SExpr) micro.Goal {
-						return micro.CallFresh("d", func(d *ast.SExpr) micro.Goal {
-							return micro.CallFresh("res", func(res *ast.SExpr) micro.Goal {
+					micro.CallFresh(func(a *ast.SExpr) micro.Goal {
+						return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
+							return micro.CallFresh(func(res *ast.SExpr) micro.Goal {
 								return micro.ConjunctionO(
 									ConsO(a, d, l),
 									ConsO(a, res, out),
@@ -68,11 +68,11 @@ func AppendO(l, t, out *ast.SExpr) micro.Goal {
 }
 
 func NullO(x *ast.SExpr) micro.Goal {
-	return micro.EqualO(x, ast.NewList(false))
+	return micro.EqualO(x, nil)
 }
 
 func ConsO(a, d, p *ast.SExpr) micro.Goal {
-	return func(s micro.Substitution) micro.StreamOfSubstitutions {
+	return func(s *micro.State) micro.StreamOfSubstitutions {
 		fmt.Printf("Conso %v %v %v\n", a, d, p)
 		l := ast.Cons(a, d)
 		return micro.EqualO(l, p)(s)
@@ -80,7 +80,7 @@ func ConsO(a, d, p *ast.SExpr) micro.Goal {
 }
 
 func CarO(p, a *ast.SExpr) micro.Goal {
-	return micro.CallFresh("d", func(d *ast.SExpr) micro.Goal {
+	return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
 		return micro.EqualO(ast.Cons(a, d), p)
 	})
 }
