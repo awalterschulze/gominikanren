@@ -39,9 +39,9 @@ import (
 )
 */
 func AppendO(l, t, out *ast.SExpr) micro.Goal {
-	return func(s *micro.State) micro.StreamOfSubstitutions {
+	return func(s *micro.State) micro.StreamOfStates {
 		return micro.Suspension(
-			func() micro.StreamOfSubstitutions {
+			func() micro.StreamOfStates {
 				return micro.DisjointO(
 					micro.ConjunctionO(
 						NullO(l),
@@ -69,7 +69,7 @@ func NullO(x *ast.SExpr) micro.Goal {
 }
 
 func ConsO(a, d, p *ast.SExpr) micro.Goal {
-	return func(s *micro.State) micro.StreamOfSubstitutions {
+	return func(s *micro.State) micro.StreamOfStates {
 		l := ast.Cons(a, d)
 		return micro.EqualO(l, p)(s)
 	}

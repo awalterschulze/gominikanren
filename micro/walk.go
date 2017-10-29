@@ -1,8 +1,6 @@
 package micro
 
 import (
-	"fmt"
-
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -42,22 +40,16 @@ for example:
 	assv v s <==> (assp (λ (v) (var=? u v)) s))
 */
 func assv(v *ast.Variable, s Substitutions) (*ast.SExpr, bool) {
-	// fmt.Printf("(assv %v %v)\n", v, s)
 	if s == nil {
 		return nil, false
 	}
 	pair := s.Car
-	// fmt.Printf("head = %v\n", pair)
 	if pair.IsPair() {
 		left := pair.Car()
-		// fmt.Printf("left %v\n", left)
 		if left.IsVariable() {
-			// fmt.Printf("isvar %v\n", left)
 			if v.Equal(left.Atom.Var) {
-				fmt.Printf("got pair %v\n", pair)
 				return pair, true
 			} else {
-				// fmt.Printf("not equal to %v != %v\n", left, v)
 			}
 		}
 	}

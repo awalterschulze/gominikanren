@@ -48,14 +48,14 @@ func RunGoal(n int, g Goal) []*State {
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
 func SuccessO() Goal {
-	return func(s *State) StreamOfSubstitutions {
+	return func(s *State) StreamOfStates {
 		return NewSingletonStream(s)
 	}
 }
 
 // FailureO is a goal that always returns an empty stream of states.
 func FailureO() Goal {
-	return func(s *State) StreamOfSubstitutions {
+	return func(s *State) StreamOfStates {
 		return nil
 	}
 }
@@ -74,10 +74,10 @@ scheme code:
 	)
 */
 func EqualO(u, v *ast.SExpr) Goal {
-	return func(s *State) StreamOfSubstitutions {
-		ss, sok := unify(u, v, s.Substitution)
+	return func(s *State) StreamOfStates {
+		ss, sok := unify(u, v, s.Substitutions)
 		if sok {
-			return NewSingletonStream(&State{Substitution: ss, Counter: s.Counter})
+			return NewSingletonStream(&State{Substitutions: ss, Counter: s.Counter})
 		}
 		return nil
 	}
@@ -97,8 +97,8 @@ scheme code:
 	)
 */
 func NeverO() Goal {
-	return func(s *State) StreamOfSubstitutions {
-		return Suspension(func() StreamOfSubstitutions {
+	return func(s *State) StreamOfStates {
+		return Suspension(func() StreamOfStates {
 			return NeverO()(s)
 		})
 	}
@@ -124,8 +124,8 @@ scheme code:
 	)
 */
 func AlwaysO() Goal {
-	return func(s *State) StreamOfSubstitutions {
-		return Suspension(func() StreamOfSubstitutions {
+	return func(s *State) StreamOfStates {
+		return Suspension(func() StreamOfStates {
 			return DisjointO(
 				SuccessO(),
 				AlwaysO(),

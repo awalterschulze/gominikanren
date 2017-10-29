@@ -39,7 +39,7 @@ func TestReify(t *testing.T) {
 	if !e.IsPair() {
 		t.Fatalf("expected list")
 	}
-	gote := ReifyVarFromState(ast.NewVariable("x"))(&State{Substitution: e.Pair})
+	gote := ReifyVarFromState(ast.NewVariable("x"))(&State{Substitutions: e.Pair})
 	got := gote.String()
 	want := "(_0 (_1 _0) corn _2 ((ice) _2))"
 	if got != want {

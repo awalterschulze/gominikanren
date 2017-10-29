@@ -31,12 +31,12 @@ import (
 )
 */
 func OnceO(g micro.Goal) micro.Goal {
-	return func(s *micro.State) micro.StreamOfSubstitutions {
+	return func(s *micro.State) micro.StreamOfStates {
 		return onceLoop(g(s))
 	}
 }
 
-func onceLoop(ss micro.StreamOfSubstitutions) micro.StreamOfSubstitutions {
+func onceLoop(ss micro.StreamOfStates) micro.StreamOfStates {
 	if ss == nil {
 		return nil
 	}
@@ -45,7 +45,7 @@ func onceLoop(ss micro.StreamOfSubstitutions) micro.StreamOfSubstitutions {
 		return micro.NewSingletonStream(car)
 	}
 	return micro.Suspension(
-		func() micro.StreamOfSubstitutions {
+		func() micro.StreamOfStates {
 			return onceLoop(cdr)
 		},
 	)

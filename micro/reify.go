@@ -82,7 +82,7 @@ func length(s Substitutions) int {
 // ReifyVarFromState is a curried function that reifies the input variable for the given input state.
 func ReifyVarFromState(v *ast.SExpr) func(s *State) *ast.SExpr {
 	return func(s *State) *ast.SExpr {
-		vv := walkStar(v, s.Substitution)
+		vv := walkStar(v, s.Substitutions)
 		r := reifyS(vv)
 		return walkStar(vv, r)
 	}
