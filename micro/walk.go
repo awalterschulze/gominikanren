@@ -96,11 +96,9 @@ func walkStar(v *ast.SExpr, s Substitution) *ast.SExpr {
 	if vv.IsPair() {
 		carv := vv.Pair.Car
 		cdrv := vv.Pair.Cdr
-		// fmt.Printf("input: %v, car: %v, cdr: %v\n", vv, car, cdr)
 		wcar := walkStar(carv, s)
 		wcdr := walkStar(cdrv, s)
 		w := ast.Cons(wcar, wcdr)
-		// fmt.Printf("output: %v, car: %v, cdr: %v\n", w, wcar, wcdr)
 		return w
 	}
 	return vv

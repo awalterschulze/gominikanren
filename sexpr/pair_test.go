@@ -77,7 +77,6 @@ func TestCdr(t *testing.T) {
 		deriveTuple("(,z . b)", "b"),
 		deriveTuple("(,z . (,x e ,y))", "(,x e ,y)"),
 		deriveTuple(`(z a)`, "(a)"),
-		//deriveTuple(`a`, "()"),
 		deriveTuple("((,z . b) (,x . ,y))", "((,x . ,y))"),
 		deriveTuple("((,z . b) (,x . ,y) (,y . a))", "((,x . ,y) (,y . a))"),
 	}

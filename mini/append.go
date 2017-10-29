@@ -1,8 +1,6 @@
 package mini
 
 import (
-	"fmt"
-
 	"github.com/awalterschulze/gominikanren/micro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
@@ -42,7 +40,6 @@ import (
 */
 func AppendO(l, t, out *ast.SExpr) micro.Goal {
 	return func(s *micro.State) micro.StreamOfSubstitutions {
-		fmt.Printf("Appendo %v %v %v\n", l, t, out)
 		return micro.Suspension(
 			func() micro.StreamOfSubstitutions {
 				return micro.DisjointO(
@@ -73,7 +70,6 @@ func NullO(x *ast.SExpr) micro.Goal {
 
 func ConsO(a, d, p *ast.SExpr) micro.Goal {
 	return func(s *micro.State) micro.StreamOfSubstitutions {
-		fmt.Printf("Conso %v %v %v\n", a, d, p)
 		l := ast.Cons(a, d)
 		return micro.EqualO(l, p)(s)
 	}

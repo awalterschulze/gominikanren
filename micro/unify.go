@@ -1,8 +1,6 @@
 package micro
 
 import (
-	"fmt"
-
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -28,40 +26,26 @@ unify returns either (ok = false) or the substitution s extended with zero or mo
 where cycles in substitutions can lead to (ok = false)
 */
 func unify(u, v *ast.SExpr, s Substitution) (Substitution, bool) {
-	fmt.Printf("unify:u=%v;v=%v;s=%#v\n", u, v, s)
 	uu := walk(u, s)
 	vv := walk(v, s)
-	fmt.Printf("unify: walked %v %v %v\n", uu, vv, s)
 	if uu.IsVariable() && vv.IsVariable() && uu.Atom.Var.Equal(uu.Atom.Var) {
-		fmt.Printf("unify: equal vars %v %v %v\n", uu, vv, s)
 		return s, true
 	}
 	if uu.IsVariable() {
-		fmt.Printf("unify: added left var %v %v %v\n", uu, vv, s)
 		return exts(uu, vv, s)
 	}
 	if vv.IsVariable() {
-		a, aok := exts(vv, uu, s)
-		fmt.Printf("unify: added right var %v %v %#v added: %v\n", uu, vv, s, a)
-		return a, aok
+		return exts(vv, uu, s)
 	}
 	if uu.IsPair() && vv.IsPair() {
-		fmt.Printf("unify pairs:u=%v;v=%v;s=%v\n", uu, vv, s)
-		uucar, vvcar := uu.Car(), vv.Car()
-		fmt.Printf("unify: cars %v %v %v\n", uucar, vvcar, s)
-		scar, sok := unify(uucar, vvcar, s)
+		scar, sok := unify(uu.Car(), vv.Car(), s)
 		if !sok {
 			return nil, false
 		}
-		uucdr, vvcdr := uu.Cdr(), vv.Cdr()
-		fmt.Printf("unify: cdr of %v %v\n", uu, uucdr)
-		fmt.Printf("unify: cdr of %v %v\n", vv, vvcdr)
-		return unify(uucdr, vvcdr, scar)
+		return unify(uu.Cdr(), vv.Cdr(), scar)
 	}
 	if uu.Equal(vv) {
-		fmt.Printf("unify: equal\n")
 		return s, true
 	}
-	fmt.Printf("unify: FALSE %v %v\n", uu, vv)
 	return nil, false
 }
