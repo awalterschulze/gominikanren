@@ -10,7 +10,7 @@ import (
 
 func TestEqualO(t *testing.T) {
 	tests := []func() (string, string, string){
-		deriveTuple3("#f", "#f", "(`())"),
+		deriveTuple3("#f", "#f", "((() . 0))"),
 		deriveTuple3("#f", "#t", "()"),
 	}
 	for _, test := range tests {
@@ -24,7 +24,7 @@ func TestEqualO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			stream := EqualO(uexpr, vexpr)(EmptySubstitution())
+			stream := EqualO(uexpr, vexpr)(EmptyState())
 			got := stream.String()
 			if got != want {
 				t.Fatalf("got %s want %s", got, want)
@@ -34,19 +34,19 @@ func TestEqualO(t *testing.T) {
 }
 
 func TestFailureO(t *testing.T) {
-	if got, want := FailureO()(EmptySubstitution()).String(), "()"; got != want {
+	if got, want := FailureO()(EmptyState()).String(), "()"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
 
 func TestSuccessO(t *testing.T) {
-	if got, want := SuccessO()(EmptySubstitution()).String(), "(`())"; got != want {
+	if got, want := SuccessO()(EmptyState()).String(), "((() . 0))"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
 
 func TestNeverO(t *testing.T) {
-	n := NeverO()(EmptySubstitution())
+	n := NeverO()(EmptyState())
 	s, sok := n()
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -63,10 +63,10 @@ func TestDisjointO1(t *testing.T) {
 			ast.NewVariable("x"),
 		),
 		NeverO(),
-	)(EmptySubstitution())
+	)(EmptyState())
 	s, sok := d()
 	got := s.String()
-	want := "`((,x . olive))"
+	want := "((,x . olive) . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -82,7 +82,7 @@ func TestDisjointO2(t *testing.T) {
 			ast.NewSymbol("olive"),
 			ast.NewVariable("x"),
 		),
-	)(EmptySubstitution())
+	)(EmptyState())
 	s, sok := d()
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -92,7 +92,7 @@ func TestDisjointO2(t *testing.T) {
 	}
 	s, sok = sok()
 	got := s.String()
-	want := "`((,x . olive))"
+	want := "((,x . olive) . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -102,14 +102,14 @@ func TestDisjointO2(t *testing.T) {
 }
 
 func TestAlwaysO(t *testing.T) {
-	a := AlwaysO()(EmptySubstitution())
+	a := AlwaysO()(EmptyState())
 	s, sok := a()
 	if s != nil {
 		t.Fatal("expected suspension")
 	}
 	s, sok = sok()
 	got := s.String()
-	want := "`()"
+	want := "(() . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -123,11 +123,11 @@ func TestRunGoalAlways3(t *testing.T) {
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}
-	sss := deriveFmaps(func(s Substitution) string {
+	sss := deriveFmaps(func(s *State) string {
 		return s.String()
 	}, ss)
 	got := "(" + strings.Join(sss, " ") + ")"
-	want := "(`() `() `())"
+	want := "((() . 0) (() . 0) (() . 0))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -180,7 +180,7 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 		t.Fatalf("expected 1, got %d: %v", len(ss), ss)
 	}
 	got := ss[0].String()
-	want := "`((,x . olive))"
+	want := "((,x . olive) . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}

@@ -2,8 +2,8 @@ package micro
 
 /*
 (define (conj g1 g2)
-	(lambda (s)
-		(append-mapInf g2 (g1 s))
+	(lambda_g (s/c)
+		(bind (g1 s/c) g2)
 	)
 )
 */
@@ -16,56 +16,39 @@ func ConjunctionO(gs ...Goal) Goal {
 	}
 	g1 := gs[0]
 	g2 := ConjunctionO(gs[1:]...)
-	return func(s Substitution) StreamOfSubstitutions {
+	return func(s *State) StreamOfSubstitutions {
 		g1s := g1(s)
-		return Bind(g2, g1s)
+		return bind(g1s, g2)
 	}
 }
 
 /*
-(define (append-mapInf g s)
+(define (bind $ g)
 	(cond
-		(
-			(null? s)
-			'()
-		)
-		(
-			(pair? s)
-			(appendInf
-				(g (car s))
-				(append-mapInf
-					g
-					(cdr s)
-				)
-			)
-		)
-		(else
-			(lambda ()
-				(append-mapInf g (s))
-			)
-		)
+		((null? $) mzero)
+		((procedure? $) (lambda_$ () (bind ($) g)))
+		(else (mplus (g (car $)) (bind (cdr $) g)))
 	)
 )
 */
-func Bind(g Goal, s StreamOfSubstitutions) StreamOfSubstitutions {
+func bind(s StreamOfSubstitutions, g Goal) StreamOfSubstitutions {
 	if s == nil {
 		return nil
 	}
 	car, cdr := s()
-	if car != nil {
-		return appendStream(
+	if car != nil { // not a suspension => procedure? == false
+		return mplus(
 			g(car),
-			Bind(
-				g,
+			bind(
 				cdr,
+				g,
 			),
 		)
-	} else {
-		return Suspension(func() StreamOfSubstitutions {
-			return Bind(
-				g,
-				cdr,
-			)
-		})
 	}
+	return Suspension(func() StreamOfSubstitutions {
+		return bind(
+			cdr,
+			g,
+		)
+	})
 }

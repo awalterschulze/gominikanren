@@ -6,26 +6,26 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-var vars = make(map[string]int64)
-
 /*
-(define (call/fresh name f)
-	(f (var name))
+(define (call/fresh f)
+	(λg (s/c)
+		(let (
+			(c (cdr s/c))
+		)
+		(
+			(f (var c))
+			`(,(car s/c) . ,(+ c 1)))
+		)
+	)
 )
 */
 // call/fresh second arguments is a function that expects a varaible and returns a Goal.
-func CallFresh(name string, f func(v *ast.SExpr) Goal) Goal {
+func CallFresh(f func(v *ast.SExpr) Goal) Goal {
 	// TODO this is where a variable should be assigned an ID
 	// Could we do this purely or are we simply assigning a random number?
-	v := ast.NewVariable(name)
-	id := int64(1)
-	if c, ok := vars[name]; ok {
-		id = c + 1
-		vars[name] = id
-	} else {
-		vars[name] = id
+	return func(s *State) StreamOfSubstitutions {
+		v := ast.NewVariable(fmt.Sprintf("v%d", s.Counter))
+		ss := &State{s.Substitution, s.Counter + 1}
+		return f(v)(ss)
 	}
-	v.Atom.Var.ID = id
-	fmt.Printf("created: %v %v\n", v, v.Atom.Var.ID)
-	return f(v)
 }

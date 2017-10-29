@@ -26,9 +26,10 @@ func exts(x, v *ast.SExpr, s Substitution) (Substitution, bool) {
 	if occurs(x, v, s) {
 		return nil, false
 	}
-	pair := ast.NewAssosiation(x, v)
-	l := ast.Prepend(s.IsQuoted(), pair, s)
-	return l.List, true
+	if s == nil {
+		return ast.Cons(ast.Cons(x, v), nil).Pair, true
+	}
+	return ast.Cons(ast.Cons(x, v), &ast.SExpr{Pair: s}).Pair, true
 }
 
 /*

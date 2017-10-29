@@ -2,10 +2,6 @@
 
 package micro
 
-import (
-	ast "github.com/awalterschulze/gominikanren/sexpr/ast"
-)
-
 // deriveTupleO returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
 func deriveTupleO(v0 string, v1 string, v2 string, v3 bool) func() (string, string, string, bool) {
@@ -31,17 +27,8 @@ func deriveTuple3(v0 string, v1 string, v2 string) func() (string, string, strin
 }
 
 // deriveFmaps returns a list where each element of the input list has been morphed by the input function.
-func deriveFmaps(f func(*ast.List) string, list []*ast.List) []string {
+func deriveFmaps(f func(*State) string, list []*State) []string {
 	out := make([]string, len(list))
-	for i, elem := range list {
-		out[i] = f(elem)
-	}
-	return out
-}
-
-// deriveFmapR returns a list where each element of the input list has been morphed by the input function.
-func deriveFmapR(f func(*ast.List) *ast.SExpr, list []*ast.List) []*ast.SExpr {
-	out := make([]*ast.SExpr, len(list))
 	for i, elem := range list {
 		out[i] = f(elem)
 	}

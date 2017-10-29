@@ -65,7 +65,11 @@ func (s *SExpr) GoString() string {
 }
 
 func (s *SExpr) IsVariable() bool {
-	return s.Atom != nil && s.Atom.Var != nil
+	return s != nil && s.Atom != nil && s.Atom.Var != nil
+}
+
+func (s *SExpr) IsPair() bool {
+	return s != nil && s.Pair != nil
 }
 
 type Atom struct {

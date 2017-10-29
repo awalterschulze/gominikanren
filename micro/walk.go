@@ -7,23 +7,13 @@ import (
 )
 
 /*
-(define (walk v s)
-	(let
-		(
-			(a
-				(and
-					(var? v)
-					(assv v s)
-				)
-			)
-		)
-		(cond
-			(
-				(pair? a)
-				(walk (cdr a) s)
-			)
-			(else v)
-		)
+(define (walk u s)
+	(let (
+		(pr (and
+				(var? u)
+				(assp (λ (v) (var=? u v)) s)
+		)))
+		(if pr (walk (cdr pr) s) u)
 	)
 )
 */
@@ -37,40 +27,42 @@ func walk(v *ast.SExpr, s Substitution) *ast.SExpr {
 		return v
 	}
 	if a.IsPair() {
-		return walk(a.Cdr(), s)
+		return walk(a.Pair.Cdr, s)
 	}
 	return v
 }
 
 /*
-assv either produces the first association in l that has v as its car using eqv,
+assv either produces the first association in s that has v as its car using eqv,
 or produces ok = false if l has no such association.
+
+for example: assv v s <==> (assp (λ (v) (var=? u v)) s))
 */
 func assv(v *ast.Variable, s Substitution) (*ast.SExpr, bool) {
 	// fmt.Printf("(assv %v %v)\n", v, s)
-	if s.IsNil() {
+	if s == nil {
 		return nil, false
 	}
-	pair := s.Head()
+	pair := s.Car
 	// fmt.Printf("head = %v\n", pair)
-	if pair.IsAssosiation() {
+	if pair.IsPair() {
 		left := pair.Car()
 		// fmt.Printf("left %v\n", left)
 		if left.IsVariable() {
 			// fmt.Printf("isvar %v\n", left)
 			if v.Equal(left.Atom.Var) {
-				fmt.Printf("got pair %v leftid:%v rightid:%v\n", pair, v.ID, left.Atom.Var.ID)
+				fmt.Printf("got pair %v\n", pair)
 				return pair, true
 			} else {
 				// fmt.Printf("not equal to %v != %v\n", left, v)
 			}
 		}
 	}
-	tail := s.Tail()
-	if tail.List == nil {
-		return nil, false
+	tail := s.Cdr
+	if tail.IsPair() {
+		return assv(v, tail.Pair)
 	}
-	return assv(v, tail.List)
+	return nil, false
 }
 
 /*
@@ -102,17 +94,12 @@ func walkStar(v *ast.SExpr, s Substitution) *ast.SExpr {
 		return vv
 	}
 	if vv.IsPair() {
-		car := vv.List.Head()
-		cdr := vv.List.Tail()
+		carv := vv.Pair.Car
+		cdrv := vv.Pair.Cdr
 		// fmt.Printf("input: %v, car: %v, cdr: %v\n", vv, car, cdr)
-		wcar := walkStar(car, s)
-		wcdr := walkStar(cdr, s)
-		var w *ast.SExpr
-		if wcdr.List != nil {
-			w = ast.Prepend(vv.List.IsQuoted(), wcar, wcdr.List)
-		} else {
-			w = ast.NewList(vv.List.IsQuoted(), wcar, wcdr)
-		}
+		wcar := walkStar(carv, s)
+		wcdr := walkStar(cdrv, s)
+		w := ast.Cons(wcar, wcdr)
 		// fmt.Printf("output: %v, car: %v, cdr: %v\n", w, wcar, wcdr)
 		return w
 	}

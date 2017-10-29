@@ -17,22 +17,18 @@ import (
 */
 func TestFreshKiwi(t *testing.T) {
 	ss := RunGoal(1,
-		CallFresh("kiwi",
-			func(fruit *ast.SExpr) Goal {
-				return EqualO(
-					ast.NewSymbol("plum"),
-					fruit,
-				)
-			},
+		CallFresh(func(fruit *ast.SExpr) Goal {
+			return EqualO(
+				ast.NewSymbol("plum"),
+				fruit,
+			)
+		},
 		),
 	)
 	if len(ss) != 1 {
 		t.Fatalf("expected %d, but got %d results", 1, len(ss))
 	}
-	want := "`((,kiwi . plum))"
-	for i := range ss[0].Items {
-		ss[0].Items[i].RemoveIDs()
-	}
+	want := "((,v0 . plum) . 1)"
 	got := ss[0].String()
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)

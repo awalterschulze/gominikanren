@@ -8,44 +8,18 @@ import (
 
 /*
 (define (unify u v s)
-	(let
-		(
-			(u (walk u s))
-			(v (walk v s))
-		)
+	(let ((u (walk u s)) (v (walk v s)))
 		(cond
-			(
-				(eqv? u v)
-				s
-			)
-			(
-				(var? u)
-				(ext-s u v s)
-			)
-			(
-				(var? v)
-				(ext-s v u s)
-			)
-			(
-				(and
-					(pair? u)
-					(pair? v)
-				)
+			((and (var? u) (var? v) (var=? u v)) s)
+			((var? u) (ext-s u v s))
+			((var? v) (ext-s v u s))
+			((and (pair? u) (pair? v))
 				(let
-					(
-						(s
-							(unify (car u) (car v) s)
-						)
-					)
-					(and
-						s
-						(unify (cdr u) (cdr v) s)
-					)
+					((s (unify (car u) (car v) s)))
+					(and s (unify (cdr u) (cdr v) s))
 				)
 			)
-			(else
-				#f
-			)
+			(else (and (eqv? u v) s))
 		)
 	)
 )
@@ -54,7 +28,7 @@ unify returns either (ok = false) or the substitution s extended with zero or mo
 where cycles in substitutions can lead to (ok = false)
 */
 func unify(u, v *ast.SExpr, s Substitution) (Substitution, bool) {
-	fmt.Printf("unify:u=%v;v=%v;s=%v\n", u, v, s)
+	fmt.Printf("unify:u=%v;v=%v;s=%#v\n", u, v, s)
 	uu := walk(u, s)
 	vv := walk(v, s)
 	fmt.Printf("unify: walked %v %v %v\n", uu, vv, s)
@@ -67,8 +41,9 @@ func unify(u, v *ast.SExpr, s Substitution) (Substitution, bool) {
 		return exts(uu, vv, s)
 	}
 	if vv.IsVariable() {
-		fmt.Printf("unify: added right var %v %v %v\n", uu, vv, s)
-		return exts(vv, uu, s)
+		a, aok := exts(vv, uu, s)
+		fmt.Printf("unify: added right var %v %v %#v added: %v\n", uu, vv, s, a)
+		return a, aok
 	}
 	if uu.IsPair() && vv.IsPair() {
 		fmt.Printf("unify pairs:u=%v;v=%v;s=%v\n", uu, vv, s)

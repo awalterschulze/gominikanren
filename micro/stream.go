@@ -4,68 +4,28 @@ import (
 	"strings"
 )
 
-type StreamOfSubstitutions func() (Substitution, StreamOfSubstitutions)
+type StreamOfSubstitutions func() (*State, StreamOfSubstitutions)
 
 func (stream StreamOfSubstitutions) String() string {
 	buf := []string{}
-	var s Substitution
+	var s *State
 	for stream != nil {
 		s, stream = stream()
-		for i := range s.Items {
-			s.Items[i].RemoveIDs()
-		}
 		buf = append(buf, s.String())
 	}
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
-func NewSingletonStream(s Substitution) StreamOfSubstitutions {
-	return func() (Substitution, StreamOfSubstitutions) {
+func NewSingletonStream(s *State) StreamOfSubstitutions {
+	return func() (*State, StreamOfSubstitutions) {
 		return s, nil
 	}
 }
 
 func Suspension(s func() StreamOfSubstitutions) StreamOfSubstitutions {
-	return func() (Substitution, StreamOfSubstitutions) {
+	return func() (*State, StreamOfSubstitutions) {
 		return nil, s()
 	}
-}
-
-/*
-(define (appendInf s1 s2)
-	(cond
-		(
-			(null? s1)
-			s2
-		)
-		(
-			(pair? s1)
-			(cons
-				(car s1)
-				(appendInf (cdr s1) s2)
-			)
-		)
-		(else
-			(lambda ()
-				(appendInf s2 (s1))
-			)
-		)
-	)
-)
-*/
-func appendStream(s1, s2 StreamOfSubstitutions) StreamOfSubstitutions {
-	if s1 == nil {
-		return s2
-	}
-	car, cdr := s1()
-	if car != nil {
-		return func() (Substitution, StreamOfSubstitutions) {
-			return car, appendStream(cdr, s2)
-		}
-	}
-	return Suspension(func() StreamOfSubstitutions {
-		return appendStream(s2, cdr)
-	})
 }
 
 /*
@@ -99,7 +59,7 @@ func appendStream(s1, s2 StreamOfSubstitutions) StreamOfSubstitutions {
 )
 */
 // n == -1 results in the whole stream being returned.
-func takeStream(n int, s StreamOfSubstitutions) []Substitution {
+func takeStream(n int, s StreamOfSubstitutions) []*State {
 	if n == 0 {
 		return nil
 	}
@@ -109,7 +69,7 @@ func takeStream(n int, s StreamOfSubstitutions) []Substitution {
 	car, cdr := s()
 	if car != nil {
 		ss := takeStream(n-1, cdr)
-		return append([]Substitution{car}, ss...)
+		return append([]*State{car}, ss...)
 	}
 	return takeStream(n, cdr)
 }
