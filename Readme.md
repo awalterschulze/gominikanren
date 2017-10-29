@@ -43,34 +43,34 @@ import (
 )
 
 func main() {
-	states := micro.RunGoal(
-		-1,
-		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
-			return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
-				return micro.ConjunctionO(
+    states := micro.RunGoal(
+        -1,
+        micro.CallFresh(func(x *ast.SExpr) micro.Goal {
+            return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
+                return micro.ConjunctionO(
                     // (== ,q (cons ,x ,y))
-					micro.EqualO(
-						ast.Cons(x, ast.Cons(y, nil)),
-						ast.NewVariable("q"),
+                    micro.EqualO(
+                        ast.Cons(x, ast.Cons(y, nil)),
+                        ast.NewVariable("q"),
                     ),
                     // (appendo ,x ,y (cake & ice d t))
-					mini.AppendO(
-						x,
-						y,
-						ast.NewList(
-							ast.NewSymbol("cake"),
-							ast.NewSymbol("&"),
-							ast.NewSymbol("ice"),
-							ast.NewSymbol("d"),
-							ast.NewSymbol("t"),
-						),
-					),
-				)
-			})
-		}),
-	)
-	sexprs := micro.Reify(ast.NewVariable("q"), states)
-	fmt.Println(ast.NewList(sexprs...).String())
+                    mini.AppendO(
+                        x,
+                        y,
+                        ast.NewList(
+                            ast.NewSymbol("cake"),
+                            ast.NewSymbol("&"),
+                            ast.NewSymbol("ice"),
+                            ast.NewSymbol("d"),
+                            ast.NewSymbol("t"),
+                        ),
+                    ),
+                )
+            })
+        }),
+    )
+    sexprs := micro.Reify(ast.NewVariable("q"), states)
+    fmt.Println(ast.NewList(sexprs...).String())
 }
 //Output:
 //(
