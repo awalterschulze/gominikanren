@@ -5,30 +5,34 @@ import (
 )
 
 /*
-(define (once g)
-	(lambda (s)
-		(let loop
-			(
-				(s1 (g s))
-			)
-			(cond
+OnceO is a goal that returns one successful state.
+
+scheme code:
+
+	(define (once g)
+		(lambda (s)
+			(let loop
 				(
-					(null? s1)
-					()
+					(s1 (g s))
 				)
-				(
-					(pair? s1)
-					(cons (car s1) ())
-				)
-				(else
-					(lambda ()
-						(loop (s1))
+				(cond
+					(
+						(null? s1)
+						()
+					)
+					(
+						(pair? s1)
+						(cons (car s1) ())
+					)
+					(else
+						(lambda ()
+							(loop (s1))
+						)
 					)
 				)
 			)
 		)
 	)
-)
 */
 func OnceO(g micro.Goal) micro.Goal {
 	return func(s *micro.State) micro.StreamOfStates {

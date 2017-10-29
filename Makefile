@@ -7,6 +7,7 @@ travis:
 	make vet
 	make errcheck
 	make diff
+	make lint
 
 .PHONY: regenerate
 regenerate:
@@ -33,3 +34,9 @@ diff:
 errcheck:
 	go get github.com/kisielk/errcheck
 	errcheck ./...
+
+lint:
+	go get github.com/golang/lint/golint
+	golint -set_exit_status ./micro
+	golint -set_exit_status ./mini
+	golint -set_exit_status ./sexpr

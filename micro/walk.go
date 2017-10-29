@@ -49,7 +49,6 @@ func assv(v *ast.Variable, s Substitutions) (*ast.SExpr, bool) {
 		if left.IsVariable() {
 			if v.Equal(left.Atom.Var) {
 				return pair, true
-			} else {
 			}
 		}
 	}

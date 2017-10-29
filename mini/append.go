@@ -6,6 +6,8 @@ import (
 )
 
 /*
+AppendO is a goal that appends two lists into the third list.
+
 (define (appendo l t out)
 	(lambda (s)
 		(lambda ()
@@ -64,10 +66,12 @@ func AppendO(l, t, out *ast.SExpr) micro.Goal {
 	}
 }
 
+// NullO is a goal that checks if a list is null.
 func NullO(x *ast.SExpr) micro.Goal {
 	return micro.EqualO(x, nil)
 }
 
+// ConsO is a goal that conses the first two expressions into the third.
 func ConsO(a, d, p *ast.SExpr) micro.Goal {
 	return func(s *micro.State) micro.StreamOfStates {
 		l := ast.Cons(a, d)
@@ -75,6 +79,7 @@ func ConsO(a, d, p *ast.SExpr) micro.Goal {
 	}
 }
 
+// CarO is a goal where the second parameter is the head of the list in the first parameter.
 func CarO(p, a *ast.SExpr) micro.Goal {
 	return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
 		return micro.EqualO(ast.Cons(a, d), p)

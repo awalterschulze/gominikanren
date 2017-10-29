@@ -19,7 +19,7 @@ func (stream StreamOfStates) String() string {
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
-// NewSingleStream returns the input state as a stream of states containing only the head state.
+// NewSingletonStream returns the input state as a stream of states containing only the head state.
 func NewSingletonStream(s *State) StreamOfStates {
 	return func() (*State, StreamOfStates) {
 		return s, nil
