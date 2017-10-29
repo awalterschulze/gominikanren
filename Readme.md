@@ -1,5 +1,7 @@
 # gominikanren
 
+[![Build Status](https://travis-ci.org/awalterschulze/gominikanren.svg?branch=master)](https://travis-ci.org/awalterschulze/gominikanren)
+
 gominikarnen is an implementation of [miniKanren](http://minikanren.org/) in Go.
 
 ## What is miniKanren
