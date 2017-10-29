@@ -7,13 +7,15 @@ import (
 )
 
 /*
-(run-goal 1
-	(call/fresh kiwi
-		(lambda (fruit)
-			(== plum fruit)
+scheme code:
+
+	(run-goal 1
+		(call/fresh kiwi
+			(lambda (fruit)
+				(== plum fruit)
+			)
 		)
 	)
-)
 */
 func TestFreshKiwi(t *testing.T) {
 	ss := RunGoal(1,

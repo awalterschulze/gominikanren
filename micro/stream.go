@@ -4,9 +4,12 @@ import (
 	"strings"
 )
 
-type StreamOfSubstitutions func() (*State, StreamOfSubstitutions)
+// StreamOfStates is a function that returns a tuple containing the head state and the tail of the stream of states.
+type StreamOfStates func() (*State, StreamOfStates)
 
-func (stream StreamOfSubstitutions) String() string {
+// String returns a string representation of a stream of states.
+// Warning: If the list is infinite this function will not terminate.
+func (stream StreamOfStates) String() string {
 	buf := []string{}
 	var s *State
 	for stream != nil {
@@ -16,50 +19,57 @@ func (stream StreamOfSubstitutions) String() string {
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
-func NewSingletonStream(s *State) StreamOfSubstitutions {
-	return func() (*State, StreamOfSubstitutions) {
+// NewSingleStream returns the input state as a stream of states containing only the head state.
+func NewSingletonStream(s *State) StreamOfStates {
+	return func() (*State, StreamOfStates) {
 		return s, nil
 	}
 }
 
-func Suspension(s func() StreamOfSubstitutions) StreamOfSubstitutions {
-	return func() (*State, StreamOfSubstitutions) {
+// Suspension prepends a nil state infront of the input stream of states.
+func Suspension(s func() StreamOfStates) StreamOfStates {
+	return func() (*State, StreamOfStates) {
 		return nil, s()
 	}
 }
 
 /*
-(define (takeInf n s)
-	(cond
-		(
-			(and
-				n
-				(zero? n)
+takeStream returns the first n states from the stream of states as a list.
+
+scheme code:
+
+	(define (takeInf n s)
+		(cond
+			(
+				(and
+					n
+					(zero? n)
+				)
+				()
 			)
-			()
-		)
-		(
-			(null? s)
-			()
-		)
-		(
-			(pair? s)
-			(cons
-				(car s)
-				(takeInf
-					(and n (sub1 n))
-					(cdr s)
+			(
+				(null? s)
+				()
+			)
+			(
+				(pair? s)
+				(cons
+					(car s)
+					(takeInf
+						(and n (sub1 n))
+						(cdr s)
+					)
 				)
 			)
-		)
-		(else
-			(takeInf n (s))
+			(else
+				(takeInf n (s))
+			)
 		)
 	)
-)
+
+If n == -1 results in the whole stream being returned.
 */
-// n == -1 results in the whole stream being returned.
-func takeStream(n int, s StreamOfSubstitutions) []*State {
+func takeStream(n int, s StreamOfStates) []*State {
 	if n == 0 {
 		return nil
 	}

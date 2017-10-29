@@ -9,21 +9,23 @@ import (
 )
 
 /*
-(let
-	(
-		(a1 `(,x . (,u ,w ,y ,z ((ice) ,z))))
-		(a2 `(,y . corn))
-		(a3 `(,w . (,v ,u)))
-	)
+scheme code:
+
 	(let
 		(
-			(s `(,a1 ,a2 ,a3))
+			(a1 `(,x . (,u ,w ,y ,z ((ice) ,z))))
+			(a2 `(,y . corn))
+			(a3 `(,w . (,v ,u)))
 		)
-		(
-			(reify x) s
+		(let
+			(
+				(s `(,a1 ,a2 ,a3))
+			)
+			(
+				(reify x) s
+			)
 		)
 	)
-)
 */
 func TestReify(t *testing.T) {
 	a1 := "(,x . (,u ,w ,y ,z ((ice) ,z)))"

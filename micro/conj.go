@@ -1,11 +1,15 @@
 package micro
 
 /*
-(define (conj g1 g2)
-	(lambda_g (s/c)
-		(bind (g1 s/c) g2)
+ConjunctionO is a goal that returns a logical AND of the input goals.
+
+scheme code:
+
+	(define (conj g1 g2)
+		(lambda_g (s/c)
+			(bind (g1 s/c) g2)
+		)
 	)
-)
 */
 func ConjunctionO(gs ...Goal) Goal {
 	if len(gs) == 0 {
@@ -16,22 +20,26 @@ func ConjunctionO(gs ...Goal) Goal {
 	}
 	g1 := gs[0]
 	g2 := ConjunctionO(gs[1:]...)
-	return func(s *State) StreamOfSubstitutions {
+	return func(s *State) StreamOfStates {
 		g1s := g1(s)
 		return Bind(g1s, g2)
 	}
 }
 
 /*
-(define (bind $ g)
-	(cond
-		((null? $) mzero)
-		((procedure? $) (lambda_$ () (bind ($) g)))
-		(else (mplus (g (car $)) (bind (cdr $) g)))
+Bind is the monad bind function for goals.
+
+scheme code:
+
+	(define (bind $ g)
+		(cond
+			((null? $) mzero)
+			((procedure? $) (lambda_$ () (bind ($) g)))
+			(else (mplus (g (car $)) (bind (cdr $) g)))
+		)
 	)
-)
 */
-func Bind(s StreamOfSubstitutions, g Goal) StreamOfSubstitutions {
+func Bind(s StreamOfStates, g Goal) StreamOfStates {
 	if s == nil {
 		return nil
 	}
@@ -45,7 +53,7 @@ func Bind(s StreamOfSubstitutions, g Goal) StreamOfSubstitutions {
 			),
 		)
 	}
-	return Suspension(func() StreamOfSubstitutions {
+	return Suspension(func() StreamOfStates {
 		return Bind(
 			cdr,
 			g,

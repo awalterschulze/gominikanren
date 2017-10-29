@@ -7,18 +7,19 @@ import (
 )
 
 /*
-(define (walk u s)
-	(let (
-		(pr (and
-				(var? u)
-				(assp (λ (v) (var=? u v)) s)
-		)))
-		(if pr (walk (cdr pr) s) u)
+scheme code:
+
+	(define (walk u s)
+		(let (
+			(pr (and
+					(var? u)
+					(assp (λ (v) (var=? u v)) s)
+			)))
+			(if pr (walk (cdr pr) s) u)
+		)
 	)
-)
 */
-func walk(v *ast.SExpr, s Substitution) *ast.SExpr {
-	// fmt.Printf("(walk %v %v)\n", v, s)
+func walk(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	if !v.IsVariable() {
 		return v
 	}
@@ -36,9 +37,11 @@ func walk(v *ast.SExpr, s Substitution) *ast.SExpr {
 assv either produces the first association in s that has v as its car using eqv,
 or produces ok = false if l has no such association.
 
-for example: assv v s <==> (assp (λ (v) (var=? u v)) s))
+for example:
+
+	assv v s <==> (assp (λ (v) (var=? u v)) s))
 */
-func assv(v *ast.Variable, s Substitution) (*ast.SExpr, bool) {
+func assv(v *ast.Variable, s Substitutions) (*ast.SExpr, bool) {
 	// fmt.Printf("(assv %v %v)\n", v, s)
 	if s == nil {
 		return nil, false
@@ -66,29 +69,31 @@ func assv(v *ast.Variable, s Substitution) (*ast.SExpr, bool) {
 }
 
 /*
-(define (walkStar v s)
-	(let
-		(
-			(v (walk v s))
-		)
-		(cond
+scheme code:
+
+	(define (walkStar v s)
+		(let
 			(
-				(var? v)
-				v
+				(v (walk v s))
 			)
-			(
-				(pair? v)
-				(cons
-					(walkStar (car v) s)
-					(walkStar (cdr v) s)
+			(cond
+				(
+					(var? v)
+					v
 				)
+				(
+					(pair? v)
+					(cons
+						(walkStar (car v) s)
+						(walkStar (cdr v) s)
+					)
+				)
+				(else v)
 			)
-			(else v)
 		)
 	)
-)
 */
-func walkStar(v *ast.SExpr, s Substitution) *ast.SExpr {
+func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	vv := walk(v, s)
 	if vv.IsVariable() {
 		return vv

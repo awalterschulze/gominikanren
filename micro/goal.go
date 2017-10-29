@@ -5,42 +5,55 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
+// State is a product of a list of substitutions and a variable counter.
 type State struct {
-	Substitution
+	Substitutions
 	Counter int
 }
 
+// String returns a string representation of State.
 func (s *State) String() string {
-	if s.Substitution == nil {
+	if s.Substitutions == nil {
 		return "(" + "()" + " . " + strconv.Itoa(s.Counter) + ")"	
 	}
-	return "(" + s.Substitution.String() + " . " + strconv.Itoa(s.Counter) + ")"
+	return "(" + s.Substitutions.String() + " . " + strconv.Itoa(s.Counter) + ")"
 }
 
+// EmptyState returns an empty state.
 func EmptyState() *State {
 	return &State{}
 }
 
-type Substitution = *ast.Pair
+// Substitutions is a list of substitutions represented by a sexprs pair.
+type Substitutions = *ast.Pair
 
-type Goal func(*State) StreamOfSubstitutions
+// Goal is a function that takes a state and returns a stream of states.
+type Goal func(*State) StreamOfStates
 
 /*
-(define (run-goal n g) 
-	(takeInf n (g empty-s))
-)
+RunGoal calls a goal with an emptystate and n possible resulting states.
+
+scheme code:
+
+	(define (run-goal n g) 
+		(takeInf n (g empty-s))
+	)
+
+If n == -1 then all possible states are returned.
 */
 func RunGoal(n int, g Goal) []*State {
 	ss := g(EmptyState())
 	return takeStream(n, ss)
 }
 
+// SuccessO is a goal that always returns the input state in the resulting stream of states.
 func SuccessO() Goal {
 	return func(s *State) StreamOfSubstitutions {
 		return NewSingletonStream(s)
 	}
 }
 
+// FailureO is a goal that always returns an empty stream of states.
 func FailureO() Goal {
 	return func(s *State) StreamOfSubstitutions {
 		return nil
@@ -48,13 +61,17 @@ func FailureO() Goal {
 }
 
 /*
-(define (= u v)
-	(lambda_g (s/c) 
-		(let ((s (unify u v (car s/c))))
-			(if s (unit `(,s . ,(cdr s/c))) mzero)
+EqualO returns a Goal that unifies the input expressions in the output stream.
+
+scheme code:
+
+	(define (= u v)
+		(lambda_g (s/c) 
+			(let ((s (unify u v (car s/c))))
+				(if s (unit `(,s . ,(cdr s/c))) mzero)
+			)
 		)
 	)
-)
 */
 func EqualO(u, v *ast.SExpr) Goal {
 	return func(s *State) StreamOfSubstitutions {
@@ -67,13 +84,17 @@ func EqualO(u, v *ast.SExpr) Goal {
 }
 
 /*
-(define (nevero) 
-	(lambda (s)
-		(lambda () 
-			((nevero) s)
+NeverO is a Goal that returns a never ending stream of suspensions.
+
+scheme code:
+
+	(define (nevero) 
+		(lambda (s)
+			(lambda () 
+				((nevero) s)
+			)
 		)
 	)
-)
 */
 func NeverO() Goal {
 	return func(s *State) StreamOfSubstitutions {
@@ -84,19 +105,23 @@ func NeverO() Goal {
 }
 
 /*
-(define (alwayso) 
-	(lambda (s)
-		(lambda ()
-			(
-				(disj 
-					S 
-					(alwayso)
+AlwaysO is a goal that returns a never ending stream of success.
+
+scheme code:
+
+	(define (alwayso) 
+		(lambda (s)
+			(lambda ()
+				(
+					(disj 
+						S 
+						(alwayso)
+					)
+					s
 				)
-				s
 			)
 		)
 	)
-)
 */
 func AlwaysO() Goal {
 	return func(s *State) StreamOfSubstitutions {
