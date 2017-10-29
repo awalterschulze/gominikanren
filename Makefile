@@ -1,5 +1,7 @@
 .PHONY: travis
 travis:
+	go get github.com/awalterschulze/goderive
+	go get github.com/goccmack/gocc
 	make regenerate
 	make test
 	make vet
@@ -8,7 +10,6 @@ travis:
 
 .PHONY: regenerate
 regenerate:
-	go install github.com/awalterschulze/goderive
 	goderive ./...
 	(cd sexpr && make regenerate)
 
