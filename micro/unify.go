@@ -28,16 +28,22 @@ scheme code:
 	)
 */
 func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
-	uu := walk(u, s)
-	vv := walk(v, s)
+	uu := u
+	if u.IsVariable() {
+		uu = walk(u.Atom.Var, s)
+	}
+	vv := v
+	if v.IsVariable() {
+		vv = walk(v.Atom.Var, s)
+	}
 	if uu.IsVariable() && vv.IsVariable() && uu.Atom.Var.Equal(uu.Atom.Var) {
 		return s, true
 	}
 	if uu.IsVariable() {
-		return exts(uu, vv, s)
+		return exts(uu.Atom.Var, vv, s)
 	}
 	if vv.IsVariable() {
-		return exts(vv, uu, s)
+		return exts(vv.Atom.Var, uu, s)
 	}
 	if uu.IsPair() && vv.IsPair() {
 		scar, sok := unify(uu.Car(), vv.Car(), s)

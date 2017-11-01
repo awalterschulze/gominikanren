@@ -1,6 +1,8 @@
 package micro
 
-import "github.com/awalterschulze/gominikanren/sexpr/ast"
+import (
+	"github.com/awalterschulze/gominikanren/sexpr/ast"
+)
 
 /*
 exts either extends a substitution s with an association between the variable x and the value v ,
@@ -24,14 +26,11 @@ scheme code:
 		)
 	)
 */
-func exts(x, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
+func exts(x *ast.Variable, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 	if occurs(x, v, s) {
 		return nil, false
 	}
-	if s == nil {
-		return ast.Cons(ast.Cons(x, v), nil).Pair, true
-	}
-	return ast.Cons(ast.Cons(x, v), &ast.SExpr{Pair: s}).Pair, true
+	return append([]*Substitution{&Substitution{Var: x.Name, Value: v}}, s...), true
 }
 
 /*
@@ -63,10 +62,13 @@ scheme code:
 		)
 	)
 */
-func occurs(x, v *ast.SExpr, s Substitutions) bool {
-	vv := walk(v, s)
-	if vv.IsVariable() && x.IsVariable() {
-		return vv.Atom.Var.Equal(x.Atom.Var)
+func occurs(x *ast.Variable, v *ast.SExpr, s Substitutions) bool {
+	vv := v
+	if v.IsVariable() {
+		vv = walk(v.Atom.Var, s)
+	}
+	if vv.IsVariable() {
+		return vv.Atom.Var.Equal(x)
 	}
 	if vv.IsPair() {
 		return occurs(x, vv.Car(), s) || occurs(x, vv.Cdr(), s)

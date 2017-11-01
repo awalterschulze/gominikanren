@@ -8,14 +8,17 @@ import (
 )
 
 func TestOccurs(t *testing.T) {
-	tests := []func() (string, string, string, bool){
-		deriveTupleO(",x", ",x", "()", true),
-		deriveTupleO(",x", ",y", "()", false),
-		deriveTupleO(",x", "(,y)", "((,y . ,x))", true),
+	tests := []func() (string, string, Substitutions, bool){
+		deriveTupleO(",x", ",x", Substitutions(nil), true),
+		deriveTupleO(",x", ",y", nil, false),
+		deriveTupleO(",x", "(,y)", Substitutions{&Substitution{
+			Var:   "y",
+			Value: ast.NewVariable("x"),
+		}}, true),
 	}
 	for _, test := range tests {
 		x, v, s, want := test()
-		t.Run("(occurs "+x+" "+v+" "+s+")", func(t *testing.T) {
+		t.Run("(occurs "+x+" "+v+" "+s.String()+")", func(t *testing.T) {
 			xexpr, err := sexpr.Parse(x)
 			if err != nil {
 				t.Fatal(err)
@@ -24,15 +27,7 @@ func TestOccurs(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			sexpr, err := sexpr.Parse(s)
-			if err != nil {
-				t.Fatal(err)
-			}
-			var pair *ast.Pair
-			if sexpr != nil {
-				pair = sexpr.Pair
-			}
-			got := occurs(xexpr, vexpr, pair)
+			got := occurs(xexpr.Atom.Var, vexpr, s)
 			if want != got {
 				t.Fatalf("got %v want %v", got, want)
 			}
@@ -41,15 +36,43 @@ func TestOccurs(t *testing.T) {
 }
 
 func TestExts(t *testing.T) {
-	tests := []func() (string, string, string, string){
-		deriveTupleE(",x", "a", "()", "((,x . a))"),
-		deriveTupleE(",x", "(,x)", "()", ""),
-		deriveTupleE(",x", "(,y)", "((,y . ,x))", ""),
-		deriveTupleE(",x", "e", "((,z . ,x) (,y . ,z))", "((,x . e) (,z . ,x) (,y . ,z))"),
+	tests := []func() (string, string, Substitutions, Substitutions){
+		deriveTupleE(",x", "a", Substitutions(nil), Substitutions{&Substitution{
+			Var:   "x",
+			Value: ast.NewSymbol("a"),
+		}}),
+		deriveTupleE(",x", "(,x)", Substitutions(nil), Substitutions(nil)),
+		deriveTupleE(",x", "(,y)",
+			Substitutions{&Substitution{
+				Var:   "y",
+				Value: ast.NewVariable("x"),
+			}},
+			Substitutions(nil)),
+		deriveTupleE(",x", "e",
+			Substitutions{
+				&Substitution{
+					Var:   "z",
+					Value: ast.NewVariable("x"),
+				}, &Substitution{
+					Var:   "y",
+					Value: ast.NewVariable("z"),
+				}}, Substitutions{
+				&Substitution{
+					Var:   "x",
+					Value: ast.NewSymbol("e"),
+				}, &Substitution{
+					Var:   "z",
+					Value: ast.NewVariable("x"),
+				}, &Substitution{
+					Var:   "y",
+					Value: ast.NewVariable("z"),
+				},
+			},
+		),
 	}
 	for _, test := range tests {
 		x, v, s, want := test()
-		t.Run("(exts "+x+" "+v+" "+s+")", func(t *testing.T) {
+		t.Run("(exts "+x+" "+v+" "+s.String()+")", func(t *testing.T) {
 			xexpr, err := sexpr.Parse(x)
 			if err != nil {
 				t.Fatal(err)
@@ -58,21 +81,13 @@ func TestExts(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			sexpr, err := sexpr.Parse(s)
-			if err != nil {
-				t.Fatal(err)
-			}
-			var pair *ast.Pair
-			if sexpr != nil {
-				pair = sexpr.Pair
-			}
 			got := ""
-			gots, gotok := exts(xexpr, vexpr, pair)
+			gots, gotok := exts(xexpr.Atom.Var, vexpr, s)
 			if gotok {
-				got = (&ast.SExpr{Pair: gots}).String()
+				got = gots.String()
 			}
-			if want != got {
-				t.Fatalf("got %v <%#v> want %v", got, gots, want)
+			if want.String() != got {
+				t.Fatalf("got %v <%#v> want %v", got, gots, want.String())
 			}
 		})
 	}

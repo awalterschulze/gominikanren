@@ -69,7 +69,7 @@ func main() {
             })
         }),
     )
-    sexprs := micro.Reify(ast.NewVariable("q"), states)
+    sexprs := micro.Reify("q", states)
     fmt.Println(ast.NewList(sexprs...).String())
 }
 //Output:

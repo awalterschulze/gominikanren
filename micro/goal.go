@@ -2,6 +2,7 @@ package micro
 
 import (
 	"strconv"
+
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -14,7 +15,7 @@ type State struct {
 // String returns a string representation of State.
 func (s *State) String() string {
 	if s.Substitutions == nil {
-		return "(" + "()" + " . " + strconv.Itoa(s.Counter) + ")"	
+		return "(" + "()" + " . " + strconv.Itoa(s.Counter) + ")"
 	}
 	return "(" + s.Substitutions.String() + " . " + strconv.Itoa(s.Counter) + ")"
 }
@@ -25,7 +26,25 @@ func EmptyState() *State {
 }
 
 // Substitutions is a list of substitutions represented by a sexprs pair.
-type Substitutions = *ast.Pair
+type Substitutions []*Substitution
+
+func (s Substitutions) String() string {
+	ss := deriveFmapSs(func(s *Substitution) *ast.SExpr {
+		return ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: s.Var}}}, s.Value)
+	}, []*Substitution(s))
+	l := ast.NewList(ss...).String()
+	return l[1 : len(l)-1]
+}
+
+// Substitution represents a variable and a value.
+type Substitution struct {
+	Var   string
+	Value *ast.SExpr
+}
+
+func (s Substitution) String() string {
+	return ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: s.Var}}}, s.Value).String()
+}
 
 // Goal is a function that takes a state and returns a stream of states.
 type Goal func(*State) StreamOfStates
@@ -35,7 +54,7 @@ RunGoal calls a goal with an emptystate and n possible resulting states.
 
 scheme code:
 
-	(define (run-goal n g) 
+	(define (run-goal n g)
 		(takeInf n (g empty-s))
 	)
 
@@ -66,7 +85,7 @@ EqualO returns a Goal that unifies the input expressions in the output stream.
 scheme code:
 
 	(define (= u v)
-		(lambda_g (s/c) 
+		(lambda_g (s/c)
 			(let ((s (unify u v (car s/c))))
 				(if s (unit `(,s . ,(cdr s/c))) mzero)
 			)
@@ -88,9 +107,9 @@ NeverO is a Goal that returns a never ending stream of suspensions.
 
 scheme code:
 
-	(define (nevero) 
+	(define (nevero)
 		(lambda (s)
-			(lambda () 
+			(lambda ()
 				((nevero) s)
 			)
 		)
@@ -109,12 +128,12 @@ AlwaysO is a goal that returns a never ending stream of success.
 
 scheme code:
 
-	(define (alwayso) 
+	(define (alwayso)
 		(lambda (s)
 			(lambda ()
 				(
-					(disj 
-						S 
+					(disj
+						S
 						(alwayso)
 					)
 					s

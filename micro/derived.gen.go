@@ -8,16 +8,16 @@ import (
 
 // deriveTupleO returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTupleO(v0 string, v1 string, v2 string, v3 bool) func() (string, string, string, bool) {
-	return func() (string, string, string, bool) {
+func deriveTupleO(v0 string, v1 string, v2 Substitutions, v3 bool) func() (string, string, Substitutions, bool) {
+	return func() (string, string, Substitutions, bool) {
 		return v0, v1, v2, v3
 	}
 }
 
 // deriveTupleE returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTupleE(v0 string, v1 string, v2 string, v3 string) func() (string, string, string, string) {
-	return func() (string, string, string, string) {
+func deriveTupleE(v0 string, v1 string, v2 Substitutions, v3 Substitutions) func() (string, string, Substitutions, Substitutions) {
+	return func() (string, string, Substitutions, Substitutions) {
 		return v0, v1, v2, v3
 	}
 }
@@ -28,6 +28,23 @@ func deriveTuple3(v0 string, v1 string, v2 string) func() (string, string, strin
 	return func() (string, string, string) {
 		return v0, v1, v2
 	}
+}
+
+// deriveTuple3S returns a function, which returns the input values.
+// Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
+func deriveTuple3S(v0 string, v1 Substitutions, v2 string) func() (string, Substitutions, string) {
+	return func() (string, Substitutions, string) {
+		return v0, v1, v2
+	}
+}
+
+// deriveFmapSs returns a list where each element of the input list has been morphed by the input function.
+func deriveFmapSs(f func(*Substitution) *ast.SExpr, list []*Substitution) []*ast.SExpr {
+	out := make([]*ast.SExpr, len(list))
+	for i, elem := range list {
+		out[i] = f(elem)
+	}
+	return out
 }
 
 // deriveFmapRs returns a list where each element of the input list has been morphed by the input function.

@@ -48,13 +48,13 @@ scheme code:
 	)
 */
 func reifys(v *ast.SExpr, s Substitutions) Substitutions {
-	vv := walk(v, s)
+	vv := v
+	if v.IsVariable() {
+		vv = walk(v.Atom.Var, s)
+	}
 	if vv.IsVariable() {
-		n := reifyName(length(s))
-		if s == nil {
-			return ast.Cons(ast.Cons(vv, n), nil).Pair
-		}
-		return ast.Cons(ast.Cons(vv, n), &ast.SExpr{Pair: s}).Pair
+		n := reifyName(len(s))
+		return append([]*Substitution{&Substitution{Var: vv.Atom.Var.Name, Value: n}}, s...)
 	}
 	if vv.IsPair() {
 		car := vv.Car()
@@ -65,30 +65,16 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	return s
 }
 
-// length returns the length of the list of substitutions.
-func length(s Substitutions) int {
-	if s == nil {
-		return 0
-	}
-	if s.Cdr == nil {
-		return 1
-	}
-	if s.Cdr.Pair == nil {
-		return 2
-	}
-	return 1 + length(s.Cdr.Pair)
-}
-
 // ReifyVarFromState is a curried function that reifies the input variable for the given input state.
-func ReifyVarFromState(v *ast.SExpr) func(s *State) *ast.SExpr {
+func ReifyVarFromState(v string) func(s *State) *ast.SExpr {
 	return func(s *State) *ast.SExpr {
-		vv := walkStar(v, s.Substitutions)
+		vv := walkStar(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: v}}}, s.Substitutions)
 		r := reifyS(vv)
 		return walkStar(vv, r)
 	}
 }
 
 // Reify reifies the input variable for the given input states.
-func Reify(v *ast.SExpr, ss []*State) []*ast.SExpr {
+func Reify(v string, ss []*State) []*ast.SExpr {
 	return deriveFmapRs(ReifyVarFromState(v), ss)
 }

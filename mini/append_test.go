@@ -57,7 +57,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 			})
 		}),
 	)
-	sexprs := micro.Reify(ast.NewVariable("q"), states)
+	sexprs := micro.Reify("q", states)
 	got := ast.NewList(sexprs...).String()
 	want := "((() (cake & ice d t)) ((cake) (& ice d t)) ((cake &) (ice d t)) ((cake & ice) (d t)) ((cake & ice d) (t)) ((cake & ice d t) ()))"
 	if got != want {
@@ -74,7 +74,7 @@ func TestAppendOSingleList(t *testing.T) {
 			ast.NewVariable("q"),
 		),
 	)
-	ss := micro.Reify(ast.NewVariable("q"), subs)
+	ss := micro.Reify("q", subs)
 	got := ast.NewList(ss...).String()
 	want := "((a b))"
 	if got != want {
@@ -91,7 +91,7 @@ func TestAppendOSingleAtom(t *testing.T) {
 			ast.NewVariable("q"),
 		),
 	)
-	ss := micro.Reify(ast.NewVariable("q"), subs)
+	ss := micro.Reify("q", subs)
 	got := ast.NewList(ss...).String()
 	want := "((a . b))"
 	if got != want {

@@ -36,10 +36,24 @@ func TestReify(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	ss := Substitutions{
+		&Substitution{
+			Var:   "x",
+			Value: e.Car().Cdr(),
+		},
+		&Substitution{
+			Var:   "y",
+			Value: e.Cdr().Car().Cdr(),
+		},
+		&Substitution{
+			Var:   "w",
+			Value: e.Cdr().Cdr().Car().Cdr(),
+		},
+	}
 	if !e.IsPair() {
 		t.Fatalf("expected list")
 	}
-	gote := ReifyVarFromState(ast.NewVariable("x"))(&State{Substitutions: e.Pair})
+	gote := ReifyVarFromState("x")(&State{Substitutions: ss})
 	got := gote.String()
 	want := "(_0 (_1 _0) corn _2 ((ice) _2))"
 	if got != want {
@@ -60,7 +74,7 @@ func TestNoReify(t *testing.T) {
 	states := RunGoal(5, g)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
-	r := ReifyVarFromState(ast.NewVariable("x"))
+	r := ReifyVarFromState("x")
 	for i, s := range states {
 		ss[i] = r(s)
 		strs[i] = ss[i].String()

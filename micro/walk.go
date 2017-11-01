@@ -5,7 +5,7 @@ import (
 )
 
 /*
-scheme code:
+walk has been modified to assume it is getting a variable, but here is the original scheme code:
 
 	(define (walk u s)
 		(let (
@@ -17,18 +17,15 @@ scheme code:
 		)
 	)
 */
-func walk(v *ast.SExpr, s Substitutions) *ast.SExpr {
-	if !v.IsVariable() {
-		return v
-	}
-	a, ok := assv(v.Atom.Var, s)
+func walk(v *ast.Variable, s Substitutions) *ast.SExpr {
+	a, ok := assv(v, s)
 	if !ok {
-		return v
+		return &ast.SExpr{Atom: &ast.Atom{Var: v}}
 	}
-	if a.IsPair() {
-		return walk(a.Pair.Cdr, s)
+	if !a.Value.IsVariable() {
+		return a.Value
 	}
-	return v
+	return walk(a.Value.Atom.Var, s)
 }
 
 /*
@@ -39,22 +36,14 @@ for example:
 
 	assv v s <==> (assp (λ (v) (var=? u v)) s))
 */
-func assv(v *ast.Variable, s Substitutions) (*ast.SExpr, bool) {
-	if s == nil {
+func assv(v *ast.Variable, ss Substitutions) (*Substitution, bool) {
+	if ss == nil {
 		return nil, false
 	}
-	pair := s.Car
-	if pair.IsPair() {
-		left := pair.Car()
-		if left.IsVariable() {
-			if v.Equal(left.Atom.Var) {
-				return pair, true
-			}
+	for i, s := range ss {
+		if v.Name == s.Var {
+			return ss[i], true
 		}
-	}
-	tail := s.Cdr
-	if tail.IsPair() {
-		return assv(v, tail.Pair)
 	}
 	return nil, false
 }
@@ -85,7 +74,10 @@ scheme code:
 	)
 */
 func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
-	vv := walk(v, s)
+	vv := v
+	if v.IsVariable() {
+		vv = walk(v.Atom.Var, s)
+	}
 	if vv.IsVariable() {
 		return vv
 	}
