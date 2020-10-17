@@ -23,7 +23,7 @@ func DisjointO(gs ...Goal) Goal {
 	return func(s *State) StreamOfStates {
 		g1s := g1(s)
 		g2s := g2(s)
-		return mplus(g1s, g2s)
+		return Mplus(g1s, g2s)
 	}
 }
 
@@ -50,17 +50,17 @@ scheme code:
 		)
 	)
 */
-func mplus(g1, g2 StreamOfStates) StreamOfStates {
+func Mplus(g1, g2 StreamOfStates) StreamOfStates {
 	if g1 == nil {
 		return g2
 	}
 	car, cdr := g1()
 	if car != nil { // not a suspension => procedure? == false
 		return func() (*State, StreamOfStates) {
-			return car, mplus(cdr, g2)
+			return car, Mplus(cdr, g2)
 		}
 	}
 	return Suspension(func() StreamOfStates {
-		return mplus(g2, cdr)
+		return Mplus(g2, cdr)
 	})
 }
