@@ -9,10 +9,10 @@ import (
 
 func TestIfThenElseSuccess(t *testing.T) {
 	ifte := IfThenElseO(
-		micro.SuccessO(),
+		micro.SuccessO,
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
-	)
+	)()
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	want := "(((,y . #f) . 0))"
@@ -23,10 +23,10 @@ func TestIfThenElseSuccess(t *testing.T) {
 
 func TestIfThenElseFailure(t *testing.T) {
 	ifte := IfThenElseO(
-		micro.FailureO(),
+		micro.FailureO,
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
-	)
+	)()
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	want := "(((,y . #t) . 0))"
@@ -40,7 +40,7 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("x")),
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
-	)
+	)()
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	want := "(((,y . #f) (,x . #t) . 0))"
@@ -57,7 +57,7 @@ func TestIfThenElseDisjoint(t *testing.T) {
 		),
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
-	)
+	)()
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	want := "(((,y . #f) (,x . #t) . 0) ((,y . #f) (,x . #f) . 0))"

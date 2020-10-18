@@ -46,8 +46,10 @@ func (s Substitution) String() string {
 	return ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: s.Var}}}, s.Value).String()
 }
 
-// Goal is a function that takes a state and returns a stream of states.
-type Goal func(*State) StreamOfStates
+// GoalFn is a function that takes a state and returns a stream of states.
+type GoalFn func(*State) StreamOfStates
+// Goal is a function that returns a GoalFn. Used for lazy evaluation
+type Goal func() GoalFn
 
 /*
 RunGoal calls a goal with an emptystate and n possible resulting states.
@@ -61,19 +63,19 @@ scheme code:
 If n == -1 then all possible states are returned.
 */
 func RunGoal(n int, g Goal) []*State {
-	ss := g(EmptyState())
+	ss := g()(EmptyState())
 	return takeStream(n, ss)
 }
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
-func SuccessO() Goal {
+func SuccessO() GoalFn {
 	return func(s *State) StreamOfStates {
 		return NewSingletonStream(s)
 	}
 }
 
 // FailureO is a goal that always returns an empty stream of states.
-func FailureO() Goal {
+func FailureO() GoalFn {
 	return func(s *State) StreamOfStates {
 		return nil
 	}
@@ -93,6 +95,7 @@ scheme code:
 	)
 */
 func EqualO(u, v *ast.SExpr) Goal {
+    return func() GoalFn {
 	return func(s *State) StreamOfStates {
 		ss, sok := unify(u, v, s.Substitutions)
 		if sok {
@@ -100,6 +103,7 @@ func EqualO(u, v *ast.SExpr) Goal {
 		}
 		return nil
 	}
+    }
 }
 
 /*
@@ -115,12 +119,23 @@ scheme code:
 		)
 	)
 */
+
 func NeverO() Goal {
-	return func(s *State) StreamOfStates {
-		return Suspension(func() StreamOfStates {
-			return NeverO()(s)
-		})
-	}
+    return func() GoalFn {
+        return neverO()
+    }
+}
+
+func neverO() GoalFn {
+    return DefRel(neverO)
+}
+
+func DefRel(f func() GoalFn) GoalFn {
+    return func(s *State) StreamOfStates {
+        return Suspension(func() StreamOfStates {
+            return f()(s)
+        })
+    }
 }
 
 /*
@@ -142,13 +157,13 @@ scheme code:
 		)
 	)
 */
+
 func AlwaysO() Goal {
-	return func(s *State) StreamOfStates {
-		return Suspension(func() StreamOfStates {
-			return DisjointO(
-				SuccessO(),
-				AlwaysO(),
-			)(s)
-		})
-	}
+    return func() GoalFn {
+        return alwaysO()
+    }
+}
+
+func alwaysO() GoalFn {
+    return DefRel(DisjointO(SuccessO, alwaysO))
 }

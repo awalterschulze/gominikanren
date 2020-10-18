@@ -15,7 +15,7 @@ func TestOnce(t *testing.T) {
 		)),
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
-	)
+	)()
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	want := "(((,y . #f) (,x . #t) . 0))"

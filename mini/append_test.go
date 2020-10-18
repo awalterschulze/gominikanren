@@ -113,7 +113,7 @@ func TestCarO(t *testing.T) {
 		),
 		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
 		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
-	)
+	)()
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	want := "(((,y . #t) (,v0 c o r n) . 1))"
