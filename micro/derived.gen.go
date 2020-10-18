@@ -38,15 +38,6 @@ func deriveTuple3S(v0 string, v1 Substitutions, v2 string) func() (string, Subst
 	}
 }
 
-// deriveFmapSs returns a list where each element of the input list has been morphed by the input function.
-func deriveFmapSs(f func(*Substitution) *ast.SExpr, list []*Substitution) []*ast.SExpr {
-	out := make([]*ast.SExpr, len(list))
-	for i, elem := range list {
-		out[i] = f(elem)
-	}
-	return out
-}
-
 // deriveFmapRs returns a list where each element of the input list has been morphed by the input function.
 func deriveFmapRs(f func(*State) *ast.SExpr, list []*State) []*ast.SExpr {
 	out := make([]*ast.SExpr, len(list))

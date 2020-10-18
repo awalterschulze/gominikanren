@@ -8,32 +8,14 @@ import (
 
 func TestWalk(t *testing.T) {
 	zaxwyz := Substitutions{
-		&Substitution{
-			Var:   "z",
-			Value: ast.NewSymbol("a"),
-		},
-		&Substitution{
-			Var:   "x",
-			Value: ast.NewVariable("w"),
-		},
-		&Substitution{
-			Var:   "y",
-			Value: ast.NewVariable("z"),
-		},
+			"z": ast.NewSymbol("a"),
+			"x": ast.NewVariable("w"),
+			"y": ast.NewVariable("z"),
 	}
 	xyvxwx := Substitutions{
-		&Substitution{
-			Var:   "x",
-			Value: ast.NewVariable("y"),
-		},
-		&Substitution{
-			Var:   "v",
-			Value: ast.NewVariable("x"),
-		},
-		&Substitution{
-			Var:   "w",
-			Value: ast.NewVariable("x"),
-		},
+			"x": ast.NewVariable("y"),
+			"v": ast.NewVariable("x"),
+			"w": ast.NewVariable("x"),
 	}
 	tests := []func() (string, Substitutions, string){
 		deriveTuple3S("z", zaxwyz, "a"),
@@ -43,32 +25,14 @@ func TestWalk(t *testing.T) {
 		deriveTuple3S("v", xyvxwx, ",y"),
 		deriveTuple3S("w", xyvxwx, ",y"),
 		deriveTuple3S("w", Substitutions{
-			&Substitution{
-				Var:   "x",
-				Value: ast.NewSymbol("b"),
-			},
-			&Substitution{
-				Var:   "z",
-				Value: ast.NewVariable("y"),
-			},
-			&Substitution{
-				Var:   "w",
-				Value: ast.NewList(ast.NewVariable("x"), ast.NewSymbol("e"), ast.NewVariable("z")),
-			},
+				"x": ast.NewSymbol("b"),
+				"z": ast.NewVariable("y"),
+				"w": ast.NewList(ast.NewVariable("x"), ast.NewSymbol("e"), ast.NewVariable("z")),
 		}, "(,x e ,z)"),
 		deriveTuple3S("y", Substitutions{
-			&Substitution{
-				Var:   "x",
-				Value: ast.NewSymbol("e"),
-			},
-			&Substitution{
-				Var:   "z",
-				Value: ast.NewVariable("x"),
-			},
-			&Substitution{
-				Var:   "y",
-				Value: ast.NewVariable("z"),
-			},
+				"x": ast.NewSymbol("e"),
+				"z": ast.NewVariable("x"),
+				"y": ast.NewVariable("z"),
 		}, "e"),
 	}
 	for _, test := range tests {
@@ -85,32 +49,14 @@ func TestWalk(t *testing.T) {
 
 func TestWalkStar(t *testing.T) {
 	zaxwyz := Substitutions{
-		&Substitution{
-			Var:   "z",
-			Value: ast.NewSymbol("a"),
-		},
-		&Substitution{
-			Var:   "x",
-			Value: ast.NewVariable("w"),
-		},
-		&Substitution{
-			Var:   "y",
-			Value: ast.NewVariable("z"),
-		},
+			"z": ast.NewSymbol("a"),
+			"x": ast.NewVariable("w"),
+			"y": ast.NewVariable("z"),
 	}
 	xyvxwx := Substitutions{
-		&Substitution{
-			Var:   "x",
-			Value: ast.NewVariable("y"),
-		},
-		&Substitution{
-			Var:   "v",
-			Value: ast.NewVariable("x"),
-		},
-		&Substitution{
-			Var:   "w",
-			Value: ast.NewVariable("x"),
-		},
+			"x": ast.NewVariable("y"),
+			"v": ast.NewVariable("x"),
+			"w": ast.NewVariable("x"),
 	}
 	tests := []func() (string, Substitutions, string){
 		deriveTuple3S("z", zaxwyz, "a"),
@@ -120,32 +66,14 @@ func TestWalkStar(t *testing.T) {
 		deriveTuple3S("v", xyvxwx, ",y"),
 		deriveTuple3S("w", xyvxwx, ",y"),
 		deriveTuple3S("w", Substitutions{
-			&Substitution{
-				Var:   "x",
-				Value: ast.NewSymbol("b"),
-			},
-			&Substitution{
-				Var:   "z",
-				Value: ast.NewVariable("y"),
-			},
-			&Substitution{
-				Var:   "w",
-				Value: ast.NewList(ast.NewVariable("x"), ast.NewSymbol("e"), ast.NewVariable("z")),
-			},
+				"x": ast.NewSymbol("b"),
+				"z": ast.NewVariable("y"),
+				"w": ast.NewList(ast.NewVariable("x"), ast.NewSymbol("e"), ast.NewVariable("z")),
 		}, "(b e ,y)"),
 		deriveTuple3S("y", Substitutions{
-			&Substitution{
-				Var:   "x",
-				Value: ast.NewSymbol("e"),
-			},
-			&Substitution{
-				Var:   "z",
-				Value: ast.NewVariable("x"),
-			},
-			&Substitution{
-				Var:   "y",
-				Value: ast.NewVariable("z"),
-			},
+				"x": ast.NewSymbol("e"),
+				"z": ast.NewVariable("x"),
+				"y": ast.NewVariable("z"),
 		}, "e"),
 	}
 	for _, test := range tests {

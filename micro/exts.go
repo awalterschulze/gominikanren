@@ -30,7 +30,12 @@ func exts(x *ast.Variable, v *ast.SExpr, s Substitutions) (Substitutions, bool) 
 	if occurs(x, v, s) {
 		return nil, false
 	}
-	return append([]*Substitution{&Substitution{Var: x.Name, Value: v}}, s...), true
+    m := map[string]*ast.SExpr{}
+    for key, value := range s {
+        m[key] = value
+    }
+    m[x.Name] = v
+    return m, true
 }
 
 /*

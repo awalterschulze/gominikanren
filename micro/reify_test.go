@@ -37,18 +37,9 @@ func TestReify(t *testing.T) {
 		t.Fatal(err)
 	}
 	ss := Substitutions{
-		&Substitution{
-			Var:   "x",
-			Value: e.Car().Cdr(),
-		},
-		&Substitution{
-			Var:   "y",
-			Value: e.Cdr().Car().Cdr(),
-		},
-		&Substitution{
-			Var:   "w",
-			Value: e.Cdr().Cdr().Car().Cdr(),
-		},
+			"x": e.Car().Cdr(),
+			"y": e.Cdr().Car().Cdr(),
+			"w": e.Cdr().Cdr().Car().Cdr(),
 	}
 	if !e.IsPair() {
 		t.Fatalf("expected list")

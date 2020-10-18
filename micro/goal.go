@@ -1,6 +1,7 @@
 package micro
 
 import (
+    "sort"
 	"strconv"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
@@ -26,25 +27,30 @@ func EmptyState() *State {
 }
 
 // Substitutions is a list of substitutions represented by a sexprs pair.
-type Substitutions []*Substitution
+type Substitutions map[string]*ast.SExpr
 
 func (s Substitutions) String() string {
-	ss := deriveFmapSs(func(s *Substitution) *ast.SExpr {
-		return ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: s.Var}}}, s.Value)
-	}, []*Substitution(s))
-	l := ast.NewList(ss...).String()
+    keys := make([]string, len(s))
+    i := 0
+    for k, _ := range s {
+        keys[i] = k
+        i++
+    }
+    sort.Strings(keys)
+    sexprs := make([]*ast.SExpr, len(s))
+    for i, k := range keys {
+        v := s[k]
+        sexprs[len(s)-1-i] = ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: k}}}, v)
+    }
+    l := ast.NewList(sexprs...).String()
 	return l[1 : len(l)-1]
 }
 
-// Substitution represents a variable and a value.
-type Substitution struct {
-	Var   string
-	Value *ast.SExpr
-}
-
+/*
 func (s Substitution) String() string {
 	return ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: s.Var}}}, s.Value).String()
 }
+*/
 
 // GoalFn is a function that takes a state and returns a stream of states.
 type GoalFn func(*State) StreamOfStates
