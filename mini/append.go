@@ -43,10 +43,8 @@ scheme code:
 	)
 */
 func AppendO(l, t, out *ast.SExpr) micro.Goal {
-	return func(s *micro.State) micro.StreamOfStates {
-		return micro.Suspension(
-			func() micro.StreamOfStates {
-				return micro.DisjointO(
+    return micro.Zzz(
+				micro.DisjointO(
 					micro.ConjunctionO(
 						NullO(l),
 						micro.EqualO(t, out),
@@ -62,10 +60,8 @@ func AppendO(l, t, out *ast.SExpr) micro.Goal {
 							})
 						})
 					}),
-				)(s)
-			},
+				),
 		)
-	}
 }
 
 // NullO is a goal that checks if a list is null.
@@ -75,10 +71,12 @@ func NullO(x *ast.SExpr) micro.Goal {
 
 // ConsO is a goal that conses the first two expressions into the third.
 func ConsO(a, d, p *ast.SExpr) micro.Goal {
+    return func() micro.GoalFn {
 	return func(s *micro.State) micro.StreamOfStates {
 		l := ast.Cons(a, d)
-		return micro.EqualO(l, p)(s)
+		return micro.EqualO(l, p)()(s)
 	}
+    }
 }
 
 // CarO is a goal where the second parameter is the head of the list in the first parameter.

@@ -24,7 +24,7 @@ func TestEqualO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			stream := EqualO(uexpr, vexpr)(EmptyState())
+			stream := EqualO(uexpr, vexpr)()(EmptyState())
 			got := stream.String()
 			if got != want {
 				t.Fatalf("got %s want %s", got, want)
@@ -46,7 +46,7 @@ func TestSuccessO(t *testing.T) {
 }
 
 func TestNeverO(t *testing.T) {
-	n := NeverO()(EmptyState())
+	n := NeverO()()(EmptyState())
 	s, sok := n()
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -63,7 +63,7 @@ func TestDisjointO1(t *testing.T) {
 			ast.NewVariable("x"),
 		),
 		NeverO(),
-	)(EmptyState())
+	)()(EmptyState())
 	s, sok := d()
 	got := s.String()
 	want := "((,x . olive) . 0)"
@@ -82,7 +82,7 @@ func TestDisjointO2(t *testing.T) {
 			ast.NewSymbol("olive"),
 			ast.NewVariable("x"),
 		),
-	)(EmptyState())
+	)()(EmptyState())
 	s, sok := d()
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -102,7 +102,7 @@ func TestDisjointO2(t *testing.T) {
 }
 
 func TestAlwaysO(t *testing.T) {
-	a := AlwaysO()(EmptyState())
+	a := AlwaysO()()(EmptyState())
 	s, sok := a()
 	if s != nil {
 		t.Fatal("expected suspension")

@@ -15,21 +15,27 @@ import (
     ((very-recursiveo))
     ((nevero))))
 */
-func veryRecursiveO() Goal {
+func VeryRecursiveO() Goal {
+    return func() GoalFn {
+        return DefRel(veryRecursiveO)
+    }
+}
+
+func veryRecursiveO() GoalFn {
 	return Conde(
 		[]Goal{NeverO()},
-		[]Goal{Zzz2(veryRecursiveO)},
+		[]Goal{VeryRecursiveO()},
 		[]Goal{AlwaysO()},
-		[]Goal{Zzz2(veryRecursiveO)},
+		[]Goal{VeryRecursiveO()},
 		[]Goal{NeverO()},
-	)
+	)()
 }
 
 func TestRecursive(t *testing.T) {
 	ss := RunGoal(
 		5,
 		CallFresh(func(q *ast.SExpr) Goal {
-			return veryRecursiveO()
+			return Zzz(veryRecursiveO)
 		}),
 	)
     if len(ss) != 5 {

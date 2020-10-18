@@ -34,6 +34,21 @@ func Suspension(s func() StreamOfStates) StreamOfStates {
 }
 
 /*
+(define- syntax Zzz
+(syntax- rules ()
+    ((_ g) (λg (s/c) (λ$ () (g s/c))))))
+*/
+func Zzz(g Goal) Goal {
+    return func() GoalFn {
+	    return func(s *State) StreamOfStates {
+		    return Suspension(func() StreamOfStates {
+                return g()(s)
+            })
+        }
+    }
+}
+
+/*
 takeStream returns the first n states from the stream of states as a list.
 
 scheme code:

@@ -13,17 +13,19 @@ scheme code:
 */
 func ConjunctionO(gs ...Goal) Goal {
 	if len(gs) == 0 {
-		return SuccessO()
+		return SuccessO
 	}
 	if len(gs) == 1 {
 		return gs[0]
 	}
 	g1 := gs[0]
 	g2 := ConjunctionO(gs[1:]...)
+    return func() GoalFn {
 	return func(s *State) StreamOfStates {
-		g1s := g1(s)
+		g1s := g1()(s)
 		return Bind(g1s, g2)
 	}
+    }
 }
 
 /*
@@ -46,7 +48,7 @@ func Bind(s StreamOfStates, g Goal) StreamOfStates {
 	car, cdr := s()
 	if car != nil { // not a suspension => procedure? == false
 		return mplus(
-			g(car),
+			g()(car),
 			Bind(
 				cdr,
 				g,
