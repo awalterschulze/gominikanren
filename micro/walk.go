@@ -18,14 +18,14 @@ walk has been modified to assume it is getting a variable, but here is the origi
 	)
 */
 func walk(v *ast.Variable, s Substitutions) *ast.SExpr {
-	a, ok := assv(v, s)
+	value, ok := assv(v, s)
 	if !ok {
 		return &ast.SExpr{Atom: &ast.Atom{Var: v}}
 	}
-	if !a.Value.IsVariable() {
-		return a.Value
+	if !value.IsVariable() {
+		return value
 	}
-	return walk(a.Value.Atom.Var, s)
+	return walk(value.Atom.Var, s)
 }
 
 /*
@@ -36,16 +36,15 @@ for example:
 
 	assv v s <==> (assp (λ (v) (var=? u v)) s))
 */
-func assv(v *ast.Variable, ss Substitutions) (*Substitution, bool) {
+func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
 	if ss == nil {
 		return nil, false
 	}
-	for i, s := range ss {
-		if v.Name == s.Var {
-			return ss[i], true
-		}
-	}
-	return nil, false
+    value, ok := ss[v.Name]
+    if !ok {
+        return nil, false
+    }
+    return value, true
 }
 
 /*

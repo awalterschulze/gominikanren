@@ -4,6 +4,7 @@ package micro
 
 import (
 	ast "github.com/awalterschulze/gominikanren/sexpr/ast"
+	"sort"
 )
 
 // deriveTupleO returns a function, which returns the input values.
@@ -38,13 +39,29 @@ func deriveTuple3S(v0 string, v1 Substitutions, v2 string) func() (string, Subst
 	}
 }
 
-// deriveFmapSs returns a list where each element of the input list has been morphed by the input function.
-func deriveFmapSs(f func(*Substitution) *ast.SExpr, list []*Substitution) []*ast.SExpr {
-	out := make([]*ast.SExpr, len(list))
-	for i, elem := range list {
-		out[i] = f(elem)
+// deriveClone returns a clone of the src parameter.
+func deriveClone(src Substitutions) Substitutions {
+	if src == nil {
+		return nil
 	}
-	return out
+	dst := make(Substitutions)
+	deriveDeepCopy(dst, src)
+	return dst
+}
+
+// deriveSorted sorts the slice inplace and also returns it.
+func deriveSorted(list []string) []string {
+	sort.Strings(list)
+	return list
+}
+
+// deriveKeys returns the keys of the input map as a slice.
+func deriveKeys(m map[string]*ast.SExpr) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	return keys
 }
 
 // deriveFmapRs returns a list where each element of the input list has been morphed by the input function.
@@ -63,4 +80,85 @@ func deriveFmaps(f func(*State) string, list []*State) []string {
 		out[i] = f(elem)
 	}
 	return out
+}
+
+// deriveDeepCopy recursively copies the contents of src into dst.
+func deriveDeepCopy(dst, src Substitutions) {
+	for src_key, src_value := range src {
+		if src_value == nil {
+			dst[src_key] = nil
+		}
+		if src_value == nil {
+			dst[src_key] = nil
+		} else {
+			dst[src_key] = new(ast.SExpr)
+			deriveDeepCopy_(dst[src_key], src_value)
+		}
+	}
+}
+
+// deriveDeepCopy_ recursively copies the contents of src into dst.
+func deriveDeepCopy_(dst, src *ast.SExpr) {
+	if src.Pair == nil {
+		dst.Pair = nil
+	} else {
+		dst.Pair = new(ast.Pair)
+		deriveDeepCopy_1(dst.Pair, src.Pair)
+	}
+	if src.Atom == nil {
+		dst.Atom = nil
+	} else {
+		dst.Atom = new(ast.Atom)
+		deriveDeepCopy_2(dst.Atom, src.Atom)
+	}
+}
+
+// deriveDeepCopy_1 recursively copies the contents of src into dst.
+func deriveDeepCopy_1(dst, src *ast.Pair) {
+	if src.Car == nil {
+		dst.Car = nil
+	} else {
+		dst.Car = new(ast.SExpr)
+		deriveDeepCopy_(dst.Car, src.Car)
+	}
+	if src.Cdr == nil {
+		dst.Cdr = nil
+	} else {
+		dst.Cdr = new(ast.SExpr)
+		deriveDeepCopy_(dst.Cdr, src.Cdr)
+	}
+}
+
+// deriveDeepCopy_2 recursively copies the contents of src into dst.
+func deriveDeepCopy_2(dst, src *ast.Atom) {
+	if src.Str == nil {
+		dst.Str = nil
+	} else {
+		dst.Str = new(string)
+		*dst.Str = *src.Str
+	}
+	if src.Symbol == nil {
+		dst.Symbol = nil
+	} else {
+		dst.Symbol = new(string)
+		*dst.Symbol = *src.Symbol
+	}
+	if src.Float == nil {
+		dst.Float = nil
+	} else {
+		dst.Float = new(float64)
+		*dst.Float = *src.Float
+	}
+	if src.Int == nil {
+		dst.Int = nil
+	} else {
+		dst.Int = new(int64)
+		*dst.Int = *src.Int
+	}
+	if src.Var == nil {
+		dst.Var = nil
+	} else {
+		dst.Var = new(ast.Variable)
+		*dst.Var = *src.Var
+	}
 }

@@ -11,10 +11,9 @@ func TestOccurs(t *testing.T) {
 	tests := []func() (string, string, Substitutions, bool){
 		deriveTupleO(",x", ",x", Substitutions(nil), true),
 		deriveTupleO(",x", ",y", nil, false),
-		deriveTupleO(",x", "(,y)", Substitutions{&Substitution{
-			Var:   "y",
-			Value: ast.NewVariable("x"),
-		}}, true),
+		deriveTupleO(",x", "(,y)", Substitutions{
+            "y": ast.NewVariable("x"),
+		}, true),
 	}
 	for _, test := range tests {
 		x, v, s, want := test()
@@ -37,36 +36,24 @@ func TestOccurs(t *testing.T) {
 
 func TestExts(t *testing.T) {
 	tests := []func() (string, string, Substitutions, Substitutions){
-		deriveTupleE(",x", "a", Substitutions(nil), Substitutions{&Substitution{
-			Var:   "x",
-			Value: ast.NewSymbol("a"),
-		}}),
+		deriveTupleE(",x", "a", Substitutions(nil), Substitutions{
+			"x": ast.NewSymbol("a"),
+		}),
 		deriveTupleE(",x", "(,x)", Substitutions(nil), Substitutions(nil)),
 		deriveTupleE(",x", "(,y)",
-			Substitutions{&Substitution{
-				Var:   "y",
-				Value: ast.NewVariable("x"),
-			}},
+			Substitutions{
+				"y": ast.NewVariable("x"),
+			},
 			Substitutions(nil)),
 		deriveTupleE(",x", "e",
 			Substitutions{
-				&Substitution{
-					Var:   "z",
-					Value: ast.NewVariable("x"),
-				}, &Substitution{
-					Var:   "y",
-					Value: ast.NewVariable("z"),
-				}}, Substitutions{
-				&Substitution{
-					Var:   "x",
-					Value: ast.NewSymbol("e"),
-				}, &Substitution{
-					Var:   "z",
-					Value: ast.NewVariable("x"),
-				}, &Substitution{
-					Var:   "y",
-					Value: ast.NewVariable("z"),
+					"z": ast.NewVariable("x"),
+					"y": ast.NewVariable("z"),
 				},
+            Substitutions{
+					"x": ast.NewSymbol("e"),
+					"z": ast.NewVariable("x"),
+					"y": ast.NewVariable("z"),
 			},
 		),
 	}
