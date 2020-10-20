@@ -1,7 +1,6 @@
 package micro
 
 import (
-    "sort"
 	"strconv"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
@@ -30,15 +29,9 @@ func EmptyState() *State {
 type Substitutions map[string]*ast.SExpr
 
 func (s Substitutions) String() string {
-    keys := make([]string, len(s))
-    i := 0
-    for k, _ := range s {
-        keys[i] = k
-        i++
-    }
-    sort.Strings(keys)
     sexprs := make([]*ast.SExpr, len(s))
-    for i, k := range keys {
+    ss := map[string]*ast.SExpr(s)
+    for i, k := range deriveSorted(deriveKeys(ss)) {
         v := s[k]
         sexprs[len(s)-1-i] = ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: k}}}, v)
     }
