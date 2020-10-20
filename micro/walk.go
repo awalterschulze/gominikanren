@@ -40,11 +40,11 @@ func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
 	if ss == nil {
 		return nil, false
 	}
-    value, ok := ss[v.Name]
-    if !ok {
-        return nil, false
-    }
-    return value, true
+	value, ok := ss[v.Name]
+	if !ok {
+		return nil, false
+	}
+	return value, true
 }
 
 /*

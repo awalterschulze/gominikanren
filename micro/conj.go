@@ -20,12 +20,12 @@ func ConjunctionO(gs ...Goal) Goal {
 	}
 	g1 := gs[0]
 	g2 := ConjunctionO(gs[1:]...)
-    return func() GoalFn {
-	return func(s *State) StreamOfStates {
-		g1s := g1()(s)
-		return Bind(g1s, g2)
+	return func() GoalFn {
+		return func(s *State) StreamOfStates {
+			g1s := g1()(s)
+			return Bind(g1s, g2)
+		}
 	}
-    }
 }
 
 /*

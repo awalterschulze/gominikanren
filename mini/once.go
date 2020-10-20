@@ -35,11 +35,11 @@ scheme code:
 	)
 */
 func OnceO(g micro.Goal) micro.Goal {
-    return func() micro.GoalFn {
-	return func(s *micro.State) micro.StreamOfStates {
-		return onceLoop(g()(s))
+	return func() micro.GoalFn {
+		return func(s *micro.State) micro.StreamOfStates {
+			return onceLoop(g()(s))
+		}
 	}
-    }
 }
 
 func onceLoop(ss micro.StreamOfStates) micro.StreamOfStates {
