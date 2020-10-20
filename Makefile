@@ -1,7 +1,7 @@
 .PHONY: travis
 travis:
-        go get github.com/goccmack/gocc
-        go get github.com/awalterschulze/goderive
+	go get github.com/goccmack/gocc
+	go get github.com/awalterschulze/goderive
 	make regenerate
 	make test
 	make vet
