@@ -43,25 +43,25 @@ scheme code:
 	)
 */
 func AppendO(l, t, out *ast.SExpr) micro.Goal {
-    return micro.Zzz(
-				micro.DisjointO(
-					micro.ConjunctionO(
-						NullO(l),
-						micro.EqualO(t, out),
-					),
-					micro.CallFresh(func(a *ast.SExpr) micro.Goal {
-						return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
-							return micro.CallFresh(func(res *ast.SExpr) micro.Goal {
-								return micro.ConjunctionO(
-									ConsO(a, d, l),
-									ConsO(a, res, out),
-									AppendO(d, t, res),
-								)
-							})
-						})
-					}),
-				),
-		)
+	return micro.Zzz(
+		micro.DisjointO(
+			micro.ConjunctionO(
+				NullO(l),
+				micro.EqualO(t, out),
+			),
+			micro.CallFresh(func(a *ast.SExpr) micro.Goal {
+				return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
+					return micro.CallFresh(func(res *ast.SExpr) micro.Goal {
+						return micro.ConjunctionO(
+							ConsO(a, d, l),
+							ConsO(a, res, out),
+							AppendO(d, t, res),
+						)
+					})
+				})
+			}),
+		),
+	)
 }
 
 // NullO is a goal that checks if a list is null.
@@ -71,12 +71,12 @@ func NullO(x *ast.SExpr) micro.Goal {
 
 // ConsO is a goal that conses the first two expressions into the third.
 func ConsO(a, d, p *ast.SExpr) micro.Goal {
-    return func() micro.GoalFn {
-	return func(s *micro.State) micro.StreamOfStates {
-		l := ast.Cons(a, d)
-		return micro.EqualO(l, p)()(s)
+	return func() micro.GoalFn {
+		return func(s *micro.State) micro.StreamOfStates {
+			l := ast.Cons(a, d)
+			return micro.EqualO(l, p)()(s)
+		}
 	}
-    }
 }
 
 // CarO is a goal where the second parameter is the head of the list in the first parameter.

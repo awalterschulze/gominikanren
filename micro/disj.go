@@ -20,13 +20,13 @@ func DisjointO(gs ...Goal) Goal {
 	}
 	g1 := gs[0]
 	g2 := DisjointO(gs[1:]...)
-    return func() GoalFn {
-	return func(s *State) StreamOfStates {
-		g1s := g1()(s)
-		g2s := g2()(s)
-		return mplus(g1s, g2s)
+	return func() GoalFn {
+		return func(s *State) StreamOfStates {
+			g1s := g1()(s)
+			g2s := g2()(s)
+			return mplus(g1s, g2s)
+		}
 	}
-    }
 }
 
 /*

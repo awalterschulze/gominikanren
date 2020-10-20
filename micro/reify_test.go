@@ -37,9 +37,9 @@ func TestReify(t *testing.T) {
 		t.Fatal(err)
 	}
 	ss := Substitutions{
-			"x": e.Car().Cdr(),
-			"y": e.Cdr().Car().Cdr(),
-			"w": e.Cdr().Cdr().Car().Cdr(),
+		"x": e.Car().Cdr(),
+		"y": e.Cdr().Car().Cdr(),
+		"w": e.Cdr().Cdr().Car().Cdr(),
 	}
 	if !e.IsPair() {
 		t.Fatalf("expected list")

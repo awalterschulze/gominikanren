@@ -24,11 +24,11 @@ scheme code:
 	)
 */
 func CallFresh(f func(v *ast.SExpr) Goal) Goal {
-    return func() GoalFn {
-	return func(s *State) StreamOfStates {
-		v := ast.NewVariable(fmt.Sprintf("v%d", s.Counter))
-		ss := &State{s.Substitutions, s.Counter + 1}
-		return f(v)()(ss)
+	return func() GoalFn {
+		return func(s *State) StreamOfStates {
+			v := ast.NewVariable(fmt.Sprintf("v%d", s.Counter))
+			ss := &State{s.Substitutions, s.Counter + 1}
+			return f(v)()(ss)
+		}
 	}
-    }
 }

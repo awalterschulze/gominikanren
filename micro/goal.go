@@ -29,13 +29,13 @@ func EmptyState() *State {
 type Substitutions map[string]*ast.SExpr
 
 func (s Substitutions) String() string {
-    sexprs := make([]*ast.SExpr, len(s))
-    ss := map[string]*ast.SExpr(s)
-    for i, k := range deriveSorted(deriveKeys(ss)) {
-        v := s[k]
-        sexprs[len(s)-1-i] = ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: k}}}, v)
-    }
-    l := ast.NewList(sexprs...).String()
+	sexprs := make([]*ast.SExpr, len(s))
+	ss := map[string]*ast.SExpr(s)
+	for i, k := range deriveSorted(deriveKeys(ss)) {
+		v := s[k]
+		sexprs[len(s)-1-i] = ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: k}}}, v)
+	}
+	l := ast.NewList(sexprs...).String()
 	return l[1 : len(l)-1]
 }
 
@@ -47,6 +47,7 @@ func (s Substitution) String() string {
 
 // GoalFn is a function that takes a state and returns a stream of states.
 type GoalFn func(*State) StreamOfStates
+
 // Goal is a function that returns a GoalFn. Used for lazy evaluation
 type Goal func() GoalFn
 
@@ -94,15 +95,15 @@ scheme code:
 	)
 */
 func EqualO(u, v *ast.SExpr) Goal {
-    return func() GoalFn {
-	return func(s *State) StreamOfStates {
-		ss, sok := unify(u, v, s.Substitutions)
-		if sok {
-			return NewSingletonStream(&State{Substitutions: ss, Counter: s.Counter})
+	return func() GoalFn {
+		return func(s *State) StreamOfStates {
+			ss, sok := unify(u, v, s.Substitutions)
+			if sok {
+				return NewSingletonStream(&State{Substitutions: ss, Counter: s.Counter})
+			}
+			return nil
 		}
-		return nil
 	}
-    }
 }
 
 /*
@@ -118,23 +119,23 @@ scheme code:
 		)
 	)
 */
-
 func NeverO() Goal {
-    return func() GoalFn {
-        return neverO()
-    }
+	return func() GoalFn {
+		return neverO()
+	}
 }
 
 func neverO() GoalFn {
-    return DefRel(neverO)
+	return DefRel(neverO)
 }
 
+// DefRel is used for creating selfreferencing (recursive) functions
 func DefRel(f func() GoalFn) GoalFn {
-    return func(s *State) StreamOfStates {
-        return Suspension(func() StreamOfStates {
-            return f()(s)
-        })
-    }
+	return func(s *State) StreamOfStates {
+		return Suspension(func() StreamOfStates {
+			return f()(s)
+		})
+	}
 }
 
 /*
@@ -156,13 +157,12 @@ scheme code:
 		)
 	)
 */
-
 func AlwaysO() Goal {
-    return func() GoalFn {
-        return alwaysO()
-    }
+	return func() GoalFn {
+		return alwaysO()
+	}
 }
 
 func alwaysO() GoalFn {
-    return DefRel(DisjointO(SuccessO, alwaysO))
+	return DefRel(DisjointO(SuccessO, alwaysO))
 }

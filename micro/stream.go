@@ -34,18 +34,20 @@ func Suspension(s func() StreamOfStates) StreamOfStates {
 }
 
 /*
+Zzz is the macro to add inverse-eta-delay less tediously
+
 (define- syntax Zzz
 (syntax- rules ()
     ((_ g) (λg (s/c) (λ$ () (g s/c))))))
 */
 func Zzz(g Goal) Goal {
-    return func() GoalFn {
-	    return func(s *State) StreamOfStates {
-		    return Suspension(func() StreamOfStates {
-                return g()(s)
-            })
-        }
-    }
+	return func() GoalFn {
+		return func(s *State) StreamOfStates {
+			return Suspension(func() StreamOfStates {
+				return g()(s)
+			})
+		}
+	}
 }
 
 /*

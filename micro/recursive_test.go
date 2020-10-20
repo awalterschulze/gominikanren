@@ -1,9 +1,9 @@
 package micro
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/awalterschulze/gominikanren/sexpr/ast"
+	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 /*
@@ -15,18 +15,12 @@ import (
     ((very-recursiveo))
     ((nevero))))
 */
-func VeryRecursiveO() Goal {
-    return func() GoalFn {
-        return DefRel(veryRecursiveO)
-    }
-}
-
 func veryRecursiveO() GoalFn {
 	return Conde(
 		[]Goal{NeverO()},
-		[]Goal{VeryRecursiveO()},
+		[]Goal{veryRecursiveO},
 		[]Goal{AlwaysO()},
-		[]Goal{VeryRecursiveO()},
+		[]Goal{veryRecursiveO},
 		[]Goal{NeverO()},
 	)()
 }
@@ -38,13 +32,13 @@ func TestRecursive(t *testing.T) {
 			return Zzz(veryRecursiveO)
 		}),
 	)
-    if len(ss) != 5 {
-        t.Fatalf("expected %d, but got %d results", 5, len(ss))
-    }
-    sexprs := Reify("q", ss)
-    for _, sexpr := range sexprs {
-        if sexpr.String() != "_0" {
-            t.Fatalf("expected %s, but got %s instead", "_0", sexpr.String())
-        }
-    }
+	if len(ss) != 5 {
+		t.Fatalf("expected %d, but got %d results", 5, len(ss))
+	}
+	sexprs := Reify("q", ss)
+	for _, sexpr := range sexprs {
+		if sexpr.String() != "_0" {
+			t.Fatalf("expected %s, but got %s instead", "_0", sexpr.String())
+		}
+	}
 }

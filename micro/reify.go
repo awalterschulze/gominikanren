@@ -54,12 +54,12 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	}
 	if vv.IsVariable() {
 		n := reifyName(len(s))
-        m := deriveClone(s)
-        if m == nil {
-            m = map[string]*ast.SExpr{}
-        }
-        m[vv.Atom.Var.Name] = n
-        return m
+		m := deriveClone(s)
+		if m == nil {
+			m = map[string]*ast.SExpr{}
+		}
+		m[vv.Atom.Var.Name] = n
+		return m
 	}
 	if vv.IsPair() {
 		car := vv.Car()

@@ -12,7 +12,7 @@ func TestOccurs(t *testing.T) {
 		deriveTupleO(",x", ",x", Substitutions(nil), true),
 		deriveTupleO(",x", ",y", nil, false),
 		deriveTupleO(",x", "(,y)", Substitutions{
-            "y": ast.NewVariable("x"),
+			"y": ast.NewVariable("x"),
 		}, true),
 	}
 	for _, test := range tests {
@@ -47,13 +47,13 @@ func TestExts(t *testing.T) {
 			Substitutions(nil)),
 		deriveTupleE(",x", "e",
 			Substitutions{
-					"z": ast.NewVariable("x"),
-					"y": ast.NewVariable("z"),
-				},
-            Substitutions{
-					"x": ast.NewSymbol("e"),
-					"z": ast.NewVariable("x"),
-					"y": ast.NewVariable("z"),
+				"z": ast.NewVariable("x"),
+				"y": ast.NewVariable("z"),
+			},
+			Substitutions{
+				"x": ast.NewSymbol("e"),
+				"z": ast.NewVariable("x"),
+				"y": ast.NewVariable("z"),
 			},
 		),
 	}
