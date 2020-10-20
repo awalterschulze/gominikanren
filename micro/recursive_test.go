@@ -17,11 +17,11 @@ import (
 */
 func veryRecursiveO() GoalFn {
 	return Conde(
-		[]Goal{NeverO()},
+		[]Goal{NeverO},
 		[]Goal{veryRecursiveO},
-		[]Goal{AlwaysO()},
+		[]Goal{AlwaysO},
 		[]Goal{veryRecursiveO},
-		[]Goal{NeverO()},
+		[]Goal{NeverO},
 	)()
 }
 

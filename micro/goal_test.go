@@ -46,7 +46,7 @@ func TestSuccessO(t *testing.T) {
 }
 
 func TestNeverO(t *testing.T) {
-	n := NeverO()()(EmptyState())
+	n := NeverO()(EmptyState())
 	s, sok := n()
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -62,7 +62,7 @@ func TestDisjointO1(t *testing.T) {
 			ast.NewSymbol("olive"),
 			ast.NewVariable("x"),
 		),
-		NeverO(),
+		NeverO,
 	)()(EmptyState())
 	s, sok := d()
 	got := s.String()
@@ -77,7 +77,7 @@ func TestDisjointO1(t *testing.T) {
 
 func TestDisjointO2(t *testing.T) {
 	d := DisjointO(
-		NeverO(),
+		NeverO,
 		EqualO(
 			ast.NewSymbol("olive"),
 			ast.NewVariable("x"),
@@ -102,7 +102,7 @@ func TestDisjointO2(t *testing.T) {
 }
 
 func TestAlwaysO(t *testing.T) {
-	a := AlwaysO()()(EmptyState())
+	a := AlwaysO()(EmptyState())
 	s, sok := a()
 	if s != nil {
 		t.Fatal("expected suspension")
@@ -119,7 +119,7 @@ func TestAlwaysO(t *testing.T) {
 }
 
 func TestRunGoalAlways3(t *testing.T) {
-	ss := RunGoal(3, AlwaysO())
+	ss := RunGoal(3, AlwaysO)
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}

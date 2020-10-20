@@ -119,24 +119,10 @@ scheme code:
 		)
 	)
 */
-func NeverO() Goal {
-	return func() GoalFn {
-		return neverO()
-	}
+func NeverO() GoalFn {
+    return Zzz(NeverO)()
 }
 
-func neverO() GoalFn {
-	return DefRel(neverO)
-}
-
-// DefRel is used for creating selfreferencing (recursive) functions
-func DefRel(f func() GoalFn) GoalFn {
-	return func(s *State) StreamOfStates {
-		return Suspension(func() StreamOfStates {
-			return f()(s)
-		})
-	}
-}
 
 /*
 AlwaysO is a goal that returns a never ending stream of success.
@@ -157,12 +143,6 @@ scheme code:
 		)
 	)
 */
-func AlwaysO() Goal {
-	return func() GoalFn {
-		return alwaysO()
-	}
-}
-
-func alwaysO() GoalFn {
-	return DefRel(DisjointO(SuccessO, alwaysO))
+func AlwaysO() GoalFn {
+    return Zzz(DisjointO(SuccessO, AlwaysO))()
 }
