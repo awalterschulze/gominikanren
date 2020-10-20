@@ -1,7 +1,7 @@
 .PHONY: travis
 travis:
-	go get github.com/awalterschulze/goderive
 	go get github.com/goccmack/gocc
+	go get github.com/awalterschulze/goderive
 	make regenerate
 	make test
 	make vet
@@ -36,7 +36,7 @@ errcheck:
 	errcheck ./...
 
 lint:
-	go get github.com/golang/lint/golint
+	go get golang.org/x/lint/golint
 	golint -set_exit_status ./micro
 	golint -set_exit_status ./mini
 	golint -set_exit_status ./sexpr
