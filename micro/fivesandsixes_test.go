@@ -7,11 +7,6 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-var (
-    ast5 = ast.NewInt(5)
-    ast6 = ast.NewInt(6)
-)
-
 func fives(x *ast.SExpr) GoalFn {
 	return Zzz(DisjointO(
 		EqualO(
@@ -33,6 +28,9 @@ func sixes(x *ast.SExpr) GoalFn {
 }
 
 func TestFivesAndSixes(t *testing.T) {
+    ast5 := ast.NewInt(5)
+    ast6 := ast.NewInt(6)
+
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
 	states := RunGoal(
 		1,
