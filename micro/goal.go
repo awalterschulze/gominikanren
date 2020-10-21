@@ -120,9 +120,8 @@ scheme code:
 	)
 */
 func NeverO() GoalFn {
-    return Zzz(NeverO)()
+	return Zzz(NeverO)()
 }
-
 
 /*
 AlwaysO is a goal that returns a never ending stream of success.
@@ -144,5 +143,5 @@ scheme code:
 	)
 */
 func AlwaysO() GoalFn {
-    return Zzz(DisjointO(SuccessO, AlwaysO))()
+	return Zzz(DisjointO(SuccessO, AlwaysO))()
 }
