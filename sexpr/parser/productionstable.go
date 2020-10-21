@@ -3,24 +3,24 @@
 package parser
 
 import (
-	. "github.com/awalterschulze/gominikanren/sexpr/ast"
-	"github.com/awalterschulze/gominikanren/sexpr/token"
+    . "github.com/awalterschulze/gominikanren/sexpr/ast"
+    "github.com/awalterschulze/gominikanren/sexpr/token"
 )
 
 func getStr(v interface{}) string {
-	t := v.(*token.Token)
-	return string(t.Lit)
+    t := v.(*token.Token)
+    return string(t.Lit)
 }
 
 func getSExpr(v interface{}) *SExpr {
-	if v == nil {
-		return nil
-	}
-	vv := v.(*SExpr)
-	if vv.Pair == nil && vv.Atom == nil {
-		return nil
-	}
-	return vv
+    if v == nil {
+        return nil
+    }
+    vv := v.(*SExpr)
+    if vv.Pair == nil && vv.Atom == nil {
+        return nil
+    }
+    return vv
 }
 
 type (
