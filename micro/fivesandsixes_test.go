@@ -10,7 +10,7 @@ import (
 func fives(x *ast.SExpr) GoalFn {
 	return Zzz(DisjointO(
 		EqualO(
-			ast.NewVariable("x"),
+			x,
 			ast.NewInt(5),
 		),
 		func() GoalFn { return fives(x) },
@@ -20,7 +20,7 @@ func fives(x *ast.SExpr) GoalFn {
 func sixes(x *ast.SExpr) GoalFn {
 	return Zzz(DisjointO(
 		EqualO(
-			ast.NewVariable("x"),
+			x,
 			ast.NewInt(6),
 		),
 		func() GoalFn { return sixes(x) },
@@ -36,12 +36,11 @@ func TestFivesAndSixes(t *testing.T) {
 		1,
 		CallFresh(func(q *ast.SExpr) Goal {
 			return EqualO(
-				ast.NewVariable("q"),
-				ast.NewInt(5),
+				q,
+				ast5,
 			)
-		}),
-	)
-	got := Reify("q", states)
+		}))
+	got := MKReify(states)
 	want := []*ast.SExpr{ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", got, want)
@@ -55,7 +54,7 @@ func TestFivesAndSixes(t *testing.T) {
 			return func() GoalFn { return fives(x) }
 		}),
 	)
-	got = Reify("x", states)
+	got = MKReify(states)
 	want = []*ast.SExpr{ast5, ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", got, want)
@@ -70,7 +69,7 @@ func TestFivesAndSixes(t *testing.T) {
 			)
 		}),
 	)
-	got = Reify("x", states)
+	got = MKReify(states)
 	want = []*ast.SExpr{ast5, ast6, ast5, ast6, ast5, ast6, ast5, ast6, ast5, ast6}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", got, want)

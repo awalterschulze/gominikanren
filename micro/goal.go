@@ -67,6 +67,14 @@ func RunGoal(n int, g Goal) []*State {
 	return takeStream(n, ss)
 }
 
+// Run behaves like the default miniKanren run command
+func Run(n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
+	v := Var(0)
+	ss := g(v)()(&State{nil, 1})
+	states := takeStream(n, ss)
+	return MKReify(states)
+}
+
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
 func SuccessO() GoalFn {
 	return func(s *State) StreamOfStates {
