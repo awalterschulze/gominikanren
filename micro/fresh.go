@@ -6,8 +6,13 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
+// Var creates a new variable as the string vC
+func Var(c int) *ast.SExpr {
+	return ast.NewVariable(fmt.Sprintf("v%d", c))
+}
+
 /*
-CallFresh expects a function that expects a varaible and returns a Goal.
+CallFresh expects a function that expects a variable and returns a Goal.
 
 scheme code:
 
@@ -23,10 +28,10 @@ scheme code:
 		)
 	)
 */
-func CallFresh(f func(v *ast.SExpr) Goal) Goal {
+func CallFresh(f func(*ast.SExpr) Goal) Goal {
 	return func() GoalFn {
 		return func(s *State) StreamOfStates {
-			v := ast.NewVariable(fmt.Sprintf("v%d", s.Counter))
+			v := Var(s.Counter)
 			ss := &State{s.Substitutions, s.Counter + 1}
 			return f(v)()(ss)
 		}

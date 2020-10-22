@@ -47,7 +47,7 @@ func Bind(s StreamOfStates, g Goal) StreamOfStates {
 	}
 	car, cdr := s()
 	if car != nil { // not a suspension => procedure? == false
-		return mplus(
+		return Mplus(
 			g()(car),
 			Bind(
 				cdr,
