@@ -1,7 +1,7 @@
 package mini
 
 import (
-    "fmt"
+	"fmt"
 	"testing"
 	"time"
 
@@ -127,12 +127,12 @@ func concurrentDisjPlus(gs ...micro.Goal) micro.Goal {
 			go func() {
 				c1 <- g1()(s)
 			}()
-            g2s := g2()(s)
+			g2s := g2()(s)
 			var g1s micro.StreamOfStates
 			select {
 			case cs := <-c1:
 				g1s = cs
-            }
+			}
 			return micro.Mplus(g1s, g2s)
 		}
 	}
@@ -152,31 +152,31 @@ func concurrentConde(gs ...[]micro.Goal) micro.Goal {
 // go test ./... -v -run TestOrParallelism -count=1
 // in order to see the time taken by both
 func TestOrParallelism(t *testing.T) {
-    //numGoals := 50000
-    numGoals := 10000
-    lotsOfGoals := []func(*ast.SExpr)micro.Goal{}
-    for i:=0; i<numGoals; i++ {
-        n := int64(i)
-        f := func(x *ast.SExpr) micro.Goal {
-            return micro.EqualO(x, ast.NewInt(n))
-        }
-        lotsOfGoals = append(lotsOfGoals, f)
-    }
-    generator := func(x *ast.SExpr) [][]micro.Goal {
-        goals := make([][]micro.Goal, len(lotsOfGoals))
-        for i, f := range lotsOfGoals {
-            goals[i] = []micro.Goal{f(x)}
-        }
-        return goals
-    }
-    start := time.Now()
+	//numGoals := 50000
+	numGoals := 10000
+	lotsOfGoals := []func(*ast.SExpr) micro.Goal{}
+	for i := 0; i < numGoals; i++ {
+		n := int64(i)
+		f := func(x *ast.SExpr) micro.Goal {
+			return micro.EqualO(x, ast.NewInt(n))
+		}
+		lotsOfGoals = append(lotsOfGoals, f)
+	}
+	generator := func(x *ast.SExpr) [][]micro.Goal {
+		goals := make([][]micro.Goal, len(lotsOfGoals))
+		for i, f := range lotsOfGoals {
+			goals[i] = []micro.Goal{f(x)}
+		}
+		return goals
+	}
+	start := time.Now()
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return concurrentConde(
-            generator(q)...
+			generator(q)...,
 		)
 	})
-    took := time.Now().Sub(start)
-    fmt.Println("concurrent", took)
+	took := time.Now().Sub(start)
+	fmt.Println("concurrent", took)
 	if len(sexprs) != numGoals {
 		t.Fatalf("expected len %d, but got len %d instead", numGoals, len(sexprs))
 	}
@@ -185,14 +185,14 @@ func TestOrParallelism(t *testing.T) {
 			t.Fatalf("expected %s, but got %s instead", fmt.Sprint(i), sexpr.String())
 		}
 	}
-    start = time.Now()
+	start = time.Now()
 	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return Conde(
-            generator(q)...
+			generator(q)...,
 		)
 	})
-    took = time.Now().Sub(start)
-    fmt.Println("sequential", took)
+	took = time.Now().Sub(start)
+	fmt.Println("sequential", took)
 	if len(sexprs) != numGoals {
 		t.Fatalf("expected len %d, but got len %d instead", numGoals, len(sexprs))
 	}
