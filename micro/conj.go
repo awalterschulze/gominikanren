@@ -11,15 +11,7 @@ scheme code:
 		)
 	)
 */
-func ConjunctionO(gs ...Goal) Goal {
-	if len(gs) == 0 {
-		return SuccessO
-	}
-	if len(gs) == 1 {
-		return gs[0]
-	}
-	g1 := gs[0]
-	g2 := ConjunctionO(gs[1:]...)
+func ConjunctionO(g1, g2 Goal) Goal {
 	return func() GoalFn {
 		return func(s *State) StreamOfStates {
 			g1s := g1()(s)

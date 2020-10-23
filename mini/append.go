@@ -54,8 +54,10 @@ func AppendO(l, t, out *ast.SExpr) micro.Goal {
 					return micro.CallFresh(func(res *ast.SExpr) micro.Goal {
 						return micro.ConjunctionO(
 							ConsO(a, d, l),
-							ConsO(a, res, out),
-							AppendO(d, t, res),
+                            micro.ConjunctionO(
+							    ConsO(a, res, out),
+							    AppendO(d, t, res),
+                            ),
 						)
 					})
 				})

@@ -11,15 +11,7 @@ scheme code:
 		)
 	)
 */
-func DisjointO(gs ...Goal) Goal {
-	if len(gs) == 0 {
-		return FailureO
-	}
-	if len(gs) == 1 {
-		return gs[0]
-	}
-	g1 := gs[0]
-	g2 := DisjointO(gs[1:]...)
+func DisjointO(g1, g2 Goal) Goal {
 	return func() GoalFn {
 		return func(s *State) StreamOfStates {
 			g1s := g1()(s)
