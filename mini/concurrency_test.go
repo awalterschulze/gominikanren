@@ -1,6 +1,7 @@
 package mini
 
 import (
+    "fmt"
 	"testing"
 	"time"
 
@@ -8,9 +9,9 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-// remember, concurrency != parallellism
+// remember, concurrency != parallelism
 
-// setting up exclusive-or for a very simple or-parallellism demo
+// setting up exclusive-or for a very simple or-parallelism demo
 func disjExcl(g1, g2 micro.Goal) micro.Goal {
 	return func() micro.GoalFn {
 		return func(s *micro.State) micro.StreamOfStates {
@@ -75,10 +76,9 @@ func concurrentDisjExcl(g1, g2 micro.Goal) micro.Goal {
 	}
 }
 
-// illustrating or-parallellism for exclusive-or, where the first answer we find
-// is the one we return. More interesting would be to extend conde, but for that
-// we would need to think a bit more on how to interleave stream results
-func TestOrParallellism(t *testing.T) {
+// illustrating or-parallelism for exclusive-or, where the first answer we find
+// is the one we return.
+func TestOrParallelismExcl(t *testing.T) {
 	// use Zzz to delay evaluation of time.Sleep
 	heavy := func(x *ast.SExpr) micro.Goal {
 		return micro.Zzz(func() micro.GoalFn {
@@ -109,6 +109,100 @@ func TestOrParallellism(t *testing.T) {
 	}
 }
 
-// and-parallellism is breaking my brain, since in minikanren conj uses bind
+// executes both goals in parallel and awaits both results
+// merging (using mplus) after. Also naive in terms of resource management
+func concurrentDisjPlus(gs ...micro.Goal) micro.Goal {
+	if len(gs) == 0 {
+		return micro.FailureO
+	}
+	if len(gs) == 1 {
+		return micro.Zzz(gs[0])
+	}
+	g1 := micro.Zzz(gs[0])
+	g2 := concurrentDisjPlus(gs[1:]...)
+
+	return func() micro.GoalFn {
+		return func(s *micro.State) micro.StreamOfStates {
+			c1 := make(chan micro.StreamOfStates, 1)
+			go func() {
+				c1 <- g1()(s)
+			}()
+            g2s := g2()(s)
+			var g1s micro.StreamOfStates
+			select {
+			case cs := <-c1:
+				g1s = cs
+            }
+			return micro.Mplus(g1s, g2s)
+		}
+	}
+}
+
+func concurrentConde(gs ...[]micro.Goal) micro.Goal {
+	conj := make([]micro.Goal, len(gs))
+	for i, v := range gs {
+		conj[i] = ConjPlus(v...)
+	}
+	return concurrentDisjPlus(conj...)
+}
+
+// this one is more general and useable, but hard to find a good example of it
+// providing value in a simple testcase
+// test with:
+// go test ./... -v -run TestOrParallelism -count=1
+// in order to see the time taken by both
+func TestOrParallelism(t *testing.T) {
+    //numGoals := 50000
+    numGoals := 10000
+    lotsOfGoals := []func(*ast.SExpr)micro.Goal{}
+    for i:=0; i<numGoals; i++ {
+        n := int64(i)
+        f := func(x *ast.SExpr) micro.Goal {
+            return micro.EqualO(x, ast.NewInt(n))
+        }
+        lotsOfGoals = append(lotsOfGoals, f)
+    }
+    generator := func(x *ast.SExpr) [][]micro.Goal {
+        goals := make([][]micro.Goal, len(lotsOfGoals))
+        for i, f := range lotsOfGoals {
+            goals[i] = []micro.Goal{f(x)}
+        }
+        return goals
+    }
+    start := time.Now()
+	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return concurrentConde(
+            generator(q)...
+		)
+	})
+    took := time.Now().Sub(start)
+    fmt.Println("concurrent", took)
+	if len(sexprs) != numGoals {
+		t.Fatalf("expected len %d, but got len %d instead", numGoals, len(sexprs))
+	}
+	for i, sexpr := range sexprs {
+		if sexpr.String() != fmt.Sprint(i) {
+			t.Fatalf("expected %s, but got %s instead", fmt.Sprint(i), sexpr.String())
+		}
+	}
+    start = time.Now()
+	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return Conde(
+            generator(q)...
+		)
+	})
+    took = time.Now().Sub(start)
+    fmt.Println("sequential", took)
+	if len(sexprs) != numGoals {
+		t.Fatalf("expected len %d, but got len %d instead", numGoals, len(sexprs))
+	}
+	for i, sexpr := range sexprs {
+		if sexpr.String() != fmt.Sprint(i) {
+			t.Fatalf("expected %s, but got %s instead", fmt.Sprint(i), sexpr.String())
+		}
+	}
+}
+
+// and-parallelism is breaking my brain, since in minikanren conj uses bind
 // which is very explicit about sequential execution of underlying goals
 // I don't think I understand bind/mplus well enough to play with that
