@@ -9,8 +9,6 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-// remember, concurrency != parallelism
-
 // setting up exclusive-or for a very simple or-parallelism demo
 func disjExcl(g1, g2 micro.Goal) micro.Goal {
 	return func() micro.GoalFn {
@@ -42,14 +40,15 @@ func TestDisjExcl(t *testing.T) {
 	}
 }
 
+// remember, concurrency != parallelism
 // note: this is a naive implementation with runaway goroutines;
 // in a proper implementation the goroutines are taken from a pool
 // and properly cancelled when returning early
 func concurrentDisjExcl(g1, g2 micro.Goal) micro.Goal {
 	return func() micro.GoalFn {
 		return func(s *micro.State) micro.StreamOfStates {
-			c1 := make(chan micro.StreamOfStates, 1)
-			c2 := make(chan micro.StreamOfStates, 1)
+			c1 := make(chan micro.StreamOfStates)
+			c2 := make(chan micro.StreamOfStates)
 			go func() {
 				c1 <- g1()(s)
 			}()
@@ -123,16 +122,12 @@ func concurrentDisjPlus(gs ...micro.Goal) micro.Goal {
 
 	return func() micro.GoalFn {
 		return func(s *micro.State) micro.StreamOfStates {
-			c1 := make(chan micro.StreamOfStates, 1)
+			c1 := make(chan micro.StreamOfStates)
 			go func() {
 				c1 <- g1()(s)
 			}()
 			g2s := g2()(s)
-			var g1s micro.StreamOfStates
-			select {
-			case cs := <-c1:
-				g1s = cs
-			}
+			g1s := <-c1
 			return micro.Mplus(g1s, g2s)
 		}
 	}
@@ -152,7 +147,6 @@ func concurrentConde(gs ...[]micro.Goal) micro.Goal {
 // go test ./... -v -run TestOrParallelism -count=1
 // in order to see the time taken by both
 func TestOrParallelism(t *testing.T) {
-	//numGoals := 50000
 	numGoals := 10000
 	lotsOfGoals := []func(*ast.SExpr) micro.Goal{}
 	for i := 0; i < numGoals; i++ {
@@ -169,14 +163,11 @@ func TestOrParallelism(t *testing.T) {
 		}
 		return goals
 	}
-	start := time.Now()
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return concurrentConde(
 			generator(q)...,
 		)
 	})
-	took := time.Now().Sub(start)
-	fmt.Println("concurrent", took)
 	if len(sexprs) != numGoals {
 		t.Fatalf("expected len %d, but got len %d instead", numGoals, len(sexprs))
 	}
@@ -185,14 +176,11 @@ func TestOrParallelism(t *testing.T) {
 			t.Fatalf("expected %s, but got %s instead", fmt.Sprint(i), sexpr.String())
 		}
 	}
-	start = time.Now()
 	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return Conde(
 			generator(q)...,
 		)
 	})
-	took = time.Now().Sub(start)
-	fmt.Println("sequential", took)
 	if len(sexprs) != numGoals {
 		t.Fatalf("expected len %d, but got len %d instead", numGoals, len(sexprs))
 	}
@@ -212,16 +200,12 @@ func TestOrParallelism(t *testing.T) {
 func concurrentConj(g1, g2 micro.Goal) micro.Goal {
 	return func() micro.GoalFn {
 		return func(s *micro.State) micro.StreamOfStates {
-			c1 := make(chan micro.StreamOfStates, 1)
+			c1 := make(chan micro.StreamOfStates)
 			go func() {
 				c1 <- g1()(s)
 			}()
 			g2s := g2()(s)
-			var g1s micro.StreamOfStates
-			select {
-			case cs := <-c1:
-				g1s = cs
-			}
+			g1s := <-c1
 			return mergeStreams(g1s, g2s)
 		}
 	}
