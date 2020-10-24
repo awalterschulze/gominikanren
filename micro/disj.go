@@ -46,17 +46,17 @@ scheme code:
 		)
 	)
 */
-func Mplus(g1, g2 StreamOfStates) StreamOfStates {
-	if g1 == nil {
-		return g2
+func Mplus(s1, s2 StreamOfStates) StreamOfStates {
+	if s1 == nil {
+		return s2
 	}
-	car, cdr := g1()
+	car, cdr := s1()
 	if car != nil { // not a suspension => procedure? == false
 		return func() (*State, StreamOfStates) {
-			return car, Mplus(cdr, g2)
+			return car, Mplus(cdr, s2)
 		}
 	}
 	return Suspension(func() StreamOfStates {
-		return Mplus(g2, cdr)
+		return Mplus(s2, cdr)
 	})
 }

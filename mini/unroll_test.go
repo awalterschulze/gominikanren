@@ -24,6 +24,17 @@ func TestMemberO(t *testing.T) {
 			t.Fatalf("expected %d, but got %d instead", i, *sexpr.Atom.Int)
 		}
 	}
+	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return MemberOUnrolled(list)(q)
+	})
+	if len(sexprs) != 3 {
+		t.Fatalf("expected len %d, but got len %d instead", 3, len(sexprs))
+	}
+	for i, sexpr := range sexprs {
+		if *sexpr.Atom.Int != int64(i) {
+			t.Fatalf("expected %d, but got %d instead", i, *sexpr.Atom.Int)
+		}
+	}
 }
 
 func TestMapO(t *testing.T) {

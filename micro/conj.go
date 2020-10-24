@@ -21,7 +21,7 @@ func ConjunctionO(g1, g2 Goal) Goal {
 }
 
 /*
-Bind is the monad bind function for goals.
+Bind is the monad bind function for state.
 
 scheme code:
 

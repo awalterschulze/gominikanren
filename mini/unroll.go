@@ -40,6 +40,31 @@ func MemberO(x, y *ast.SExpr) micro.Goal {
 	}))
 }
 
+// MemberOUnrolled is a curried version of MemberO taking the second argument first
+// assumes y is a list and otherwise panics
+func MemberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
+	goals := []func(*ast.SExpr) micro.Goal{}
+	for {
+		if y == nil {
+			break
+		}
+		car, cdr := y.Car(), y.Cdr()
+		goals = append(goals, func(x *ast.SExpr) micro.Goal {
+			return micro.EqualO(x, car)
+		})
+		y = cdr
+	}
+	n := len(goals)
+	return func(x *ast.SExpr) micro.Goal {
+		gs := make([][]micro.Goal, n)
+		for i, g := range goals {
+			gs[i] = []micro.Goal{g(x)}
+		}
+		return Conde(gs...)
+
+	}
+}
+
 /*
 MapO defines a relation between inputs and outputs of a function f
 inputs and outputs are given as equal-length lists

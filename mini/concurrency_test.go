@@ -203,6 +203,39 @@ func TestOrParallelism(t *testing.T) {
 	}
 }
 
-// and-parallelism is breaking my brain, since in minikanren conj uses bind
-// which is very explicit about sequential execution of underlying goals
-// I don't think I understand bind/mplus well enough to play with that
+// Sequential conj uses bind, which applies the second goal to all the states
+// in the stream that results from applying the first goal to s
+// this is inherently sequential. In order to make a concurrent conj,
+// we need to come up with a version of bind that can merge two result streams
+// NOTE: this is the only way i see and-parallelism working at the moment
+// but it seems very counterintuitive to how miniKanren is set up
+func concurrentConj(g1, g2 micro.Goal) micro.Goal {
+	return func() micro.GoalFn {
+		return func(s *micro.State) micro.StreamOfStates {
+			c1 := make(chan micro.StreamOfStates, 1)
+			go func() {
+				c1 <- g1()(s)
+			}()
+			g2s := g2()(s)
+			var g1s micro.StreamOfStates
+			select {
+			case cs := <-c1:
+				g1s = cs
+			}
+			return mergeStreams(g1s, g2s)
+		}
+	}
+}
+
+// mergeStreams takes two streams, evaluates the cartesian product of states,
+// and returns a stream that consists of the succesful union of pairs
+// not only needs to merge states but also streams!
+// since that is _super hard_ when dealing with infinite streams,
+// I think the best way is to wrap each pair of the cartesian product in a function
+// that does this unification when evaluated
+// so the result is a stream of states (func() (state, streamofstates))
+// which takes as a closure stream s1, s2 and the merge func??
+func mergeStreams(s1, s2 micro.StreamOfStates) micro.StreamOfStates {
+	// TODO discuss and implement
+	return nil
+}
