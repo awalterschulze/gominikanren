@@ -105,45 +105,54 @@ func TestEinstein(t *testing.T) {
 	// because I don't want to write 10x nested callfresh and the fresh macro is eluding me
 	solution := func(street, fishowner *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(a *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(b *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(c *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(e *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(f *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(g *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(h *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(i *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(j *ast.SExpr) micro.Goal {
-		return ConjPlus(
-			streetEq(street),
-			mUnrolled(ast.NewList(anon(), ast.NewSymbol("brit"), ast.NewSymbol("red"), anon(), anon(), anon())),
-			mUnrolled(ast.NewList(anon(), ast.NewSymbol("swede"), anon(), ast.NewSymbol("dog"), anon(), anon())),
-			mUnrolled(ast.NewList(anon(), ast.NewSymbol("dane"), anon(), anon(), ast.NewSymbol("tea"), anon())),
-			mUnrolled(ast.NewList(a, anon(), ast.NewSymbol("green"), anon(), anon(), anon())),
-			mUnrolled(ast.NewList(b, anon(), ast.NewSymbol("white"), anon(), anon(), anon())),
-            leftOf(a, b),
-			mUnrolled(ast.NewList(anon(), anon(), ast.NewSymbol("green"), anon(), ast.NewSymbol("coffee"), anon())),
-			mUnrolled(ast.NewList(anon(), anon(), anon(), ast.NewSymbol("birds"), anon(), ast.NewSymbol("pall-mall"))),
-			mUnrolled(ast.NewList(anon(), anon(), ast.NewSymbol("yellow"), anon(), anon(), ast.NewSymbol("dunhill"))),
-			mUnrolled(ast.NewList(three, anon(), anon(), anon(), ast.NewSymbol("milk"), anon())),
-			mUnrolled(ast.NewList(one, ast.NewSymbol("norwegian"), anon(), anon(), anon(), anon())),
-			mUnrolled(ast.NewList(c, anon(), anon(), anon(), anon(), ast.NewSymbol("blend"))),
-			mUnrolled(ast.NewList(d, anon(), anon(), ast.NewSymbol("cats"), anon(), anon())),
-            nextTo(c, d),
-			mUnrolled(ast.NewList(e, anon(), anon(), ast.NewSymbol("horse"), anon(), anon())),
-			mUnrolled(ast.NewList(f, anon(), anon(), anon(), anon(), ast.NewSymbol("dunhill"))),
-            nextTo(e, f),
-			mUnrolled(ast.NewList(anon(), anon(), anon(), anon(), ast.NewSymbol("beer"), ast.NewSymbol("bluemaster"))),
-			mUnrolled(ast.NewList(anon(), ast.NewSymbol("german"), anon(), anon(), anon(), ast.NewSymbol("prince"))),
-			mUnrolled(ast.NewList(g, ast.NewSymbol("norwegian"), anon(), anon(), anon(), anon())),
-			mUnrolled(ast.NewList(h, anon(), ast.NewSymbol("blue"), anon(), anon(), anon())),
-            nextTo(g, h),
-			mUnrolled(ast.NewList(i, anon(), anon(), anon(), anon(), ast.NewSymbol("blend"))),
-			mUnrolled(ast.NewList(j, anon(), anon(), anon(), ast.NewSymbol("water"), anon())),
-            nextTo(i, j),
-			mUnrolled(ast.NewList(anon(), fishowner, anon(), ast.NewSymbol("fish"), anon(), anon())),
-		)
-        })})})})})})})})})})
+			return micro.CallFresh(func(b *ast.SExpr) micro.Goal {
+				return micro.CallFresh(func(c *ast.SExpr) micro.Goal {
+					return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
+						return micro.CallFresh(func(e *ast.SExpr) micro.Goal {
+							return micro.CallFresh(func(f *ast.SExpr) micro.Goal {
+								return micro.CallFresh(func(g *ast.SExpr) micro.Goal {
+									return micro.CallFresh(func(h *ast.SExpr) micro.Goal {
+										return micro.CallFresh(func(i *ast.SExpr) micro.Goal {
+											return micro.CallFresh(func(j *ast.SExpr) micro.Goal {
+												return ConjPlus(
+													streetEq(street),
+													mUnrolled(ast.NewList(anon(), ast.NewSymbol("brit"), ast.NewSymbol("red"), anon(), anon(), anon())),
+													mUnrolled(ast.NewList(anon(), ast.NewSymbol("swede"), anon(), ast.NewSymbol("dog"), anon(), anon())),
+													mUnrolled(ast.NewList(anon(), ast.NewSymbol("dane"), anon(), anon(), ast.NewSymbol("tea"), anon())),
+													mUnrolled(ast.NewList(a, anon(), ast.NewSymbol("green"), anon(), anon(), anon())),
+													mUnrolled(ast.NewList(b, anon(), ast.NewSymbol("white"), anon(), anon(), anon())),
+													leftOf(a, b),
+													mUnrolled(ast.NewList(anon(), anon(), ast.NewSymbol("green"), anon(), ast.NewSymbol("coffee"), anon())),
+													mUnrolled(ast.NewList(anon(), anon(), anon(), ast.NewSymbol("birds"), anon(), ast.NewSymbol("pall-mall"))),
+													mUnrolled(ast.NewList(anon(), anon(), ast.NewSymbol("yellow"), anon(), anon(), ast.NewSymbol("dunhill"))),
+													mUnrolled(ast.NewList(three, anon(), anon(), anon(), ast.NewSymbol("milk"), anon())),
+													mUnrolled(ast.NewList(one, ast.NewSymbol("norwegian"), anon(), anon(), anon(), anon())),
+													mUnrolled(ast.NewList(c, anon(), anon(), anon(), anon(), ast.NewSymbol("blend"))),
+													mUnrolled(ast.NewList(d, anon(), anon(), ast.NewSymbol("cats"), anon(), anon())),
+													nextTo(c, d),
+													mUnrolled(ast.NewList(e, anon(), anon(), ast.NewSymbol("horse"), anon(), anon())),
+													mUnrolled(ast.NewList(f, anon(), anon(), anon(), anon(), ast.NewSymbol("dunhill"))),
+													nextTo(e, f),
+													mUnrolled(ast.NewList(anon(), anon(), anon(), anon(), ast.NewSymbol("beer"), ast.NewSymbol("bluemaster"))),
+													mUnrolled(ast.NewList(anon(), ast.NewSymbol("german"), anon(), anon(), anon(), ast.NewSymbol("prince"))),
+													mUnrolled(ast.NewList(g, ast.NewSymbol("norwegian"), anon(), anon(), anon(), anon())),
+													mUnrolled(ast.NewList(h, anon(), ast.NewSymbol("blue"), anon(), anon(), anon())),
+													nextTo(g, h),
+													mUnrolled(ast.NewList(i, anon(), anon(), anon(), anon(), ast.NewSymbol("blend"))),
+													mUnrolled(ast.NewList(j, anon(), anon(), anon(), ast.NewSymbol("water"), anon())),
+													nextTo(i, j),
+													mUnrolled(ast.NewList(anon(), fishowner, anon(), ast.NewSymbol("fish"), anon(), anon())),
+												)
+											})
+										})
+									})
+								})
+							})
+						})
+					})
+				})
+			})
+		})
 	}
 
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {

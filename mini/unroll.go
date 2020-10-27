@@ -6,8 +6,8 @@ import (
 )
 
 // defines two candidate functions for unrolling
-// the idea is to do partial application and 'unroll' recursive functions 
-// into a disjunction/conjunction of goals, so that they can be 
+// the idea is to do partial application and 'unroll' recursive functions
+// into a disjunction/conjunction of goals, so that they can be
 // executed in parallel in order to speed them up
 // unrolled versions are faster even without concurrency
 
@@ -42,7 +42,7 @@ func MemberO(x, y *ast.SExpr) micro.Goal {
 	}))
 }
 
-// MemberOUnrolled is the partial application version of MemberO 
+// MemberOUnrolled is the partial application version of MemberO
 // taking the second argument (the list) first
 func MemberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
 	goals := []func(*ast.SExpr) micro.Goal{}
