@@ -79,7 +79,9 @@ func TestEinstein(t *testing.T) {
 	// somehow ast.NewVariable can introduce vars with scope: if you change one of the var names in
 	// street to duplicate another, you will see them substituted in variable bindings in state
 	anon := func() *ast.SExpr {
-		return ast.NewVariable(time.Now().String())
+		time.Sleep(1000)
+		t := time.Now()
+		return ast.NewVar(t.String(), uint64(t.UnixNano()))
 	}
 
 	streetDef := ast.NewList(

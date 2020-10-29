@@ -8,7 +8,7 @@ import (
 
 // Var creates a new variable as the string vC
 func Var(c int) *ast.SExpr {
-	return ast.NewVariable(fmt.Sprintf("v%d", c))
+	return ast.NewVar(fmt.Sprintf("v%d", c), uint64(c))
 }
 
 /*

@@ -1,6 +1,8 @@
 package mini
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/micro"
@@ -33,14 +35,13 @@ import (
 */
 // results in all the combinations of two lists that when appended will result in (cake & ice d t)
 func TestAppendOAllCombinations(t *testing.T) {
-	states := micro.RunGoal(
-		-1,
-		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
+	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return micro.CallFresh(func(x *ast.SExpr) micro.Goal {
 			return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
 				return micro.ConjunctionO(
 					micro.EqualO(
 						ast.Cons(x, ast.Cons(y, nil)),
-						ast.NewVariable("q"),
+						q,
 					),
 					AppendO(
 						x,
@@ -55,9 +56,8 @@ func TestAppendOAllCombinations(t *testing.T) {
 					),
 				)
 			})
-		}),
-	)
-	sexprs := micro.Reify("q", states)
+		})
+	})
 	got := ast.NewList(sexprs...).String()
 	want := "((() (cake & ice d t)) ((cake) (& ice d t)) ((cake &) (ice d t)) ((cake & ice) (d t)) ((cake & ice d) (t)) ((cake & ice d t) ()))"
 	if got != want {
@@ -66,15 +66,13 @@ func TestAppendOAllCombinations(t *testing.T) {
 }
 
 func TestAppendOSingleList(t *testing.T) {
-	subs := micro.RunGoal(
-		-1,
-		AppendO(
+	ss := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.Cons(ast.NewSymbol("b"), nil),
-			ast.NewVariable("q"),
-		),
-	)
-	ss := micro.Reify("q", subs)
+			q,
+		)
+	})
 	got := ast.NewList(ss...).String()
 	want := "((a b))"
 	if got != want {
@@ -83,15 +81,13 @@ func TestAppendOSingleList(t *testing.T) {
 }
 
 func TestAppendOSingleAtom(t *testing.T) {
-	subs := micro.RunGoal(
-		-1,
-		AppendO(
+	ss := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.NewSymbol("b"),
-			ast.NewVariable("q"),
-		),
-	)
-	ss := micro.Reify("q", subs)
+			q,
+		)
+	})
 	got := ast.NewList(ss...).String()
 	want := "((a . b))"
 	if got != want {
@@ -100,6 +96,7 @@ func TestAppendOSingleAtom(t *testing.T) {
 }
 
 func TestCarO(t *testing.T) {
+	y := ast.NewVariable("y")
 	ifte := IfThenElseO(
 		CarO(
 			ast.NewList(
@@ -111,11 +108,13 @@ func TestCarO(t *testing.T) {
 			),
 			ast.NewSymbol("a"),
 		),
-		micro.EqualO(ast.NewSymbol("#t"), ast.NewVariable("y")),
-		micro.EqualO(ast.NewSymbol("#f"), ast.NewVariable("y")),
+		micro.EqualO(ast.NewSymbol("#t"), y),
+		micro.EqualO(ast.NewSymbol("#f"), y),
 	)()
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
+	// reifying y; we assigned it a random uint64 and lost track of it
+	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)
 	want := "(((,y . #t) (,v0 c o r n) . 1))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)

@@ -40,7 +40,7 @@ func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
 	if ss == nil {
 		return nil, false
 	}
-	value, ok := ss[v.Name]
+	value, ok := ss[v.Index]
 	if !ok {
 		return nil, false
 	}

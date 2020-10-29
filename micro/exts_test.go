@@ -3,30 +3,23 @@ package micro
 import (
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/sexpr"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 func TestOccurs(t *testing.T) {
-	tests := []func() (string, string, Substitutions, bool){
-		deriveTupleO(",x", ",x", Substitutions(nil), true),
-		deriveTupleO(",x", ",y", nil, false),
-		deriveTupleO(",x", "(,y)", Substitutions{
-			"y": ast.NewVariable("x"),
+	x := ast.NewVar("x", 0)
+	y := ast.NewVar("y", 1)
+	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, bool){
+		deriveTuple3SVars(x, x, Substitutions(nil), true),
+		deriveTuple3SVars(x, y, nil, false),
+		deriveTuple3SVars(x, ast.NewList(y), Substitutions{
+			1: x,
 		}, true),
 	}
 	for _, test := range tests {
-		x, v, s, want := test()
-		t.Run("(occurs "+x+" "+v+" "+s.String()+")", func(t *testing.T) {
-			xexpr, err := sexpr.Parse(x)
-			if err != nil {
-				t.Fatal(err)
-			}
-			vexpr, err := sexpr.Parse(v)
-			if err != nil {
-				t.Fatal(err)
-			}
-			got := occurs(xexpr.Atom.Var, vexpr, s)
+		v, w, s, want := test()
+		t.Run("(occurs "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
+			got := occurs(v.Atom.Var, w, s)
 			if want != got {
 				t.Fatalf("got %v want %v", got, want)
 			}
@@ -35,41 +28,36 @@ func TestOccurs(t *testing.T) {
 }
 
 func TestExts(t *testing.T) {
-	tests := []func() (string, string, Substitutions, Substitutions){
-		deriveTupleE(",x", "a", Substitutions(nil), Substitutions{
-			"x": ast.NewSymbol("a"),
+	x := ast.NewVar("x", 0)
+	y := ast.NewVar("y", 1)
+	z := ast.NewVar("z", 2)
+	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions){
+		deriveTupleE(x, ast.NewSymbol("a"), Substitutions(nil), Substitutions{
+			0: ast.NewSymbol("a"),
 		}),
-		deriveTupleE(",x", "(,x)", Substitutions(nil), Substitutions(nil)),
-		deriveTupleE(",x", "(,y)",
+		deriveTupleE(x, ast.NewList(x), Substitutions(nil), Substitutions(nil)),
+		deriveTupleE(x, ast.NewList(y),
 			Substitutions{
-				"y": ast.NewVariable("x"),
+				1: x,
 			},
 			Substitutions(nil)),
-		deriveTupleE(",x", "e",
+		deriveTupleE(x, ast.NewSymbol("e"),
 			Substitutions{
-				"z": ast.NewVariable("x"),
-				"y": ast.NewVariable("z"),
+				2: x,
+				1: z,
 			},
 			Substitutions{
-				"x": ast.NewSymbol("e"),
-				"z": ast.NewVariable("x"),
-				"y": ast.NewVariable("z"),
+				0: ast.NewSymbol("e"),
+				2: x,
+				1: z,
 			},
 		),
 	}
 	for _, test := range tests {
-		x, v, s, want := test()
-		t.Run("(exts "+x+" "+v+" "+s.String()+")", func(t *testing.T) {
-			xexpr, err := sexpr.Parse(x)
-			if err != nil {
-				t.Fatal(err)
-			}
-			vexpr, err := sexpr.Parse(v)
-			if err != nil {
-				t.Fatal(err)
-			}
+		v, w, s, want := test()
+		t.Run("(exts "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
 			got := ""
-			gots, gotok := exts(xexpr.Atom.Var, vexpr, s)
+			gots, gotok := exts(v.Atom.Var, w, s)
 			if gotok {
 				got = gots.String()
 			}
