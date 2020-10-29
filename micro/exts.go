@@ -30,10 +30,10 @@ func exts(x *ast.Variable, v *ast.SExpr, s Substitutions) (Substitutions, bool) 
 	if occurs(x, v, s) {
 		return nil, false
 	}
-	m := deriveClone(s)
-	if m == nil {
-		m = map[string]*ast.SExpr{}
-	}
+    m := make(map[string]*ast.SExpr, len(s))
+    for key, value := range s {
+        m[key] = value
+    }
 	m[x.Name] = v
 	return m, true
 }
