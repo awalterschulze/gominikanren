@@ -5,8 +5,8 @@ import (
 )
 
 type answer struct {
-    i int
-    s micro.StreamOfStates
+	i int
+	s micro.StreamOfStates
 }
 
 /*
@@ -23,26 +23,26 @@ func ConcurrentDisjPlus(gs ...micro.Goal) micro.Goal {
 	}
 	return func() micro.GoalFn {
 		return func(s *micro.State) micro.StreamOfStates {
-            list := make([]micro.StreamOfStates, len(gs))
-            ch := make(chan answer)
-            for i, g := range gs {
-                go func(index int, goal micro.Goal) {
-                    ss := goal()(s)
-                    ch <- answer{i:index, s:ss}
-                }(i, g)
-            }
-            for i:=0; i<len(gs); i++ {
-                ans := <-ch
-                list[ans.i] = ans.s
-            }
-            stream := micro.Mplus(list[len(gs)-2], list[len(gs)-1])
-            if len(gs) == 2 {
-                return stream
-            }
-            for i:=len(gs)-3;i>=0;i-- {
-                stream = micro.Mplus(list[i], stream)
-            }
-            return stream
+			list := make([]micro.StreamOfStates, len(gs))
+			ch := make(chan answer)
+			for i, g := range gs {
+				go func(index int, goal micro.Goal) {
+					ss := goal()(s)
+					ch <- answer{i: index, s: ss}
+				}(i, g)
+			}
+			for i := 0; i < len(gs); i++ {
+				ans := <-ch
+				list[ans.i] = ans.s
+			}
+			stream := micro.Mplus(list[len(gs)-2], list[len(gs)-1])
+			if len(gs) == 2 {
+				return stream
+			}
+			for i := len(gs) - 3; i >= 0; i-- {
+				stream = micro.Mplus(list[i], stream)
+			}
+			return stream
 		}
 	}
 }
