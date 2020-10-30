@@ -7,18 +7,18 @@ import (
 	"sort"
 )
 
-// deriveTupleE returns a function, which returns the input values.
-// Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTupleE(v0 *ast.SExpr, v1 *ast.SExpr, v2 Substitutions, v3 Substitutions) func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions) {
-	return func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions) {
-		return v0, v1, v2, v3
-	}
-}
-
 // deriveTuple3SVars returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
 func deriveTuple3SVars(v0 *ast.SExpr, v1 *ast.SExpr, v2 Substitutions, v3 bool) func() (*ast.SExpr, *ast.SExpr, Substitutions, bool) {
 	return func() (*ast.SExpr, *ast.SExpr, Substitutions, bool) {
+		return v0, v1, v2, v3
+	}
+}
+
+// deriveTupleE returns a function, which returns the input values.
+// Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
+func deriveTupleE(v0 *ast.SExpr, v1 *ast.SExpr, v2 Substitutions, v3 Substitutions) func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions) {
+	return func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions) {
 		return v0, v1, v2, v3
 	}
 }
