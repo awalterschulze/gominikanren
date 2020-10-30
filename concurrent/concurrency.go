@@ -31,11 +31,11 @@ func DisjPlus(gs ...micro.Goal) micro.Goal {
 					ch <- answer{i: index, s: ss}
 				}(i, g)
 			}
-            for _ = range gs {
+			for range gs {
 				ans := <-ch
 				list[ans.i] = ans.s
 			}
-            stream := list[len(gs)-1]
+			stream := list[len(gs)-1]
 			for i := len(gs) - 2; i >= 0; i-- {
 				stream = micro.Mplus(list[i], stream)
 			}
