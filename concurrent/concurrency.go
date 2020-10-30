@@ -1,4 +1,4 @@
-package mini
+package concurrent
 
 import (
 	"github.com/awalterschulze/gominikanren/micro"
@@ -14,7 +14,7 @@ ConcurrentDisjPlus is a macro that extends disjunction to arbitrary arguments
 It resolves its arguments in parallel and merges them at the end
 Notably, unlike DisjPlus, it does _not_ wrap its goals in Zzz
 */
-func ConcurrentDisjPlus(gs ...micro.Goal) micro.Goal {
+func DisjPlus(gs ...micro.Goal) micro.Goal {
 	if len(gs) == 0 {
 		return micro.FailureO
 	}
@@ -31,15 +31,12 @@ func ConcurrentDisjPlus(gs ...micro.Goal) micro.Goal {
 					ch <- answer{i: index, s: ss}
 				}(i, g)
 			}
-			for i := 0; i < len(gs); i++ {
+            for _ = range gs {
 				ans := <-ch
 				list[ans.i] = ans.s
 			}
-			stream := micro.Mplus(list[len(gs)-2], list[len(gs)-1])
-			if len(gs) == 2 {
-				return stream
-			}
-			for i := len(gs) - 3; i >= 0; i-- {
+            stream := list[len(gs)-1]
+			for i := len(gs) - 2; i >= 0; i-- {
 				stream = micro.Mplus(list[i], stream)
 			}
 			return stream
