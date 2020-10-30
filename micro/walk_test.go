@@ -6,35 +6,38 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-// u v w x y z
-// 0 1 2 3 4 5
 func TestWalk(t *testing.T) {
+	v := ast.NewVar("v", 1)
+	w := ast.NewVar("w", 2)
+	x := ast.NewVar("x", 3)
+	y := ast.NewVar("y", 4)
+	z := ast.NewVar("z", 5)
 	zaxwyz := Substitutions{
-		5: ast.NewSymbol("a"),
-		3: ast.NewVar("w", 2),
-		4: ast.NewVar("z", 5),
+		indexOf(z): ast.NewSymbol("a"),
+		indexOf(x): w,
+		indexOf(y): z,
 	}
 	xyvxwx := Substitutions{
-		3: ast.NewVar("y", 4),
-		1: ast.NewVar("x", 3),
-		2: ast.NewVar("x", 3),
+		indexOf(x): y,
+		indexOf(v): x,
+		indexOf(w): x,
 	}
 	tests := []func() (*ast.SExpr, Substitutions, string){
-		deriveTuple3SVar(ast.NewVar("z", 5), zaxwyz, "a"),
-		deriveTuple3SVar(ast.NewVar("y", 4), zaxwyz, "a"),
-		deriveTuple3SVar(ast.NewVar("x", 3), zaxwyz, ",w"),
-		deriveTuple3SVar(ast.NewVar("x", 3), xyvxwx, ",y"),
-		deriveTuple3SVar(ast.NewVar("v", 1), xyvxwx, ",y"),
-		deriveTuple3SVar(ast.NewVar("w", 2), xyvxwx, ",y"),
-		deriveTuple3SVar(ast.NewVar("w", 2), Substitutions{
-			3: ast.NewSymbol("b"),
-			5: ast.NewVar("y", 4),
-			2: ast.NewList(ast.NewVar("x", 3), ast.NewSymbol("e"), ast.NewVar("z", 5)),
+		deriveTuple3SVar(z, zaxwyz, "a"),
+		deriveTuple3SVar(y, zaxwyz, "a"),
+		deriveTuple3SVar(x, zaxwyz, ",w"),
+		deriveTuple3SVar(x, xyvxwx, ",y"),
+		deriveTuple3SVar(v, xyvxwx, ",y"),
+		deriveTuple3SVar(w, xyvxwx, ",y"),
+		deriveTuple3SVar(w, Substitutions{
+			indexOf(x): ast.NewSymbol("b"),
+			indexOf(z): y,
+			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
 		}, "(,x e ,z)"),
-		deriveTuple3SVar(ast.NewVar("y", 4), Substitutions{
-			3: ast.NewSymbol("e"),
-			5: ast.NewVar("x", 3),
-			4: ast.NewVar("z", 5),
+		deriveTuple3SVar(y, Substitutions{
+			indexOf(x): ast.NewSymbol("e"),
+			indexOf(z): x,
+			indexOf(y): z,
 		}, "e"),
 	}
 	for _, test := range tests {
@@ -49,32 +52,37 @@ func TestWalk(t *testing.T) {
 }
 
 func TestWalkStar(t *testing.T) {
+	v := ast.NewVar("v", 1)
+	w := ast.NewVar("w", 2)
+	x := ast.NewVar("x", 3)
+	y := ast.NewVar("y", 4)
+	z := ast.NewVar("z", 5)
 	zaxwyz := Substitutions{
-		5: ast.NewSymbol("a"),
-		3: ast.NewVar("w", 2),
-		4: ast.NewVar("z", 5),
+		indexOf(z): ast.NewSymbol("a"),
+		indexOf(x): w,
+		indexOf(y): z,
 	}
 	xyvxwx := Substitutions{
-		3: ast.NewVar("y", 4),
-		1: ast.NewVar("x", 3),
-		2: ast.NewVar("x", 3),
+		indexOf(x): y,
+		indexOf(v): x,
+		indexOf(w): x,
 	}
 	tests := []func() (*ast.SExpr, Substitutions, string){
-		deriveTuple3SVar(ast.NewVar("z", 5), zaxwyz, "a"),
-		deriveTuple3SVar(ast.NewVar("y", 4), zaxwyz, "a"),
-		deriveTuple3SVar(ast.NewVar("x", 3), zaxwyz, ",w"),
-		deriveTuple3SVar(ast.NewVar("x", 3), xyvxwx, ",y"),
-		deriveTuple3SVar(ast.NewVar("v", 1), xyvxwx, ",y"),
-		deriveTuple3SVar(ast.NewVar("w", 2), xyvxwx, ",y"),
-		deriveTuple3SVar(ast.NewVar("w", 2), Substitutions{
-			3: ast.NewSymbol("b"),
-			5: ast.NewVar("y", 4),
-			2: ast.NewList(ast.NewVar("x", 3), ast.NewSymbol("e"), ast.NewVar("z", 5)),
+		deriveTuple3SVar(z, zaxwyz, "a"),
+		deriveTuple3SVar(y, zaxwyz, "a"),
+		deriveTuple3SVar(x, zaxwyz, ",w"),
+		deriveTuple3SVar(x, xyvxwx, ",y"),
+		deriveTuple3SVar(v, xyvxwx, ",y"),
+		deriveTuple3SVar(w, xyvxwx, ",y"),
+		deriveTuple3SVar(w, Substitutions{
+			indexOf(x): ast.NewSymbol("b"),
+			indexOf(z): y,
+			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
 		}, "(b e ,y)"),
-		deriveTuple3SVar(ast.NewVar("y", 4), Substitutions{
-			3: ast.NewSymbol("e"),
-			5: ast.NewVar("x", 3),
-			4: ast.NewVar("z", 5),
+		deriveTuple3SVar(y, Substitutions{
+			indexOf(x): ast.NewSymbol("e"),
+			indexOf(z): x,
+			indexOf(y): z,
 		}, "e"),
 	}
 	for _, test := range tests {

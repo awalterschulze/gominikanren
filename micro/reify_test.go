@@ -34,17 +34,17 @@ func TestReify(t *testing.T) {
 	y := ast.NewVar("y", 4)
 	z := ast.NewVar("z", 5)
 	a1 := ast.NewList(x, u, w, y, z, ast.NewList(ast.NewList(ast.NewSymbol("ice")), z))
-	a2 := ast.NewList(y, ast.NewSymbol("corn"))
+	a2 := ast.Cons(y, ast.NewSymbol("corn"))
 	a3 := ast.NewList(w, v, u)
 	e := ast.NewList(a1, a2, a3)
 	ss := Substitutions{
-		3: e.Car().Cdr(),
-		4: e.Cdr().Car().Cdr(),
-		2: e.Cdr().Cdr().Car().Cdr(),
+		indexOf(x): e.Car().Cdr(),
+		indexOf(y): e.Cdr().Car().Cdr(),
+		indexOf(w): e.Cdr().Cdr().Car().Cdr(),
 	}
-	gote := ReifyIntVarFromState(3)(&State{Substitutions: ss})
+	gote := ReifyIntVarFromState(indexOf(x))(&State{Substitutions: ss})
 	got := gote.String()
-	want := "(_0 (_1 _0) (corn) _2 ((ice) _2))"
+	want := "(_0 (_1 _0) corn _2 ((ice) _2))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -64,7 +64,7 @@ func TestNoReify(t *testing.T) {
 	states := RunGoal(5, g)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
-	r := ReifyIntVarFromState(x.Atom.Var.Index)
+	r := ReifyIntVarFromState(indexOf(x))
 	for i, s := range states {
 		ss[i] = r(s)
 		strs[i] = ss[i].String()

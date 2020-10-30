@@ -2,7 +2,6 @@ package micro
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
@@ -10,15 +9,15 @@ import (
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	Substitutions
-	Counter int
+	Counter uint64
 }
 
 // String returns a string representation of State.
 func (s *State) String() string {
 	if s.Substitutions == nil {
-		return "(" + "()" + " . " + strconv.Itoa(s.Counter) + ")"
+		return fmt.Sprintf("(() . %d)", s.Counter)
 	}
-	return "(" + s.Substitutions.String() + " . " + strconv.Itoa(s.Counter) + ")"
+	return fmt.Sprintf("(%s . %d)", s.Substitutions.String(), s.Counter)
 }
 
 // EmptyState returns an empty state.
@@ -34,7 +33,7 @@ func (s Substitutions) String() string {
 	ss := map[uint64]*ast.SExpr(s)
 	for i, k := range deriveSorted(deriveKeys(ss)) {
 		v := s[k]
-		vv := ast.NewVar(fmt.Sprintf("v%d", k), k)
+		vv := Var(k)
 		vvv := ast.Cons(vv, v)
 		sexprs[len(s)-1-i] = vvv
 	}

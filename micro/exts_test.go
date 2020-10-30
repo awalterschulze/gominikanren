@@ -6,6 +6,11 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
+// helper func used in all tests that use Substitution of vars
+func indexOf(x *ast.SExpr) uint64 {
+	return x.Atom.Var.Index
+}
+
 func TestOccurs(t *testing.T) {
 	x := ast.NewVar("x", 0)
 	y := ast.NewVar("y", 1)
@@ -13,7 +18,7 @@ func TestOccurs(t *testing.T) {
 		deriveTuple3SVars(x, x, Substitutions(nil), true),
 		deriveTuple3SVars(x, y, nil, false),
 		deriveTuple3SVars(x, ast.NewList(y), Substitutions{
-			1: x,
+			indexOf(y): x,
 		}, true),
 	}
 	for _, test := range tests {
@@ -33,23 +38,23 @@ func TestExts(t *testing.T) {
 	z := ast.NewVar("z", 2)
 	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions){
 		deriveTupleE(x, ast.NewSymbol("a"), Substitutions(nil), Substitutions{
-			0: ast.NewSymbol("a"),
+			indexOf(x): ast.NewSymbol("a"),
 		}),
 		deriveTupleE(x, ast.NewList(x), Substitutions(nil), Substitutions(nil)),
 		deriveTupleE(x, ast.NewList(y),
 			Substitutions{
-				1: x,
+				indexOf(y): x,
 			},
 			Substitutions(nil)),
 		deriveTupleE(x, ast.NewSymbol("e"),
 			Substitutions{
-				2: x,
-				1: z,
+				indexOf(z): x,
+				indexOf(y): z,
 			},
 			Substitutions{
-				0: ast.NewSymbol("e"),
-				2: x,
-				1: z,
+				indexOf(x): ast.NewSymbol("e"),
+				indexOf(z): x,
+				indexOf(y): z,
 			},
 		),
 	}
