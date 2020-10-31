@@ -19,7 +19,7 @@ func TestIfThenElseSuccess(t *testing.T) {
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)
+	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
 	want := "(((,y . #f) . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
@@ -36,7 +36,7 @@ func TestIfThenElseFailure(t *testing.T) {
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)
+	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
 	want := "(((,y . #t) . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)

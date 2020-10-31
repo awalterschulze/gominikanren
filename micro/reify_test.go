@@ -13,7 +13,7 @@ scheme code:
 	(let
 		(
 			(a1 `(,x . (,u ,w ,y ,z ((ice) ,z))))
-			(a2 `(,y . (corn)))
+			(a2 `(,y . corn))
 			(a3 `(,w . (,v ,u)))
 		)
 		(let
