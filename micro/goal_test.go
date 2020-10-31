@@ -1,6 +1,7 @@
 package micro
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -57,15 +58,18 @@ func TestNeverO(t *testing.T) {
 }
 
 func TestDisjointO1(t *testing.T) {
+	x := ast.NewVariable("x")
 	d := DisjointO(
 		EqualO(
 			ast.NewSymbol("olive"),
-			ast.NewVariable("x"),
+			x,
 		),
 		NeverO,
 	)()(EmptyState())
 	s, sok := d()
 	got := s.String()
+	// reifying y; we assigned it a random uint64 and lost track of it
+	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
 	want := "((,x . olive) . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -76,11 +80,12 @@ func TestDisjointO1(t *testing.T) {
 }
 
 func TestDisjointO2(t *testing.T) {
+	x := ast.NewVariable("x")
 	d := DisjointO(
 		NeverO,
 		EqualO(
 			ast.NewSymbol("olive"),
-			ast.NewVariable("x"),
+			x,
 		),
 	)()(EmptyState())
 	s, sok := d()
@@ -92,6 +97,8 @@ func TestDisjointO2(t *testing.T) {
 	}
 	s, sok = sok()
 	got := s.String()
+	// reifying y; we assigned it a random uint64 and lost track of it
+	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
 	want := "((,x . olive) . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -150,13 +157,14 @@ func TestRunGoalDisj2(t *testing.T) {
 }
 
 func TestRunGoalConj2NoResults(t *testing.T) {
+	x := ast.NewVariable("x")
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
-		ast.NewVariable("x"),
+		x,
 	)
 	e2 := EqualO(
 		ast.NewSymbol("oil"),
-		ast.NewVariable("x"),
+		x,
 	)
 	g := ConjunctionO(e1, e2)
 	ss := RunGoal(5, g)
@@ -166,13 +174,14 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 }
 
 func TestRunGoalConj2OneResults(t *testing.T) {
+	x := ast.NewVariable("x")
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
-		ast.NewVariable("x"),
+		x,
 	)
 	e2 := EqualO(
 		ast.NewSymbol("olive"),
-		ast.NewVariable("x"),
+		x,
 	)
 	g := ConjunctionO(e1, e2)
 	ss := RunGoal(5, g)
@@ -180,6 +189,8 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 		t.Fatalf("expected 1, got %d: %v", len(ss), ss)
 	}
 	got := ss[0].String()
+	// reifying y; we assigned it a random uint64 and lost track of it
+	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
 	want := "((,x . olive) . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)

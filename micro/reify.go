@@ -54,11 +54,11 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	}
 	if vv.IsVariable() {
 		n := reifyName(len(s))
-        m := make(map[string]*ast.SExpr, len(s))
-        for key, value := range s {
-            m[key] = value
-        }
-		m[vv.Atom.Var.Name] = n
+		m := make(map[uint64]*ast.SExpr, len(s))
+		for key, value := range s {
+			m[key] = value
+		}
+		m[vv.Atom.Var.Index] = n
 		return m
 	}
 	if vv.IsPair() {
@@ -79,6 +79,15 @@ func ReifyVarFromState(v string) func(s *State) *ast.SExpr {
 	}
 }
 
+// ReifyIntVarFromState is a curried function that reifies the input variable for the given input state.
+func ReifyIntVarFromState(v uint64) func(s *State) *ast.SExpr {
+	return func(s *State) *ast.SExpr {
+		vv := walkStar(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Index: v}}}, s.Substitutions)
+		r := reifyS(vv)
+		return walkStar(vv, r)
+	}
+}
+
 // Reify reifies the input variable for the given input states.
 // NOTE: this is not the same reify as in the paper, mKreify
 func Reify(v string, ss []*State) []*ast.SExpr {
@@ -88,5 +97,5 @@ func Reify(v string, ss []*State) []*ast.SExpr {
 // MKReify finds reifications for the first introduced var
 // NOTE: the way we've set this up now, vX is a reserved keyword
 func MKReify(ss []*State) []*ast.SExpr {
-	return deriveFmapRs(ReifyVarFromState("v0"), ss)
+	return deriveFmapRs(ReifyIntVarFromState(0), ss)
 }

@@ -65,6 +65,7 @@ func deriveGoStringVar(this *Variable) string {
 	} else {
 		fmt.Fprintf(buf, "this := &ast.Variable{}\n")
 		fmt.Fprintf(buf, "this.Name = %#v\n", this.Name)
+		fmt.Fprintf(buf, "this.Index = %#v\n", this.Index)
 		fmt.Fprintf(buf, "return this\n")
 	}
 	fmt.Fprintf(buf, "}()\n")
@@ -83,7 +84,8 @@ func deriveEqual(this, that *SExpr) bool {
 func deriveEqualVar(this, that *Variable) bool {
 	return (this == nil && that == nil) ||
 		this != nil && that != nil &&
-			this.Name == that.Name
+			this.Name == that.Name &&
+			this.Index == that.Index
 }
 
 // deriveGoString_ returns a recursive representation of this as a valid go string.

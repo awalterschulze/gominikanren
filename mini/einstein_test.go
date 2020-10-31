@@ -2,7 +2,6 @@ package mini
 
 import (
 	"testing"
-	"time"
 
 	"github.com/awalterschulze/gominikanren/micro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
@@ -75,11 +74,10 @@ func TestEinstein(t *testing.T) {
 	}
 
 	// NOTE: these should be anonymous vars, but we cannot make those atm without using call/fresh
-	// I'm creating vars with unique random names (from unix time) instead, for now
-	// somehow ast.NewVariable can introduce vars with scope: if you change one of the var names in
-	// street to duplicate another, you will see them substituted in variable bindings in state
+	// for the purposes of this test we don't care about their names clashing;
+	// their underlying index value will be unique
 	anon := func() *ast.SExpr {
-		return ast.NewVariable(time.Now().String())
+		return ast.NewVariable("_")
 	}
 
 	streetDef := ast.NewList(

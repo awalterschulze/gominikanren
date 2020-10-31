@@ -1,7 +1,7 @@
 package micro
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
@@ -9,15 +9,15 @@ import (
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	Substitutions
-	Counter int
+	Counter uint64
 }
 
 // String returns a string representation of State.
 func (s *State) String() string {
 	if s.Substitutions == nil {
-		return "(" + "()" + " . " + strconv.Itoa(s.Counter) + ")"
+		return fmt.Sprintf("(() . %d)", s.Counter)
 	}
-	return "(" + s.Substitutions.String() + " . " + strconv.Itoa(s.Counter) + ")"
+	return fmt.Sprintf("(%s . %d)", s.Substitutions.String(), s.Counter)
 }
 
 // EmptyState returns an empty state.
@@ -26,24 +26,20 @@ func EmptyState() *State {
 }
 
 // Substitutions is a list of substitutions represented by a sexprs pair.
-type Substitutions map[string]*ast.SExpr
+type Substitutions map[uint64]*ast.SExpr
 
 func (s Substitutions) String() string {
 	sexprs := make([]*ast.SExpr, len(s))
-	ss := map[string]*ast.SExpr(s)
+	ss := map[uint64]*ast.SExpr(s)
 	for i, k := range deriveSorted(deriveKeys(ss)) {
 		v := s[k]
-		sexprs[len(s)-1-i] = ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: k}}}, v)
+		vv := Var(k)
+		vvv := ast.Cons(vv, v)
+		sexprs[len(s)-1-i] = vvv
 	}
 	l := ast.NewList(sexprs...).String()
 	return l[1 : len(l)-1]
 }
-
-/*
-func (s Substitution) String() string {
-	return ast.Cons(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: s.Var}}}, s.Value).String()
-}
-*/
 
 // GoalFn is a function that takes a state and returns a stream of states.
 type GoalFn func(*State) StreamOfStates
