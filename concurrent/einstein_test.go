@@ -9,14 +9,9 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-var (
-	result      []*ast.SExpr
-	disjunction func(...micro.Goal) micro.Goal
-)
-
 func BenchmarkEinsteinSeqZzz(b *testing.B) {
 	disjunction = mini.DisjPlus
-    goal := einstein()
+	goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
@@ -26,7 +21,7 @@ func BenchmarkEinsteinSeqZzz(b *testing.B) {
 
 func BenchmarkEinsteinSeq(b *testing.B) {
 	disjunction = disjPlus
-    goal := einstein()
+	goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
@@ -36,7 +31,7 @@ func BenchmarkEinsteinSeq(b *testing.B) {
 
 func BenchmarkEinsteinConcZzz(b *testing.B) {
 	disjunction = concDisjPlusZzz
-    goal := einstein()
+	goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
@@ -46,7 +41,7 @@ func BenchmarkEinsteinConcZzz(b *testing.B) {
 
 func BenchmarkEinsteinConc(b *testing.B) {
 	disjunction = DisjPlus
-    goal := einstein()
+	goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
