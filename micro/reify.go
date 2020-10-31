@@ -54,10 +54,10 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	}
 	if vv.IsVariable() {
 		n := reifyName(len(s))
-		m := deriveClone(s)
-		if m == nil {
-			m = map[string]*ast.SExpr{}
-		}
+        m := make(map[string]*ast.SExpr, len(s))
+        for key, value := range s {
+            m[key] = value
+        }
 		m[vv.Atom.Var.Name] = n
 		return m
 	}
