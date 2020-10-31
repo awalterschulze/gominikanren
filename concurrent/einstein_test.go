@@ -16,36 +16,40 @@ var (
 
 func BenchmarkEinsteinSeqZzz(b *testing.B) {
 	disjunction = mini.DisjPlus
+    goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
-		r = einstein()
+		r = runEinstein(goal)
 	}
 	result = r
 }
 
 func BenchmarkEinsteinSeq(b *testing.B) {
 	disjunction = disjPlus
+    goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
-		r = einstein()
+		r = runEinstein(goal)
 	}
 	result = r
 }
 
 func BenchmarkEinsteinConcZzz(b *testing.B) {
 	disjunction = concDisjPlusZzz
+    goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
-		r = einstein()
+		r = runEinstein(goal)
 	}
 	result = r
 }
 
 func BenchmarkEinsteinConc(b *testing.B) {
 	disjunction = DisjPlus
+    goal := einstein()
 	var r []*ast.SExpr
 	for n := 0; n < b.N; n++ {
-		r = einstein()
+		r = runEinstein(goal)
 	}
 	result = r
 }
@@ -121,7 +125,7 @@ func memberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
 	}
 }
 
-func einstein() []*ast.SExpr {
+func einstein() func(*ast.SExpr, *ast.SExpr) micro.Goal {
 	one := ast.NewSymbol("one")
 	two := ast.NewSymbol("two")
 	three := ast.NewSymbol("three")
@@ -213,7 +217,33 @@ func einstein() []*ast.SExpr {
 		)
 	}
 
-	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+	return func(street, fishowner *ast.SExpr) micro.Goal {
+		return micro.CallFresh(func(a *ast.SExpr) micro.Goal {
+			return micro.CallFresh(func(b *ast.SExpr) micro.Goal {
+				return micro.CallFresh(func(c *ast.SExpr) micro.Goal {
+					return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
+						return micro.CallFresh(func(e *ast.SExpr) micro.Goal {
+							return micro.CallFresh(func(f *ast.SExpr) micro.Goal {
+								return micro.CallFresh(func(g *ast.SExpr) micro.Goal {
+									return micro.CallFresh(func(h *ast.SExpr) micro.Goal {
+										return micro.CallFresh(func(i *ast.SExpr) micro.Goal {
+											return micro.CallFresh(func(j *ast.SExpr) micro.Goal {
+												return solution(street, fishowner, a, b, c, d, e, f, g, h, i, j)
+											})
+										})
+									})
+								})
+							})
+						})
+					})
+				})
+			})
+		})
+	}
+}
+
+func runEinstein(goal func(*ast.SExpr, *ast.SExpr) micro.Goal) []*ast.SExpr {
+	return micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(street *ast.SExpr) micro.Goal {
 			return micro.CallFresh(func(fishowner *ast.SExpr) micro.Goal {
 				return micro.ConjunctionO(
@@ -221,30 +251,9 @@ func einstein() []*ast.SExpr {
 						q,
 						ast.Cons(street, ast.Cons(fishowner, nil)),
 					),
-					micro.CallFresh(func(a *ast.SExpr) micro.Goal {
-						return micro.CallFresh(func(b *ast.SExpr) micro.Goal {
-							return micro.CallFresh(func(c *ast.SExpr) micro.Goal {
-								return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
-									return micro.CallFresh(func(e *ast.SExpr) micro.Goal {
-										return micro.CallFresh(func(f *ast.SExpr) micro.Goal {
-											return micro.CallFresh(func(g *ast.SExpr) micro.Goal {
-												return micro.CallFresh(func(h *ast.SExpr) micro.Goal {
-													return micro.CallFresh(func(i *ast.SExpr) micro.Goal {
-														return micro.CallFresh(func(j *ast.SExpr) micro.Goal {
-															return solution(street, fishowner, a, b, c, d, e, f, g, h, i, j)
-														})
-													})
-												})
-											})
-										})
-									})
-								})
-							})
-						})
-					}),
+					goal(street, fishowner),
 				)
 			})
 		})
 	})
-	return sexprs
 }
