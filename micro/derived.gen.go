@@ -7,18 +7,18 @@ import (
 	"sort"
 )
 
-// deriveTupleO returns a function, which returns the input values.
+// deriveTuple3SVars returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTupleO(v0 string, v1 string, v2 Substitutions, v3 bool) func() (string, string, Substitutions, bool) {
-	return func() (string, string, Substitutions, bool) {
+func deriveTuple3SVars(v0 *ast.SExpr, v1 *ast.SExpr, v2 Substitutions, v3 bool) func() (*ast.SExpr, *ast.SExpr, Substitutions, bool) {
+	return func() (*ast.SExpr, *ast.SExpr, Substitutions, bool) {
 		return v0, v1, v2, v3
 	}
 }
 
 // deriveTupleE returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTupleE(v0 string, v1 string, v2 Substitutions, v3 Substitutions) func() (string, string, Substitutions, Substitutions) {
-	return func() (string, string, Substitutions, Substitutions) {
+func deriveTupleE(v0 *ast.SExpr, v1 *ast.SExpr, v2 Substitutions, v3 Substitutions) func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions) {
+	return func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions) {
 		return v0, v1, v2, v3
 	}
 }
@@ -31,23 +31,23 @@ func deriveTuple3(v0 string, v1 string, v2 string) func() (string, string, strin
 	}
 }
 
-// deriveTuple3S returns a function, which returns the input values.
+// deriveTuple3SVar returns a function, which returns the input values.
 // Since tuples are not first class citizens in Go, this is a way to fake it, because functions that return tuples are first class citizens.
-func deriveTuple3S(v0 string, v1 Substitutions, v2 string) func() (string, Substitutions, string) {
-	return func() (string, Substitutions, string) {
+func deriveTuple3SVar(v0 *ast.SExpr, v1 Substitutions, v2 string) func() (*ast.SExpr, Substitutions, string) {
+	return func() (*ast.SExpr, Substitutions, string) {
 		return v0, v1, v2
 	}
 }
 
 // deriveSorted sorts the slice inplace and also returns it.
-func deriveSorted(list []string) []string {
-	sort.Strings(list)
+func deriveSorted(list []uint64) []uint64 {
+	sort.Slice(list, func(i, j int) bool { return list[i] < list[j] })
 	return list
 }
 
 // deriveKeys returns the keys of the input map as a slice.
-func deriveKeys(m map[string]*ast.SExpr) []string {
-	keys := make([]string, 0, len(m))
+func deriveKeys(m map[uint64]*ast.SExpr) []uint64 {
+	keys := make([]uint64, 0, len(m))
 	for key := range m {
 		keys = append(keys, key)
 	}

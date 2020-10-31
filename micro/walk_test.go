@@ -7,38 +7,42 @@ import (
 )
 
 func TestWalk(t *testing.T) {
+	v := ast.NewVar("v", 1)
+	w := ast.NewVar("w", 2)
+	x := ast.NewVar("x", 3)
+	y := ast.NewVar("y", 4)
+	z := ast.NewVar("z", 5)
 	zaxwyz := Substitutions{
-		"z": ast.NewSymbol("a"),
-		"x": ast.NewVariable("w"),
-		"y": ast.NewVariable("z"),
+		indexOf(z): ast.NewSymbol("a"),
+		indexOf(x): w,
+		indexOf(y): z,
 	}
 	xyvxwx := Substitutions{
-		"x": ast.NewVariable("y"),
-		"v": ast.NewVariable("x"),
-		"w": ast.NewVariable("x"),
+		indexOf(x): y,
+		indexOf(v): x,
+		indexOf(w): x,
 	}
-	tests := []func() (string, Substitutions, string){
-		deriveTuple3S("z", zaxwyz, "a"),
-		deriveTuple3S("y", zaxwyz, "a"),
-		deriveTuple3S("x", zaxwyz, ",w"),
-		deriveTuple3S("x", xyvxwx, ",y"),
-		deriveTuple3S("v", xyvxwx, ",y"),
-		deriveTuple3S("w", xyvxwx, ",y"),
-		deriveTuple3S("w", Substitutions{
-			"x": ast.NewSymbol("b"),
-			"z": ast.NewVariable("y"),
-			"w": ast.NewList(ast.NewVariable("x"), ast.NewSymbol("e"), ast.NewVariable("z")),
+	tests := []func() (*ast.SExpr, Substitutions, string){
+		deriveTuple3SVar(z, zaxwyz, "a"),
+		deriveTuple3SVar(y, zaxwyz, "a"),
+		deriveTuple3SVar(x, zaxwyz, ",w"),
+		deriveTuple3SVar(x, xyvxwx, ",y"),
+		deriveTuple3SVar(v, xyvxwx, ",y"),
+		deriveTuple3SVar(w, xyvxwx, ",y"),
+		deriveTuple3SVar(w, Substitutions{
+			indexOf(x): ast.NewSymbol("b"),
+			indexOf(z): y,
+			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
 		}, "(,x e ,z)"),
-		deriveTuple3S("y", Substitutions{
-			"x": ast.NewSymbol("e"),
-			"z": ast.NewVariable("x"),
-			"y": ast.NewVariable("z"),
+		deriveTuple3SVar(y, Substitutions{
+			indexOf(x): ast.NewSymbol("e"),
+			indexOf(z): x,
+			indexOf(y): z,
 		}, "e"),
 	}
 	for _, test := range tests {
-		q, subs, want := test()
-		t.Run("(walk "+q+" "+subs.String()+")", func(t *testing.T) {
-			v := ast.NewVariable(q)
+		v, subs, want := test()
+		t.Run("(walk "+v.Atom.Var.Name+" "+subs.String()+")", func(t *testing.T) {
 			got := walk(v.Atom.Var, subs).String()
 			if want != got {
 				t.Fatalf("got %s want %s", got, want)
@@ -48,38 +52,42 @@ func TestWalk(t *testing.T) {
 }
 
 func TestWalkStar(t *testing.T) {
+	v := ast.NewVar("v", 1)
+	w := ast.NewVar("w", 2)
+	x := ast.NewVar("x", 3)
+	y := ast.NewVar("y", 4)
+	z := ast.NewVar("z", 5)
 	zaxwyz := Substitutions{
-		"z": ast.NewSymbol("a"),
-		"x": ast.NewVariable("w"),
-		"y": ast.NewVariable("z"),
+		indexOf(z): ast.NewSymbol("a"),
+		indexOf(x): w,
+		indexOf(y): z,
 	}
 	xyvxwx := Substitutions{
-		"x": ast.NewVariable("y"),
-		"v": ast.NewVariable("x"),
-		"w": ast.NewVariable("x"),
+		indexOf(x): y,
+		indexOf(v): x,
+		indexOf(w): x,
 	}
-	tests := []func() (string, Substitutions, string){
-		deriveTuple3S("z", zaxwyz, "a"),
-		deriveTuple3S("y", zaxwyz, "a"),
-		deriveTuple3S("x", zaxwyz, ",w"),
-		deriveTuple3S("x", xyvxwx, ",y"),
-		deriveTuple3S("v", xyvxwx, ",y"),
-		deriveTuple3S("w", xyvxwx, ",y"),
-		deriveTuple3S("w", Substitutions{
-			"x": ast.NewSymbol("b"),
-			"z": ast.NewVariable("y"),
-			"w": ast.NewList(ast.NewVariable("x"), ast.NewSymbol("e"), ast.NewVariable("z")),
+	tests := []func() (*ast.SExpr, Substitutions, string){
+		deriveTuple3SVar(z, zaxwyz, "a"),
+		deriveTuple3SVar(y, zaxwyz, "a"),
+		deriveTuple3SVar(x, zaxwyz, ",w"),
+		deriveTuple3SVar(x, xyvxwx, ",y"),
+		deriveTuple3SVar(v, xyvxwx, ",y"),
+		deriveTuple3SVar(w, xyvxwx, ",y"),
+		deriveTuple3SVar(w, Substitutions{
+			indexOf(x): ast.NewSymbol("b"),
+			indexOf(z): y,
+			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
 		}, "(b e ,y)"),
-		deriveTuple3S("y", Substitutions{
-			"x": ast.NewSymbol("e"),
-			"z": ast.NewVariable("x"),
-			"y": ast.NewVariable("z"),
+		deriveTuple3SVar(y, Substitutions{
+			indexOf(x): ast.NewSymbol("e"),
+			indexOf(z): x,
+			indexOf(y): z,
 		}, "e"),
 	}
 	for _, test := range tests {
-		q, subs, want := test()
-		t.Run("(walk "+q+" "+subs.String()+")", func(t *testing.T) {
-			v := ast.NewVariable(q)
+		v, subs, want := test()
+		t.Run("(walk "+v.Atom.Var.Name+" "+subs.String()+")", func(t *testing.T) {
 			got := walkStar(v, subs).String()
 			if want != got {
 				t.Fatalf("got %s want %s", got, want)

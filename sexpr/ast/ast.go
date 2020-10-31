@@ -2,8 +2,14 @@ package ast
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func Cons(car *SExpr, cdr *SExpr) *SExpr {
 	return &SExpr{Pair: &Pair{Car: car, Cdr: cdr}}
@@ -164,17 +170,23 @@ func ParseVariable(s string) (*SExpr, error) {
 }
 
 func NewVariable(s string) *SExpr {
+	return NewVar(s, rand.Uint64())
+}
+
+func NewVar(s string, i uint64) *SExpr {
 	return &SExpr{
 		Atom: &Atom{
 			Var: &Variable{
-				Name: s,
+				Name:  s,
+				Index: i,
 			},
 		},
 	}
 }
 
 type Variable struct {
-	Name string
+	Name  string
+	Index uint64
 }
 
 func (v *Variable) String() string {
