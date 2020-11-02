@@ -1,29 +1,30 @@
-package micro
+package example
 
 import (
 	"reflect"
 	"testing"
 
+	"github.com/awalterschulze/gominikanren/micro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func fives(x *ast.SExpr) GoalFn {
-	return Zzz(DisjointO(
-		EqualO(
+func fives(x *ast.SExpr) micro.GoalFn {
+	return micro.Zzz(micro.DisjointO(
+		micro.EqualO(
 			x,
 			ast.NewInt(5),
 		),
-		func() GoalFn { return fives(x) },
+		func() micro.GoalFn { return fives(x) },
 	))()
 }
 
-func sixes(x *ast.SExpr) GoalFn {
-	return Zzz(DisjointO(
-		EqualO(
+func sixes(x *ast.SExpr) micro.GoalFn {
+	return micro.Zzz(micro.DisjointO(
+		micro.EqualO(
 			x,
 			ast.NewInt(6),
 		),
-		func() GoalFn { return sixes(x) },
+		func() micro.GoalFn { return sixes(x) },
 	))()
 }
 
@@ -32,15 +33,15 @@ func TestFivesAndSixes(t *testing.T) {
 	ast6 := ast.NewInt(6)
 
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
-	states := RunGoal(
+	states := micro.RunGoal(
 		1,
-		CallFresh(func(q *ast.SExpr) Goal {
-			return EqualO(
+		micro.CallFresh(func(q *ast.SExpr) micro.Goal {
+			return micro.EqualO(
 				q,
 				ast5,
 			)
 		}))
-	got := MKReify(states)
+	got := micro.MKReify(states)
 	want := []*ast.SExpr{ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", got, want)
@@ -48,28 +49,28 @@ func TestFivesAndSixes(t *testing.T) {
 
 	// (define (fives x) (disj (≡ x 5) (fives x)))
 	// ((call/fresh fives) empty-state)
-	states = RunGoal(
+	states = micro.RunGoal(
 		2,
-		CallFresh(func(x *ast.SExpr) Goal {
-			return func() GoalFn { return fives(x) }
+		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
+			return func() micro.GoalFn { return fives(x) }
 		}),
 	)
-	got = MKReify(states)
+	got = micro.MKReify(states)
 	want = []*ast.SExpr{ast5, ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", got, want)
 	}
 
-	states = RunGoal(
+	states = micro.RunGoal(
 		10,
-		CallFresh(func(x *ast.SExpr) Goal {
-			return DisjointO(
-				func() GoalFn { return fives(x) },
-				func() GoalFn { return sixes(x) },
+		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
+			return micro.DisjointO(
+				func() micro.GoalFn { return fives(x) },
+				func() micro.GoalFn { return sixes(x) },
 			)
 		}),
 	)
-	got = MKReify(states)
+	got = micro.MKReify(states)
 	want = []*ast.SExpr{ast5, ast6, ast5, ast6, ast5, ast6, ast5, ast6, ast5, ast6}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", got, want)

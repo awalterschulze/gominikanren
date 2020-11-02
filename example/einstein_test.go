@@ -1,9 +1,10 @@
-package mini
+package example
 
 import (
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/mini"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -42,7 +43,7 @@ func TestEinstein(t *testing.T) {
 	five := ast.NewSymbol("five")
 
 	rightOf := func(x, y *ast.SExpr) micro.Goal {
-		return DisjPlus(
+		return mini.DisjPlus(
 			micro.ConjunctionO(
 				micro.EqualO(y, one),
 				micro.EqualO(x, two),
@@ -97,10 +98,10 @@ func TestEinstein(t *testing.T) {
 		)
 	}
 
-	mUnrolled := MemberOUnrolled(streetDef)
+	mUnrolled := mini.MemberOUnrolled(streetDef)
 
 	solution := func(street, fishowner, a, b, c, d, e, f, g, h, i, j *ast.SExpr) micro.Goal {
-		return ConjPlus(
+		return mini.ConjPlus(
 			streetEq(street),
 			mUnrolled(ast.NewList(anon(), ast.NewSymbol("brit"), ast.NewSymbol("red"), anon(), anon(), anon())),
 			mUnrolled(ast.NewList(anon(), ast.NewSymbol("swede"), anon(), ast.NewSymbol("dog"), anon(), anon())),

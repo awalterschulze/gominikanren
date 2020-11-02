@@ -1,9 +1,10 @@
-package mini
+package example
 
 import (
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/mini"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -42,12 +43,12 @@ func parsenat(x *ast.SExpr) int {
    ))
 */
 func natplus(x, y, z *ast.SExpr) micro.Goal {
-	return Conde(
+	return mini.Conde(
 		[]micro.Goal{micro.EqualO(x, zero), micro.EqualO(y, z)},
 		[]micro.Goal{
 			micro.CallFresh(func(a *ast.SExpr) micro.Goal {
 				return micro.CallFresh(func(b *ast.SExpr) micro.Goal {
-					return ConjPlus(
+					return mini.ConjPlus(
 						succ(a, x),
 						succ(b, z),
 						natplus(a, y, b),
@@ -85,7 +86,7 @@ func TestNatPlus(t *testing.T) {
   ))
 */
 func fib(x, y *ast.SExpr) micro.Goal {
-	return Conde(
+	return mini.Conde(
 		[]micro.Goal{micro.EqualO(x, zero), micro.EqualO(y, zero)},
 		[]micro.Goal{micro.EqualO(x, one), micro.EqualO(y, one)},
 		[]micro.Goal{
@@ -93,7 +94,7 @@ func fib(x, y *ast.SExpr) micro.Goal {
 				return micro.CallFresh(func(n2 *ast.SExpr) micro.Goal {
 					return micro.CallFresh(func(f1 *ast.SExpr) micro.Goal {
 						return micro.CallFresh(func(f2 *ast.SExpr) micro.Goal {
-							return ConjPlus(
+							return mini.ConjPlus(
 								succ(n1, x),
 								succ(n2, n1),
 								fib(n1, f1),
