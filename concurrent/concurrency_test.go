@@ -76,7 +76,7 @@ func benchMembero(b *testing.B, listsize int) {
 }
 
 func BenchmarkMembero10000(b *testing.B) {
-	disjunction = disjPlus
+	disjunction = mini.DisjPlusNoZzz
 	benchMembero(b, 10000)
 }
 
@@ -86,7 +86,7 @@ func BenchmarkConcMembero10000(b *testing.B) {
 }
 
 func BenchmarkMembero50000(b *testing.B) {
-	disjunction = disjPlus
+	disjunction = mini.DisjPlusNoZzz
 	benchMembero(b, 50000)
 }
 
@@ -141,25 +141,8 @@ func benchMapo(b *testing.B, listsize int) {
 	result = r
 }
 
-func conjPlus(gs ...micro.Goal) micro.Goal {
-	if len(gs) == 0 {
-		return micro.SuccessO
-	}
-	if len(gs) == 1 {
-		return gs[0]
-	}
-	g1 := gs[0]
-	g2 := conjPlus(gs[1:]...)
-	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			g1s := g1()(s)
-			return micro.Bind(g1s, g2)
-		}
-	}
-}
-
 func BenchmarkMapo10000(b *testing.B) {
-	conjunction = conjPlus
+	conjunction = mini.ConjPlusNoZzz
 	benchMapo(b, 10000)
 }
 
@@ -196,7 +179,7 @@ func benchMapoFailHead(b *testing.B, listsize int) {
 }
 
 func BenchmarkMapoFailHead10000(b *testing.B) {
-	conjunction = conjPlus
+	conjunction = mini.ConjPlusNoZzz
 	benchMapoFailHead(b, 10000)
 }
 
@@ -233,7 +216,7 @@ func benchMapoFailTail(b *testing.B, listsize int) {
 }
 
 func BenchmarkMapoFailTail10000(b *testing.B) {
-	conjunction = conjPlus
+	conjunction = mini.ConjPlusNoZzz
 	benchMapoFailTail(b, 10000)
 }
 

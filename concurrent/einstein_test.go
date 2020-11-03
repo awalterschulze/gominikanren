@@ -21,7 +21,7 @@ func BenchmarkEinsteinSeqZzz(b *testing.B) {
 }
 
 func BenchmarkEinsteinSeq(b *testing.B) {
-	disjunction = disjPlus
+	disjunction = mini.DisjPlusNoZzz
 	goal := einstein()
 	var r []*ast.SExpr
 	b.ResetTimer()
@@ -32,7 +32,7 @@ func BenchmarkEinsteinSeq(b *testing.B) {
 }
 
 func BenchmarkEinsteinConcZzz(b *testing.B) {
-	disjunction = concDisjPlusZzz
+	disjunction = DisjPlusZzz
 	goal := einstein()
 	var r []*ast.SExpr
 	b.ResetTimer()
@@ -51,54 +51,6 @@ func BenchmarkEinsteinConc(b *testing.B) {
 		r = runEinstein(goal)
 	}
 	result = r
-}
-
-func disjPlus(gs ...micro.Goal) micro.Goal {
-	if len(gs) == 0 {
-		return micro.FailureO
-	}
-	if len(gs) == 1 {
-		return gs[0]
-	}
-	g1 := gs[0]
-	g2 := disjPlus(gs[1:]...)
-	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			g1s := g1()(s)
-			g2s := g2()(s)
-			return micro.Mplus(g1s, g2s)
-		}
-	}
-}
-
-func concDisjPlusZzz(gs ...micro.Goal) micro.Goal {
-	if len(gs) == 0 {
-		return micro.FailureO
-	}
-	if len(gs) == 1 {
-		return micro.Zzz(gs[0])
-	}
-	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			list := make([]micro.StreamOfStates, len(gs))
-			ch := make(chan answer)
-			for i, g := range gs {
-				go func(index int, goal micro.Goal) {
-					ss := micro.Zzz(goal)()(s)
-					ch <- answer{i: index, s: ss}
-				}(i, g)
-			}
-			for range gs {
-				ans := <-ch
-				list[ans.i] = ans.s
-			}
-			stream := list[len(gs)-1]
-			for i := len(gs) - 2; i >= 0; i-- {
-				stream = micro.Mplus(list[i], stream)
-			}
-			return stream
-		}
-	}
 }
 
 func memberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
