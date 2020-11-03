@@ -68,6 +68,7 @@ func TestHeavilyConcurrentDisj(t *testing.T) {
 func benchMembero(b *testing.B, listsize int) {
 	membero := memberOfLargeList(listsize)
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = micro.Run(-1, membero)
 	}
@@ -133,6 +134,7 @@ func equalLargeList(n int) func(*ast.SExpr) micro.Goal {
 func benchMapo(b *testing.B, listsize int) {
 	membero := equalLargeList(listsize)
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = micro.Run(-1, membero)
 	}
@@ -186,6 +188,7 @@ func equalFailHeadLargeList(n int) func(*ast.SExpr) micro.Goal {
 func benchMapoFailHead(b *testing.B, listsize int) {
 	membero := equalFailHeadLargeList(listsize)
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = micro.Run(-1, membero)
 	}
@@ -222,6 +225,7 @@ func equalFailTailLargeList(n int) func(*ast.SExpr) micro.Goal {
 func benchMapoFailTail(b *testing.B, listsize int) {
 	membero := equalFailTailLargeList(listsize)
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = micro.Run(-1, membero)
 	}

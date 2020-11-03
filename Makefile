@@ -44,4 +44,4 @@ lint:
 
 .PHONY: bench
 bench:
-	go test ./... -count=1 -bench=. -benchtime=10s
+	go test ./... -bench=. -benchtime=10s

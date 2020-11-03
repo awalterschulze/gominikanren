@@ -13,6 +13,7 @@ func BenchmarkEinsteinSeqZzz(b *testing.B) {
 	disjunction = mini.DisjPlus
 	goal := einstein()
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
 	}
@@ -23,6 +24,7 @@ func BenchmarkEinsteinSeq(b *testing.B) {
 	disjunction = disjPlus
 	goal := einstein()
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
 	}
@@ -33,6 +35,7 @@ func BenchmarkEinsteinConcZzz(b *testing.B) {
 	disjunction = concDisjPlusZzz
 	goal := einstein()
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
 	}
@@ -43,6 +46,7 @@ func BenchmarkEinsteinConc(b *testing.B) {
 	disjunction = DisjPlus
 	goal := einstein()
 	var r []*ast.SExpr
+    b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
 	}
