@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/awalterschulze/gominikanren/example/peano"
 	"github.com/awalterschulze/gominikanren/micro"
 	"github.com/awalterschulze/gominikanren/mini"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
@@ -22,13 +23,13 @@ import (
 */
 func length(x, y *ast.SExpr) micro.Goal {
 	return mini.Conde(
-		[]micro.Goal{micro.EqualO(x, nil), micro.EqualO(y, zero)},
+		[]micro.Goal{micro.EqualO(x, nil), micro.EqualO(y, peano.Zero)},
 		[]micro.Goal{
 			micro.CallFresh(func(a *ast.SExpr) micro.Goal {
 				return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
 					return micro.CallFresh(func(z *ast.SExpr) micro.Goal {
 						return mini.ConjPlus(
-							succ(z, y),
+							peano.Succ(z, y),
 							micro.EqualO(x, ast.Cons(a, d)),
 							length(d, z),
 						)
@@ -41,17 +42,17 @@ func length(x, y *ast.SExpr) micro.Goal {
 
 func TestLength(t *testing.T) {
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
-		return length(ast.NewList(one, zero, one, zero, one), q)
+		return length(ast.NewList(peano.One, peano.Zero, peano.One, peano.Zero, peano.One), q)
 	})
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
 	}
-	got, want := parsenat(sexprs[0]), 5
+	got, want := peano.Parsenat(sexprs[0]), 5
 	if got != want {
 		t.Fatalf("expected %d, but got %d instead", want, got)
 	}
 	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
-		return length(q, makenat(4))
+		return length(q, peano.Makenat(4))
 	})
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
@@ -98,7 +99,7 @@ func splitInHalf(x, y, z *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(h *ast.SExpr) micro.Goal {
 			return mini.ConjPlus(
 				length(x, l),
-				half(l, h),
+				peano.Half(l, h),
 				splitAt(x, h, y, z),
 			)
 		})
@@ -106,7 +107,7 @@ func splitInHalf(x, y, z *ast.SExpr) micro.Goal {
 }
 
 func TestSplitInHalf(t *testing.T) {
-	list := toPeanoList([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
+	list := peano.ToList([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(x *ast.SExpr) micro.Goal {
 			return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
@@ -120,7 +121,7 @@ func TestSplitInHalf(t *testing.T) {
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
 	}
-	got, want := sexprs[0].Car(), toPeanoList([]int{1, 2, 3, 4})
+	got, want := sexprs[0].Car(), peano.ToList([]int{1, 2, 3, 4})
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %v, but got %v instead", want, got)
 	}
@@ -165,12 +166,12 @@ func merge(a, b, c *ast.SExpr) micro.Goal {
 												micro.EqualO(b, ast.Cons(ab, db)),
 												mini.Conde(
 													[]micro.Goal{
-														leq(aa, ab),
+														peano.Leq(aa, ab),
 														micro.EqualO(c, ast.Cons(aa, res)),
 														merge(da, b, res),
 													},
 													[]micro.Goal{
-														leq(ab, aa),
+														peano.Leq(ab, aa),
 														micro.EqualO(c, ast.Cons(ab, res)),
 														merge(a, db, res),
 													},
@@ -189,15 +190,15 @@ func merge(a, b, c *ast.SExpr) micro.Goal {
 }
 
 func TestMerge(t *testing.T) {
-	list1 := toPeanoList([]int{1, 2, 3, 7, 8, 9})
-	list2 := toPeanoList([]int{4, 5, 6})
+	list1 := peano.ToList([]int{1, 2, 3, 7, 8, 9})
+	list2 := peano.ToList([]int{4, 5, 6})
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return merge(list1, list2, q)
 	})
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
 	}
-	got, want := sexprs[0], toPeanoList([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
+	got, want := sexprs[0], peano.ToList([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %v, but got %v instead", want, got)
 	}
@@ -256,19 +257,19 @@ func mergeSort(a, b *ast.SExpr) micro.Goal {
 }
 
 func TestMergeSort(t *testing.T) {
-	list := toPeanoList([]int{6, 5, 1, 2, 7, 3, 8, 4, 9})
+	list := peano.ToList([]int{6, 5, 1, 2, 7, 3, 8, 4, 9})
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return mergeSort(list, q)
 	})
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
 	}
-	got, want := sexprs[0], toPeanoList([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
+	got, want := sexprs[0], peano.ToList([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %v, but got %v instead", want, got)
 	}
 	// Wayyy too slow to run backwards with larger list.
-	list = toPeanoList([]int{1})
+	list = peano.ToList([]int{1})
 	sexprs = micro.Run(1, func(q *ast.SExpr) micro.Goal {
 		return mergeSort(q, list)
 	})
@@ -276,7 +277,7 @@ func TestMergeSort(t *testing.T) {
 		t.Fatalf("expected len %d, but got len %d instead", 6, len(sexprs))
 	}
 	gotS, wantS := sexprs, []*ast.SExpr{
-		toPeanoList([]int{1}),
+		peano.ToList([]int{1}),
 	}
 	if !reflect.DeepEqual(gotS, wantS) {
 		t.Fatalf("expected %v, but got %v instead", wantS, gotS)
