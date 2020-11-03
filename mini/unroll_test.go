@@ -52,4 +52,22 @@ func TestMapO(t *testing.T) {
 	if !reflect.DeepEqual(sexprs[0], list) {
 		t.Fatalf("expected output matches input list, but got %#v", sexprs[0])
 	}
+	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return MapOUnrolled(list)(micro.EqualO, q)
+	})
+	if len(sexprs) != 1 {
+		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
+	}
+	if !reflect.DeepEqual(sexprs[0], list) {
+		t.Fatalf("expected output matches input list, but got %#v", sexprs[0])
+	}
+	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+		return MapODoubleUnrolled(micro.EqualO, list)(q)
+	})
+	if len(sexprs) != 1 {
+		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
+	}
+	if !reflect.DeepEqual(sexprs[0], list) {
+		t.Fatalf("expected output matches input list, but got %#v", sexprs[0])
+	}
 }

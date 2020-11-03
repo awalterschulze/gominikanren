@@ -63,7 +63,6 @@ func MemberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
 			gs[i] = g(x)
 		}
 		return DisjPlus(gs...)
-
 	}
 }
 
@@ -112,4 +111,62 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x, y *ast.SExpr) micro.Goal
 			}),
 		},
 	)
+}
+
+// MapOUnrolled is partial application of MapO with y already filled in
+func MapOUnrolled(list *ast.SExpr) func(func(*ast.SExpr, *ast.SExpr) micro.Goal, *ast.SExpr) micro.Goal {
+	goals := []func(func(*ast.SExpr, *ast.SExpr) micro.Goal, *ast.SExpr) micro.Goal{}
+	for {
+		if list == nil {
+			break
+		}
+		car, cdr := list.Car(), list.Cdr()
+		goals = append(goals, func(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x *ast.SExpr) micro.Goal {
+			return f(x, car)
+		})
+		list = cdr
+	}
+	n := len(goals)
+	return func(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x *ast.SExpr) micro.Goal {
+		gs := make([]micro.Goal, n+1)
+		vars := make([]*ast.SExpr, n)
+		var cons *ast.SExpr = nil
+		for i := 0; i < n; i++ {
+			v := ast.NewVariable("")
+			vars[i] = v
+			gs[n-i] = goals[n-i-1](f, v)
+			cons = ast.Cons(v, cons)
+		}
+		gs[0] = micro.EqualO(x, cons)
+		return ConjPlus(gs...)
+	}
+}
+
+// MapODoubleUnrolled is partial application of MapO with f and y already filled in
+func MapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) micro.Goal, list *ast.SExpr) func(*ast.SExpr) micro.Goal {
+	goals := []func(*ast.SExpr) micro.Goal{}
+	for {
+		if list == nil {
+			break
+		}
+		car, cdr := list.Car(), list.Cdr()
+		goals = append(goals, func(x *ast.SExpr) micro.Goal {
+			return f(x, car)
+		})
+		list = cdr
+	}
+	n := len(goals)
+	return func(x *ast.SExpr) micro.Goal {
+		gs := make([]micro.Goal, n+1)
+		vars := make([]*ast.SExpr, n)
+		var cons *ast.SExpr = nil
+		for i := 0; i < n; i++ {
+			v := ast.NewVariable("")
+			vars[i] = v
+			gs[n-i] = goals[n-i-1](v)
+			cons = ast.Cons(v, cons)
+		}
+		gs[0] = micro.EqualO(x, cons)
+		return ConjPlus(gs...)
+	}
 }
