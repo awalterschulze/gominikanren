@@ -60,7 +60,7 @@ func TestNoReify(t *testing.T) {
 		ast.NewSymbol("oil"),
 		x,
 	)
-	g := DisjointO(e1, e2)
+	g := Disj(e1, e2)
 	states := RunGoal(5, g)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))

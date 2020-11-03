@@ -1,7 +1,7 @@
 package micro
 
 /*
-DisjointO is a goal that returns a logical OR of the input goals.
+Disj is a goal that returns a logical OR of the input goals.
 
 scheme code:
 
@@ -11,15 +11,7 @@ scheme code:
 		)
 	)
 */
-func DisjointO(gs ...Goal) Goal {
-	if len(gs) == 0 {
-		return FailureO
-	}
-	if len(gs) == 1 {
-		return gs[0]
-	}
-	g1 := gs[0]
-	g2 := DisjointO(gs[1:]...)
+func Disj(g1, g2 Goal) Goal {
 	return func() GoalFn {
 		return func(s *State) StreamOfStates {
 			g1s := g1()(s)
@@ -54,17 +46,17 @@ scheme code:
 		)
 	)
 */
-func Mplus(g1, g2 StreamOfStates) StreamOfStates {
-	if g1 == nil {
-		return g2
+func Mplus(s1, s2 StreamOfStates) StreamOfStates {
+	if s1 == nil {
+		return s2
 	}
-	car, cdr := g1()
+	car, cdr := s1()
 	if car != nil { // not a suspension => procedure? == false
 		return func() (*State, StreamOfStates) {
-			return car, Mplus(cdr, g2)
+			return car, Mplus(cdr, s2)
 		}
 	}
 	return Suspension(func() StreamOfStates {
-		return Mplus(g2, cdr)
+		return Mplus(s2, cdr)
 	})
 }

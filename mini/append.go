@@ -44,18 +44,20 @@ scheme code:
 */
 func AppendO(l, t, out *ast.SExpr) micro.Goal {
 	return micro.Zzz(
-		micro.DisjointO(
-			micro.ConjunctionO(
+		micro.Disj(
+			micro.Conj(
 				NullO(l),
 				micro.EqualO(t, out),
 			),
 			micro.CallFresh(func(a *ast.SExpr) micro.Goal {
 				return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
 					return micro.CallFresh(func(res *ast.SExpr) micro.Goal {
-						return micro.ConjunctionO(
+						return micro.Conj(
 							ConsO(a, d, l),
-							ConsO(a, res, out),
-							AppendO(d, t, res),
+							micro.Conj(
+								ConsO(a, res, out),
+								AppendO(d, t, res),
+							),
 						)
 					})
 				})

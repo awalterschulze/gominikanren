@@ -57,9 +57,9 @@ func TestNeverO(t *testing.T) {
 	}
 }
 
-func TestDisjointO1(t *testing.T) {
+func TestDisj1(t *testing.T) {
 	x := ast.NewVariable("x")
-	d := DisjointO(
+	d := Disj(
 		EqualO(
 			ast.NewSymbol("olive"),
 			x,
@@ -79,9 +79,9 @@ func TestDisjointO1(t *testing.T) {
 	}
 }
 
-func TestDisjointO2(t *testing.T) {
+func TestDisj2(t *testing.T) {
 	x := ast.NewVariable("x")
-	d := DisjointO(
+	d := Disj(
 		NeverO,
 		EqualO(
 			ast.NewSymbol("olive"),
@@ -149,7 +149,7 @@ func TestRunGoalDisj2(t *testing.T) {
 		ast.NewSymbol("oil"),
 		ast.NewVariable("x"),
 	)
-	g := DisjointO(e1, e2)
+	g := Disj(e1, e2)
 	ss := RunGoal(5, g)
 	if len(ss) != 2 {
 		t.Fatalf("expected 2, got %d: %v", len(ss), ss)
@@ -166,7 +166,7 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 		ast.NewSymbol("oil"),
 		x,
 	)
-	g := ConjunctionO(e1, e2)
+	g := Conj(e1, e2)
 	ss := RunGoal(5, g)
 	if len(ss) != 0 {
 		t.Fatalf("expected 0, got %d: %v", len(ss), ss)
@@ -183,7 +183,7 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 		ast.NewSymbol("olive"),
 		x,
 	)
-	g := ConjunctionO(e1, e2)
+	g := Conj(e1, e2)
 	ss := RunGoal(5, g)
 	if len(ss) != 1 {
 		t.Fatalf("expected 1, got %d: %v", len(ss), ss)
