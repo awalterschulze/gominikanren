@@ -9,7 +9,7 @@ import (
 )
 
 func fives(x *ast.SExpr) micro.GoalFn {
-	return micro.Zzz(micro.DisjointO(
+	return micro.Zzz(micro.Disj(
 		micro.EqualO(
 			x,
 			ast.NewInt(5),
@@ -19,7 +19,7 @@ func fives(x *ast.SExpr) micro.GoalFn {
 }
 
 func sixes(x *ast.SExpr) micro.GoalFn {
-	return micro.Zzz(micro.DisjointO(
+	return micro.Zzz(micro.Disj(
 		micro.EqualO(
 			x,
 			ast.NewInt(6),
@@ -64,7 +64,7 @@ func TestFivesAndSixes(t *testing.T) {
 	states = micro.RunGoal(
 		10,
 		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
-			return micro.DisjointO(
+			return micro.Disj(
 				func() micro.GoalFn { return fives(x) },
 				func() micro.GoalFn { return sixes(x) },
 			)

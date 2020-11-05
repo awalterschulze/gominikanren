@@ -21,7 +21,7 @@ func BenchmarkEinsteinSeqZzz(b *testing.B) {
 }
 
 func BenchmarkEinsteinSeq(b *testing.B) {
-	disjunction = disjPlus
+	disjunction = mini.DisjPlusNoZzz
 	goal := einstein()
 	var r []*ast.SExpr
 	b.ResetTimer()
@@ -32,7 +32,7 @@ func BenchmarkEinsteinSeq(b *testing.B) {
 }
 
 func BenchmarkEinsteinConcZzz(b *testing.B) {
-	disjunction = concDisjPlusZzz
+	disjunction = DisjPlusZzz
 	goal := einstein()
 	var r []*ast.SExpr
 	b.ResetTimer()
@@ -51,54 +51,6 @@ func BenchmarkEinsteinConc(b *testing.B) {
 		r = runEinstein(goal)
 	}
 	result = r
-}
-
-func disjPlus(gs ...micro.Goal) micro.Goal {
-	if len(gs) == 0 {
-		return micro.FailureO
-	}
-	if len(gs) == 1 {
-		return gs[0]
-	}
-	g1 := gs[0]
-	g2 := disjPlus(gs[1:]...)
-	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			g1s := g1()(s)
-			g2s := g2()(s)
-			return micro.Mplus(g1s, g2s)
-		}
-	}
-}
-
-func concDisjPlusZzz(gs ...micro.Goal) micro.Goal {
-	if len(gs) == 0 {
-		return micro.FailureO
-	}
-	if len(gs) == 1 {
-		return micro.Zzz(gs[0])
-	}
-	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			list := make([]micro.StreamOfStates, len(gs))
-			ch := make(chan answer)
-			for i, g := range gs {
-				go func(index int, goal micro.Goal) {
-					ss := micro.Zzz(goal)()(s)
-					ch <- answer{i: index, s: ss}
-				}(i, g)
-			}
-			for range gs {
-				ans := <-ch
-				list[ans.i] = ans.s
-			}
-			stream := list[len(gs)-1]
-			for i := len(gs) - 2; i >= 0; i-- {
-				stream = micro.Mplus(list[i], stream)
-			}
-			return stream
-		}
-	}
 }
 
 func memberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
@@ -133,19 +85,19 @@ func einstein() func(*ast.SExpr, *ast.SExpr) micro.Goal {
 
 	rightOf := func(x, y *ast.SExpr) micro.Goal {
 		return disjunction(
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, one),
 				micro.EqualO(x, two),
 			),
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, two),
 				micro.EqualO(x, three),
 			),
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, three),
 				micro.EqualO(x, four),
 			),
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, four),
 				micro.EqualO(x, five),
 			),
@@ -157,7 +109,7 @@ func einstein() func(*ast.SExpr, *ast.SExpr) micro.Goal {
 	}
 
 	nextTo := func(x, y *ast.SExpr) micro.Goal {
-		return micro.DisjointO(
+		return micro.Disj(
 			leftOf(x, y),
 			rightOf(x, y),
 		)
@@ -245,7 +197,7 @@ func runEinstein(goal func(*ast.SExpr, *ast.SExpr) micro.Goal) []*ast.SExpr {
 	return micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(street *ast.SExpr) micro.Goal {
 			return micro.CallFresh(func(fishowner *ast.SExpr) micro.Goal {
-				return micro.ConjunctionO(
+				return micro.Conj(
 					micro.EqualO(
 						q,
 						ast.Cons(street, ast.Cons(fishowner, nil)),

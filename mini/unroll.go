@@ -31,9 +31,9 @@ but we can optimise if we detect y is bound
 func MemberO(x, y *ast.SExpr) micro.Goal {
 	return micro.Zzz(micro.CallFresh(func(a *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
-			return micro.ConjunctionO(
+			return micro.Conj(
 				micro.EqualO(y, ast.Cons(a, d)),
-				micro.DisjointO(
+				micro.Disj(
 					micro.EqualO(x, a),
 					MemberO(x, d),
 				),

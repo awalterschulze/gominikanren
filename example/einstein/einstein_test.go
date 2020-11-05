@@ -44,19 +44,19 @@ func TestEinstein(t *testing.T) {
 
 	rightOf := func(x, y *ast.SExpr) micro.Goal {
 		return mini.DisjPlus(
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, one),
 				micro.EqualO(x, two),
 			),
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, two),
 				micro.EqualO(x, three),
 			),
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, three),
 				micro.EqualO(x, four),
 			),
-			micro.ConjunctionO(
+			micro.Conj(
 				micro.EqualO(y, four),
 				micro.EqualO(x, five),
 			),
@@ -68,7 +68,7 @@ func TestEinstein(t *testing.T) {
 	}
 
 	nextTo := func(x, y *ast.SExpr) micro.Goal {
-		return micro.DisjointO(
+		return micro.Disj(
 			leftOf(x, y),
 			rightOf(x, y),
 		)
@@ -135,7 +135,7 @@ func TestEinstein(t *testing.T) {
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(street *ast.SExpr) micro.Goal {
 			return micro.CallFresh(func(fishowner *ast.SExpr) micro.Goal {
-				return micro.ConjunctionO(
+				return micro.Conj(
 					micro.EqualO(
 						q,
 						ast.Cons(street, ast.Cons(fishowner, nil)),

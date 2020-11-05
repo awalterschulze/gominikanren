@@ -154,7 +154,7 @@ func merge(a, b, c *ast.SExpr) micro.Goal {
 		[]micro.Goal{
 			micro.CallFresh(func(aa *ast.SExpr) micro.Goal {
 				return micro.CallFresh(func(da *ast.SExpr) micro.Goal {
-					return micro.ConjunctionO(
+					return micro.Conj(
 						micro.EqualO(a, ast.Cons(aa, da)),
 						mini.Conde(
 							[]micro.Goal{micro.EqualO(b, nil), micro.EqualO(c, a)},
@@ -162,7 +162,7 @@ func merge(a, b, c *ast.SExpr) micro.Goal {
 								micro.CallFresh(func(ab *ast.SExpr) micro.Goal {
 									return micro.CallFresh(func(db *ast.SExpr) micro.Goal {
 										return micro.CallFresh(func(res *ast.SExpr) micro.Goal {
-											return micro.ConjunctionO(
+											return micro.Conj(
 												micro.EqualO(b, ast.Cons(ab, db)),
 												mini.Conde(
 													[]micro.Goal{

@@ -6,7 +6,7 @@ import (
 
 /*
 exts either extends a substitution s with an association between the variable x and the value v ,
-or it produces (ok = false)s
+or it produces (ok = false)
 if extending the substitution with the pair `(,x . ,v) would create a cycle.
 
 scheme code:

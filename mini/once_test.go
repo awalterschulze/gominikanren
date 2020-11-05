@@ -14,7 +14,7 @@ func TestOnce(t *testing.T) {
 	x := ast.NewVar("x", 10001)
 	y := ast.NewVar("y", 10002)
 	ifte := IfThenElseO(
-		OnceO(micro.DisjointO(
+		OnceO(micro.Disj(
 			micro.EqualO(ast.NewSymbol("#t"), x),
 			micro.EqualO(ast.NewSymbol("#f"), x),
 		)),

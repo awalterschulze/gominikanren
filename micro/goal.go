@@ -147,5 +147,5 @@ scheme code:
 	)
 */
 func AlwaysO() GoalFn {
-	return Zzz(DisjointO(SuccessO, AlwaysO))()
+	return Zzz(Disj(SuccessO, AlwaysO))()
 }

@@ -38,7 +38,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return micro.CallFresh(func(x *ast.SExpr) micro.Goal {
 			return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
-				return micro.ConjunctionO(
+				return micro.Conj(
 					micro.EqualO(
 						ast.Cons(x, ast.Cons(y, nil)),
 						q,
