@@ -9,18 +9,12 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-var (
-	result      []*ast.SExpr
-	disjunction func(...micro.Goal) micro.Goal
-	conjunction func(...micro.Goal) micro.Goal
-)
+var result []*ast.SExpr
 
 func TestConcurrentDisjPlus(t *testing.T) {
-	disjunction = mini.DisjPlus
-	goal := einstein()
+	goal := einstein(mini.DisjPlus)
 	sexprs := runEinstein(goal)
-	disjunction = DisjPlus
-	goal = einstein()
+	goal = einstein(DisjPlus)
 	concsexprs := runEinstein(goal)
 	if !reflect.DeepEqual(sexprs, concsexprs) {
 		t.Fatalf("expected equal outcomes but got %#v %#v", sexprs, concsexprs)
@@ -28,11 +22,9 @@ func TestConcurrentDisjPlus(t *testing.T) {
 }
 
 func TestConcurrentConjPlus(t *testing.T) {
-	conjunction = mini.ConjPlus
-	goal := equalLargeList(10)
+	goal := equalLargeList(10, mini.ConjPlus)
 	sexprs := micro.Run(-1, goal)
-	conjunction = ConjPlus
-	goal = equalLargeList(10)
+	goal = equalLargeList(10, ConjPlus)
 	concsexprs := micro.Run(-1, goal)
 	if !reflect.DeepEqual(sexprs, concsexprs) {
 		t.Fatalf("expected equal outcomes but got %#v %#v", sexprs, concsexprs)
@@ -47,17 +39,16 @@ func largeList(n int) *ast.SExpr {
 	return ast.NewList(ints...)
 }
 
-func memberOfLargeList(n int) func(*ast.SExpr) micro.Goal {
-	membero := memberOUnrolled(largeList(n))
+func memberOfLargeList(f func(...micro.Goal) micro.Goal, n int) func(*ast.SExpr) micro.Goal {
+	membero := memberOUnrolled(f, largeList(n))
 	return func(q *ast.SExpr) micro.Goal {
 		return membero(q)
 	}
 }
 
 func TestHeavilyConcurrentDisj(t *testing.T) {
-	disjunction = DisjPlus
 	n := 10000
-	membero := memberOfLargeList(n)
+	membero := memberOfLargeList(DisjPlus, n)
 	sexprs := micro.Run(-1, membero)
 	if len(sexprs) != n {
 		t.Fatalf("expected %d results but got %d", n, len(sexprs))
@@ -65,8 +56,8 @@ func TestHeavilyConcurrentDisj(t *testing.T) {
 }
 
 // before calling bench, remember to set disjunction
-func benchMembero(b *testing.B, listsize int) {
-	membero := memberOfLargeList(listsize)
+func benchMembero(b *testing.B, listsize int, f func(...micro.Goal) micro.Goal) {
+	membero := memberOfLargeList(f, listsize)
 	var r []*ast.SExpr
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -76,26 +67,22 @@ func benchMembero(b *testing.B, listsize int) {
 }
 
 func BenchmarkMembero10000(b *testing.B) {
-	disjunction = mini.DisjPlusNoZzz
-	benchMembero(b, 10000)
+	benchMembero(b, 10000, mini.DisjPlusNoZzz)
 }
 
 func BenchmarkConcMembero10000(b *testing.B) {
-	disjunction = DisjPlus
-	benchMembero(b, 10000)
+	benchMembero(b, 10000, DisjPlus)
 }
 
 func BenchmarkMembero50000(b *testing.B) {
-	disjunction = mini.DisjPlusNoZzz
-	benchMembero(b, 50000)
+	benchMembero(b, 50000, mini.DisjPlusNoZzz)
 }
 
 func BenchmarkConcMembero50000(b *testing.B) {
-	disjunction = DisjPlus
-	benchMembero(b, 50000)
+	benchMembero(b, 50000, DisjPlus)
 }
 
-func mapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) micro.Goal, list *ast.SExpr) func(*ast.SExpr) micro.Goal {
+func mapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) micro.Goal, list *ast.SExpr, conj func(...micro.Goal) micro.Goal) func(*ast.SExpr) micro.Goal {
 	goals := []func(*ast.SExpr) micro.Goal{}
 	for {
 		if list == nil {
@@ -119,20 +106,20 @@ func mapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) micro.Goal, list *ast.SEx
 			cons = ast.Cons(v, cons)
 		}
 		gs[0] = micro.EqualO(x, cons)
-		return conjunction(gs...)
+		return conj(gs...)
 	}
 }
 
-func equalLargeList(n int) func(*ast.SExpr) micro.Goal {
-	mapo := mapODoubleUnrolled(micro.EqualO, largeList(n))
+func equalLargeList(n int, f func(...micro.Goal) micro.Goal) func(*ast.SExpr) micro.Goal {
+	mapo := mapODoubleUnrolled(micro.EqualO, largeList(n), f)
 	return func(q *ast.SExpr) micro.Goal {
 		return mapo(q)
 	}
 }
 
 // before calling bench, remember to set conjunction
-func benchMapo(b *testing.B, listsize int) {
-	membero := equalLargeList(listsize)
+func benchMapo(b *testing.B, listsize int, f func(...micro.Goal) micro.Goal) {
+	membero := equalLargeList(listsize, f)
 	var r []*ast.SExpr
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -142,13 +129,11 @@ func benchMapo(b *testing.B, listsize int) {
 }
 
 func BenchmarkMapo10000(b *testing.B) {
-	conjunction = mini.ConjPlusNoZzz
-	benchMapo(b, 10000)
+	benchMapo(b, 10000, mini.ConjPlusNoZzz)
 }
 
 func BenchmarkConcMapo10000(b *testing.B) {
-	conjunction = ConjPlus
-	benchMapo(b, 10000)
+	benchMapo(b, 10000, ConjPlus)
 }
 
 func largeListHeadFail(n int) *ast.SExpr {
@@ -160,16 +145,16 @@ func largeListHeadFail(n int) *ast.SExpr {
 	return ast.NewList(ints...)
 }
 
-func equalFailHeadLargeList(n int) func(*ast.SExpr) micro.Goal {
+func equalFailHeadLargeList(n int, f func(...micro.Goal) micro.Goal) func(*ast.SExpr) micro.Goal {
 	list := largeList(n)
-	mapo := mapODoubleUnrolled(micro.EqualO, list)
+	mapo := mapODoubleUnrolled(micro.EqualO, list, f)
 	list2 := largeListHeadFail(n)
 	return func(*ast.SExpr) micro.Goal { return mapo(list2) }
 }
 
 // before calling bench, remember to set conjunction
-func benchMapoFailHead(b *testing.B, listsize int) {
-	membero := equalFailHeadLargeList(listsize)
+func benchMapoFailHead(b *testing.B, listsize int, f func(...micro.Goal) micro.Goal) {
+	membero := equalFailHeadLargeList(listsize, f)
 	var r []*ast.SExpr
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -179,13 +164,11 @@ func benchMapoFailHead(b *testing.B, listsize int) {
 }
 
 func BenchmarkMapoFailHead10000(b *testing.B) {
-	conjunction = mini.ConjPlusNoZzz
-	benchMapoFailHead(b, 10000)
+	benchMapoFailHead(b, 10000, mini.ConjPlusNoZzz)
 }
 
 func BenchmarkConcMapoFailHead10000(b *testing.B) {
-	conjunction = ConjPlus
-	benchMapoFailHead(b, 10000)
+	benchMapoFailHead(b, 10000, ConjPlus)
 }
 
 func largeListTailFail(n int) *ast.SExpr {
@@ -197,16 +180,16 @@ func largeListTailFail(n int) *ast.SExpr {
 	return ast.NewList(ints...)
 }
 
-func equalFailTailLargeList(n int) func(*ast.SExpr) micro.Goal {
+func equalFailTailLargeList(n int, f func(...micro.Goal) micro.Goal) func(*ast.SExpr) micro.Goal {
 	list := largeList(n)
-	mapo := mapODoubleUnrolled(micro.EqualO, list)
+	mapo := mapODoubleUnrolled(micro.EqualO, list, f)
 	list2 := largeListTailFail(n)
 	return func(*ast.SExpr) micro.Goal { return mapo(list2) }
 }
 
 // before calling bench, remember to set conjunction
-func benchMapoFailTail(b *testing.B, listsize int) {
-	membero := equalFailTailLargeList(listsize)
+func benchMapoFailTail(b *testing.B, listsize int, f func(...micro.Goal) micro.Goal) {
+	membero := equalFailTailLargeList(listsize, f)
 	var r []*ast.SExpr
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -216,11 +199,9 @@ func benchMapoFailTail(b *testing.B, listsize int) {
 }
 
 func BenchmarkMapoFailTail10000(b *testing.B) {
-	conjunction = mini.ConjPlusNoZzz
-	benchMapoFailTail(b, 10000)
+	benchMapoFailTail(b, 10000, mini.ConjPlusNoZzz)
 }
 
 func BenchmarkConcMapoFailTail10000(b *testing.B) {
-	conjunction = ConjPlus
-	benchMapoFailTail(b, 10000)
+	benchMapoFailTail(b, 10000, ConjPlus)
 }

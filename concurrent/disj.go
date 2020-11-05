@@ -75,3 +75,29 @@ func DisjPlusZzz(gs ...micro.Goal) micro.Goal {
 		}
 	}
 }
+
+// DisjPlusNoOrder throws away order of evaluation of goals
+// in order to be faster. It will still evaluate all equally
+func DisjPlusNoOrder(gs ...micro.Goal) micro.Goal {
+	if len(gs) == 0 {
+		return micro.FailureO
+	}
+	if len(gs) == 1 {
+		return gs[0]
+	}
+	return func() micro.GoalFn {
+		return func(s *micro.State) micro.StreamOfStates {
+			ch := make(chan micro.StreamOfStates)
+			for _, g := range gs {
+				go func(goal micro.Goal) {
+					ch <- goal()(s)
+				}(g)
+			}
+			stream := <-ch
+			for i := 0; i < len(gs)-1; i++ {
+				stream = micro.Mplus(<-ch, stream)
+			}
+			return stream
+		}
+	}
+}

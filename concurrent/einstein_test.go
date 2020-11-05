@@ -9,51 +9,39 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func BenchmarkEinsteinSeqZzz(b *testing.B) {
-	disjunction = mini.DisjPlus
-	goal := einstein()
+func benchEinstein(b *testing.B, f func(...micro.Goal) micro.Goal) {
+	goal := einstein(f)
 	var r []*ast.SExpr
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r = runEinstein(goal)
 	}
 	result = r
+}
+
+func BenchmarkEinsteinSeqZzz(b *testing.B) {
+	benchEinstein(b, mini.DisjPlus)
 }
 
 func BenchmarkEinsteinSeq(b *testing.B) {
-	disjunction = mini.DisjPlusNoZzz
-	goal := einstein()
-	var r []*ast.SExpr
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		r = runEinstein(goal)
-	}
-	result = r
+	benchEinstein(b, mini.DisjPlusNoZzz)
 }
 
 func BenchmarkEinsteinConcZzz(b *testing.B) {
-	disjunction = DisjPlusZzz
-	goal := einstein()
-	var r []*ast.SExpr
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		r = runEinstein(goal)
-	}
-	result = r
+	benchEinstein(b, DisjPlusZzz)
 }
 
 func BenchmarkEinsteinConc(b *testing.B) {
-	disjunction = DisjPlus
-	goal := einstein()
-	var r []*ast.SExpr
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		r = runEinstein(goal)
-	}
-	result = r
+	benchEinstein(b, DisjPlus)
 }
 
-func memberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
+// order won't affect the outcome since we want exactly one result
+// this disjplus will be easier to implement in racket
+func BenchmarkEinsteinConcNoOrder(b *testing.B) {
+	benchEinstein(b, DisjPlusNoOrder)
+}
+
+func memberOUnrolled(disj func(...micro.Goal) micro.Goal, y *ast.SExpr) func(*ast.SExpr) micro.Goal {
 	goals := []func(*ast.SExpr) micro.Goal{}
 	for {
 		if y == nil {
@@ -71,12 +59,11 @@ func memberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
 		for i, g := range goals {
 			gs[i] = g(x)
 		}
-		return disjunction(gs...)
-
+		return disj(gs...)
 	}
 }
 
-func einstein() func(*ast.SExpr, *ast.SExpr) micro.Goal {
+func einstein(disj func(...micro.Goal) micro.Goal) func(*ast.SExpr, *ast.SExpr) micro.Goal {
 	one := ast.NewSymbol("one")
 	two := ast.NewSymbol("two")
 	three := ast.NewSymbol("three")
@@ -84,7 +71,7 @@ func einstein() func(*ast.SExpr, *ast.SExpr) micro.Goal {
 	five := ast.NewSymbol("five")
 
 	rightOf := func(x, y *ast.SExpr) micro.Goal {
-		return disjunction(
+		return disj(
 			micro.Conj(
 				micro.EqualO(y, one),
 				micro.EqualO(x, two),
@@ -134,7 +121,7 @@ func einstein() func(*ast.SExpr, *ast.SExpr) micro.Goal {
 		)
 	}
 
-	mUnrolled := memberOUnrolled(streetDef)
+	mUnrolled := memberOUnrolled(disj, streetDef)
 
 	solution := func(street, fishowner, a, b, c, d, e, f, g, h, i, j *ast.SExpr) micro.Goal {
 		return mini.ConjPlus(
