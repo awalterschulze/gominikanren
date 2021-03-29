@@ -1,0 +1,43 @@
+name: Go
+
+on: [push, pull_request]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16.x
+
+    - name: Fetch dependencies
+      run: go mod download -x
+
+    - name: Install tools
+      run: go install -x github.com/goccmack/gocc github.com/awalterschulze/goderive github.com/kisielk/errcheck golang.org/x/lint/golint
+
+    - name: goderive
+      run: goderive ./...
+
+    - name: gocc
+      working-directory: ./sexpr
+      run: gocc sexpr.bnf
+
+    - name: Test
+      run: go test -v ./...
+
+    - name: Vet
+      run: go vet ./...
+
+    - name: errcheck
+      run: errcheck ./...
+
+    - name: diff
+      run: git diff --exit-code .
+
+    - name: lint
+      run:  golint -set_exit_status ./micro ./mini ./sexpr
