@@ -7,7 +7,6 @@ import (
 // StreamOfStates is a tuple (*State, *StreamOfStates)
 // the first call to stream.Cdr() stores its result in mem
 type StreamOfStates struct {
-    //TODO: pretty sure we can remove this pointer
     state *State
     proc func() *StreamOfStates
     mem *StreamOfStates
@@ -44,6 +43,11 @@ func NewSingletonStream(s *State) *StreamOfStates {
 	return NewStream(s, nil)
 }
 
+// Suspension prepends a nil state infront of the input stream of states.
+func Suspension(s func() *StreamOfStates) *StreamOfStates {
+    return &StreamOfStates{state:nil, proc:s}
+}
+
 /*
 Zzz is the macro to add inverse-eta-delay less tediously
 
@@ -54,7 +58,9 @@ Zzz is the macro to add inverse-eta-delay less tediously
 func Zzz(g Goal) Goal {
 	return func() GoalFn {
 		return func(s *State) *StreamOfStates {
-			return g()(s)
+			return Suspension(func() *StreamOfStates {
+                return g()(s)
+            })
 		}
 	}
 }
@@ -103,6 +109,9 @@ func takeStream(n int, s *StreamOfStates) []*State {
 		return nil
 	}
     car, cdr := s.CarCdr()
-	ss := takeStream(n-1, cdr)
-	return append([]*State{car}, ss...)
+    if car != nil {
+	    ss := takeStream(n-1, cdr)
+	    return append([]*State{car}, ss...)
+    }
+    return takeStream(n, cdr)
 }
