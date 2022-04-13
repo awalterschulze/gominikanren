@@ -110,7 +110,7 @@ func TestCarO(t *testing.T) {
 		),
 		micro.EqualO(ast.NewSymbol("#t"), y),
 		micro.EqualO(ast.NewSymbol("#f"), y),
-	)()
+	)
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it

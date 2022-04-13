@@ -20,7 +20,7 @@ func TestOnce(t *testing.T) {
 		)),
 		micro.EqualO(ast.NewSymbol("#f"), y),
 		micro.EqualO(ast.NewSymbol("#t"), y),
-	)()
+	)
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it

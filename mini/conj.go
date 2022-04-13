@@ -21,11 +21,9 @@ func ConjPlus(gs ...micro.Goal) micro.Goal {
 	}
 	g1 := micro.Zzz(gs[0])
 	g2 := ConjPlus(gs[1:]...)
-	return func() micro.GoalFn {
-		return func(s *micro.State) *micro.StreamOfStates {
-			g1s := g1()(s)
-			return micro.Bind(g1s, g2)
-		}
+	return func(s *micro.State) *micro.StreamOfStates {
+		g1s := g1(s)
+		return micro.Bind(g1s, g2)
 	}
 }
 
@@ -40,10 +38,8 @@ func ConjPlusNoZzz(gs ...micro.Goal) micro.Goal {
 	}
 	g1 := gs[0]
 	g2 := ConjPlusNoZzz(gs[1:]...)
-	return func() micro.GoalFn {
-		return func(s *micro.State) *micro.StreamOfStates {
-			g1s := g1()(s)
-			return micro.Bind(g1s, g2)
-		}
+	return func(s *micro.State) *micro.StreamOfStates {
+		g1s := g1(s)
+		return micro.Bind(g1s, g2)
 	}
 }

@@ -21,12 +21,10 @@ func DisjPlus(gs ...micro.Goal) micro.Goal {
 	}
 	g1 := micro.Zzz(gs[0])
 	g2 := DisjPlus(gs[1:]...)
-	return func() micro.GoalFn {
-		return func(s *micro.State) *micro.StreamOfStates {
-			g1s := g1()(s)
-			g2s := g2()(s)
-			return micro.Mplus(g1s, g2s)
-		}
+	return func(s *micro.State) *micro.StreamOfStates {
+		g1s := g1(s)
+		g2s := g2(s)
+		return micro.Mplus(g1s, g2s)
 	}
 }
 
@@ -41,11 +39,9 @@ func DisjPlusNoZzz(gs ...micro.Goal) micro.Goal {
 	}
 	g1 := gs[0]
 	g2 := DisjPlusNoZzz(gs[1:]...)
-	return func() micro.GoalFn {
-		return func(s *micro.State) *micro.StreamOfStates {
-			g1s := g1()(s)
-			g2s := g2()(s)
-			return micro.Mplus(g1s, g2s)
-		}
+	return func(s *micro.State) *micro.StreamOfStates {
+		g1s := g1(s)
+		g2s := g2(s)
+		return micro.Mplus(g1s, g2s)
 	}
 }

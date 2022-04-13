@@ -41,11 +41,8 @@ func (s Substitutions) String() string {
 	return l[1 : len(l)-1]
 }
 
-// GoalFn is a function that takes a state and returns a stream of states.
-type GoalFn func(*State) *StreamOfStates
-
-// Goal is a function that returns a GoalFn. Used for lazy evaluation
-type Goal func() GoalFn
+// Goal is a function that takes a state and returns a stream of states.
+type Goal func(*State) *StreamOfStates
 
 /*
 RunGoal calls a goal with an emptystate and n possible resulting states.
@@ -59,30 +56,26 @@ scheme code:
 If n == -1 then all possible states are returned.
 */
 func RunGoal(n int, g Goal) []*State {
-	ss := g()(EmptyState())
+	ss := g(EmptyState())
 	return takeStream(n, ss)
 }
 
 // Run behaves like the default miniKanren run command
 func Run(n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
 	v := Var(0)
-	ss := g(v)()(&State{nil, 1})
+	ss := g(v)(&State{nil, 1})
 	states := takeStream(n, ss)
 	return MKReify(states)
 }
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
-func SuccessO() GoalFn {
-	return func(s *State) *StreamOfStates {
-		return NewSingletonStream(s)
-	}
+func SuccessO(s *State) *StreamOfStates {
+	return NewSingletonStream(s)
 }
 
 // FailureO is a goal that always returns an empty stream of states.
-func FailureO() GoalFn {
-	return func(s *State) *StreamOfStates {
-		return nil
-	}
+func FailureO(s *State) *StreamOfStates {
+	return nil
 }
 
 /*
@@ -99,14 +92,12 @@ scheme code:
 	)
 */
 func EqualO(u, v *ast.SExpr) Goal {
-	return func() GoalFn {
-		return func(s *State) *StreamOfStates {
-			ss, sok := unify(u, v, s.Substitutions)
-			if sok {
-				return NewSingletonStream(&State{Substitutions: ss, Counter: s.Counter})
-			}
-			return nil
+	return func(s *State) *StreamOfStates {
+		ss, sok := unify(u, v, s.Substitutions)
+		if sok {
+			return NewSingletonStream(&State{Substitutions: ss, Counter: s.Counter})
 		}
+		return nil
 	}
 }
 
@@ -123,8 +114,10 @@ scheme code:
 		)
 	)
 */
-func NeverO() GoalFn {
-	return Zzz(NeverO)()
+func NeverO(s *State) *StreamOfStates {
+	return Suspension(func() *StreamOfStates {
+		return NeverO(s)
+	})
 }
 
 /*
@@ -146,6 +139,8 @@ scheme code:
 		)
 	)
 */
-func AlwaysO() GoalFn {
-	return Zzz(Disj(SuccessO, AlwaysO))()
+func AlwaysO(s *State) *StreamOfStates {
+	return Suspension(func() *StreamOfStates {
+		return Disj(SuccessO, AlwaysO)(s)
+	})
 }

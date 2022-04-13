@@ -12,12 +12,10 @@ scheme code:
 	)
 */
 func Disj(g1, g2 Goal) Goal {
-	return func() GoalFn {
-		return func(s *State) *StreamOfStates {
-			g1s := g1()(s)
-			g2s := g2()(s)
-			return Mplus(g1s, g2s)
-		}
+	return func(s *State) *StreamOfStates {
+		g1s := g1(s)
+		g2s := g2(s)
+		return Mplus(g1s, g2s)
 	}
 }
 

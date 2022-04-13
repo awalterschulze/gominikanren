@@ -56,12 +56,10 @@ Zzz is the macro to add inverse-eta-delay less tediously
     ((_ g) (λg (s/c) (λ$ () (g s/c))))))
 */
 func Zzz(g Goal) Goal {
-	return func() GoalFn {
-		return func(s *State) *StreamOfStates {
-			return Suspension(func() *StreamOfStates {
-				return g()(s)
-			})
-		}
+	return func(s *State) *StreamOfStates {
+		return Suspension(func() *StreamOfStates {
+			return g(s)
+		})
 	}
 }
 
