@@ -46,6 +46,11 @@ func onceLoop(ss *micro.StreamOfStates) *micro.StreamOfStates {
 	if ss == nil {
 		return nil
 	}
-	car, _ := ss.CarCdr()
-	return micro.NewSingletonStream(car)
+	car, cdr := ss.CarCdr()
+	if car != nil {
+		return micro.NewSingletonStream(car)
+	}
+	return micro.Suspension(func() *micro.StreamOfStates {
+		return onceLoop(cdr)
+	})
 }

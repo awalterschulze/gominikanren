@@ -38,10 +38,10 @@ func Bind(s *StreamOfStates, g Goal) *StreamOfStates {
 		return nil
 	}
 	car, cdr := s.CarCdr()
-    if car != nil { // not a suspension => procedure? == false
-        return Mplus(g()(car), Bind(cdr, g))
-    }
-    return Suspension(func() *StreamOfStates {
-        return Bind(cdr, g)
-    })
+	if car != nil { // not a suspension => procedure? == false
+		return Mplus(g()(car), Bind(cdr, g))
+	}
+	return Suspension(func() *StreamOfStates {
+		return Bind(cdr, g)
+	})
 }

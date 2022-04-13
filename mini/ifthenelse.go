@@ -73,11 +73,11 @@ func ifThenElseLoop(g2, g3 micro.Goal, s *micro.State, sinf *micro.StreamOfState
 	if sinf == nil {
 		return g3()(s)
 	}
-	//car, cdr := sinf.CarCdr()
-	return micro.Bind(sinf, g2)
-    /* assumption: car is never nil
-	return micro.Suspension(func() micro.StreamOfStates {
+	car, cdr := sinf.CarCdr()
+	if car != nil {
+		return micro.Bind(sinf, g2)
+	}
+	return micro.Suspension(func() *micro.StreamOfStates {
 		return ifThenElseLoop(g2, g3, s, cdr)
 	})
-    */
 }

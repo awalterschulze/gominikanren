@@ -51,12 +51,12 @@ func Mplus(s1, s2 *StreamOfStates) *StreamOfStates {
 		return s2
 	}
 	car, cdr := s1.CarCdr()
-    if car != nil { // not a suspension => procedure? == false
-        return NewStream(car, func() *StreamOfStates {
-            return Mplus(cdr, s2)
-        })
-    }
-    return Suspension(func() *StreamOfStates {
-        return Mplus(s2, cdr)
-    })
+	if car != nil { // not a suspension => procedure? == false
+		return NewStream(car, func() *StreamOfStates {
+			return Mplus(cdr, s2)
+		})
+	}
+	return Suspension(func() *StreamOfStates {
+		return Mplus(s2, cdr)
+	})
 }
