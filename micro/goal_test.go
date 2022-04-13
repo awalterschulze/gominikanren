@@ -48,7 +48,7 @@ func TestSuccessO(t *testing.T) {
 
 func TestNeverO(t *testing.T) {
 	n := NeverO()(EmptyState())
-	s, sok := n()
+	s, sok := n.CarCdr()
 	if s != nil {
 		t.Fatalf("expected suspension")
 	}
@@ -66,7 +66,7 @@ func TestDisj1(t *testing.T) {
 		),
 		NeverO,
 	)()(EmptyState())
-	s, sok := d()
+	s, sok := d.CarCdr()
 	got := s.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
@@ -88,14 +88,14 @@ func TestDisj2(t *testing.T) {
 			x,
 		),
 	)()(EmptyState())
-	s, sok := d()
+	s, sok := d.CarCdr()
 	if s != nil {
 		t.Fatalf("expected suspension")
 	}
 	if sok == nil {
 		t.Fatalf("expected more")
 	}
-	s, sok = sok()
+	s, sok = sok.CarCdr()
 	got := s.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
@@ -110,11 +110,11 @@ func TestDisj2(t *testing.T) {
 
 func TestAlwaysO(t *testing.T) {
 	a := AlwaysO()(EmptyState())
-	s, sok := a()
+	s, sok := a.CarCdr()
 	if s != nil {
 		t.Fatal("expected suspension")
 	}
-	s, sok = sok()
+	s, sok = sok.CarCdr()
 	got := s.String()
 	want := "(() . 0)"
 	if got != want {

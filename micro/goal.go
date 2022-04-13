@@ -42,7 +42,7 @@ func (s Substitutions) String() string {
 }
 
 // GoalFn is a function that takes a state and returns a stream of states.
-type GoalFn func(*State) StreamOfStates
+type GoalFn func(*State) *StreamOfStates
 
 // Goal is a function that returns a GoalFn. Used for lazy evaluation
 type Goal func() GoalFn
@@ -73,14 +73,14 @@ func Run(n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
 func SuccessO() GoalFn {
-	return func(s *State) StreamOfStates {
+	return func(s *State) *StreamOfStates {
 		return NewSingletonStream(s)
 	}
 }
 
 // FailureO is a goal that always returns an empty stream of states.
 func FailureO() GoalFn {
-	return func(s *State) StreamOfStates {
+	return func(s *State) *StreamOfStates {
 		return nil
 	}
 }
@@ -100,7 +100,7 @@ scheme code:
 */
 func EqualO(u, v *ast.SExpr) Goal {
 	return func() GoalFn {
-		return func(s *State) StreamOfStates {
+		return func(s *State) *StreamOfStates {
 			ss, sok := unify(u, v, s.Substitutions)
 			if sok {
 				return NewSingletonStream(&State{Substitutions: ss, Counter: s.Counter})

@@ -74,7 +74,7 @@ func NullO(x *ast.SExpr) micro.Goal {
 // ConsO is a goal that conses the first two expressions into the third.
 func ConsO(a, d, p *ast.SExpr) micro.Goal {
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
+		return func(s *micro.State) *micro.StreamOfStates {
 			l := ast.Cons(a, d)
 			return micro.EqualO(l, p)()(s)
 		}

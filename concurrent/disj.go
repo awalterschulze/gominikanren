@@ -6,7 +6,7 @@ import (
 
 type answer struct {
 	i int
-	s micro.StreamOfStates
+	s *micro.StreamOfStates
 }
 
 /*
@@ -22,8 +22,8 @@ func DisjPlus(gs ...micro.Goal) micro.Goal {
 		return gs[0]
 	}
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			list := make([]micro.StreamOfStates, len(gs))
+		return func(s *micro.State) *micro.StreamOfStates {
+			list := make([]*micro.StreamOfStates, len(gs))
 			ch := make(chan answer)
 			for i, g := range gs {
 				go func(index int, goal micro.Goal) {
@@ -54,8 +54,8 @@ func DisjPlusZzz(gs ...micro.Goal) micro.Goal {
 		return micro.Zzz(gs[0])
 	}
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			list := make([]micro.StreamOfStates, len(gs))
+		return func(s *micro.State) *micro.StreamOfStates {
+			list := make([]*micro.StreamOfStates, len(gs))
 			ch := make(chan answer)
 			for i, g := range gs {
 				go func(index int, goal micro.Goal) {
@@ -86,8 +86,8 @@ func DisjPlusNoOrder(gs ...micro.Goal) micro.Goal {
 		return gs[0]
 	}
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			ch := make(chan micro.StreamOfStates)
+		return func(s *micro.State) *micro.StreamOfStates {
+			ch := make(chan *micro.StreamOfStates)
 			for _, g := range gs {
 				go func(goal micro.Goal) {
 					ch <- goal()(s)

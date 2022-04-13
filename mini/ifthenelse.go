@@ -63,21 +63,21 @@ let loop not only declares a function, called loop, but also calls it, in the sa
 */
 func IfThenElseO(g1, g2, g3 micro.Goal) micro.Goal {
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
+		return func(s *micro.State) *micro.StreamOfStates {
 			return ifThenElseLoop(g2, g3, s, g1()(s))
 		}
 	}
 }
 
-func ifThenElseLoop(g2, g3 micro.Goal, s *micro.State, sinf micro.StreamOfStates) micro.StreamOfStates {
+func ifThenElseLoop(g2, g3 micro.Goal, s *micro.State, sinf *micro.StreamOfStates) *micro.StreamOfStates {
 	if sinf == nil {
 		return g3()(s)
 	}
-	car, cdr := sinf()
-	if car != nil {
-		return micro.Bind(sinf, g2)
-	}
+	//car, cdr := sinf.CarCdr()
+	return micro.Bind(sinf, g2)
+    /* assumption: car is never nil
 	return micro.Suspension(func() micro.StreamOfStates {
 		return ifThenElseLoop(g2, g3, s, cdr)
 	})
+    */
 }

@@ -36,23 +36,16 @@ scheme code:
 */
 func OnceO(g micro.Goal) micro.Goal {
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
+		return func(s *micro.State) *micro.StreamOfStates {
 			return onceLoop(g()(s))
 		}
 	}
 }
 
-func onceLoop(ss micro.StreamOfStates) micro.StreamOfStates {
+func onceLoop(ss *micro.StreamOfStates) *micro.StreamOfStates {
 	if ss == nil {
 		return nil
 	}
-	car, cdr := ss()
-	if car != nil {
-		return micro.NewSingletonStream(car)
-	}
-	return micro.Suspension(
-		func() micro.StreamOfStates {
-			return onceLoop(cdr)
-		},
-	)
+	car, _ := ss.CarCdr()
+	return micro.NewSingletonStream(car)
 }

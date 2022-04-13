@@ -19,7 +19,7 @@ func ConjPlus(gs ...micro.Goal) micro.Goal {
 		return gs[0]
 	}
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
+		return func(s *micro.State) *micro.StreamOfStates {
 			ch := make(chan answer)
 			go func() {
 				for i, g := range gs {
@@ -29,7 +29,7 @@ func ConjPlus(gs ...micro.Goal) micro.Goal {
 					}(i, g)
 				}
 			}()
-			ch2 := make(chan micro.StreamOfStates)
+			ch2 := make(chan *micro.StreamOfStates)
 			go func() {
 				g1s := gs[0]()(s)
 				g2 := mini.ConjPlusNoZzz(gs[1:]...)
@@ -59,7 +59,7 @@ func ConjPlusZzz(gs ...micro.Goal) micro.Goal {
 		return micro.Zzz(gs[0])
 	}
 	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
+		return func(s *micro.State) *micro.StreamOfStates {
 			ch := make(chan answer)
 			go func() {
 				for i, g := range gs {
@@ -69,7 +69,7 @@ func ConjPlusZzz(gs ...micro.Goal) micro.Goal {
 					}(i, g)
 				}
 			}()
-			ch2 := make(chan micro.StreamOfStates)
+			ch2 := make(chan *micro.StreamOfStates)
 			go func() {
 				g1s := micro.Zzz(gs[0])()(s)
 				g2 := mini.ConjPlus(gs[1:]...)

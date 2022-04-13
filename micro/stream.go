@@ -4,33 +4,44 @@ import (
 	"strings"
 )
 
-// StreamOfStates is a function that returns a tuple containing the head state and the tail of the stream of states.
-type StreamOfStates func() (*State, StreamOfStates)
+// StreamOfStates is a tuple (*State, *StreamOfStates)
+// the first call to stream.Cdr() stores its result in mem
+type StreamOfStates struct {
+    //TODO: pretty sure we can remove this pointer
+    state *State
+    proc func() *StreamOfStates
+    mem *StreamOfStates
+}
+
+func (s *StreamOfStates) CarCdr() (*State, *StreamOfStates) {
+    if s.proc == nil {
+        return s.state, nil
+    }
+    if s.mem == nil {
+        s.mem = s.proc()
+    }
+    return s.state, s.mem
+}
 
 // String returns a string representation of a stream of states.
 // Warning: If the list is infinite this function will not terminate.
-func (stream StreamOfStates) String() string {
+func (stream *StreamOfStates) String() string {
 	buf := []string{}
 	var s *State
 	for stream != nil {
-		s, stream = stream()
+		s, stream = stream.CarCdr()
 		buf = append(buf, s.String())
 	}
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
-// NewSingletonStream returns the input state as a stream of states containing only the head state.
-func NewSingletonStream(s *State) StreamOfStates {
-	return func() (*State, StreamOfStates) {
-		return s, nil
-	}
+func NewStream(s *State, proc func() *StreamOfStates) *StreamOfStates {
+    return &StreamOfStates{state:s, proc:proc}
 }
 
-// Suspension prepends a nil state infront of the input stream of states.
-func Suspension(s func() StreamOfStates) StreamOfStates {
-	return func() (*State, StreamOfStates) {
-		return nil, s()
-	}
+// NewSingletonStream returns the input state as a stream of states containing only the head state.
+func NewSingletonStream(s *State) *StreamOfStates {
+	return NewStream(s, nil)
 }
 
 /*
@@ -42,10 +53,8 @@ Zzz is the macro to add inverse-eta-delay less tediously
 */
 func Zzz(g Goal) Goal {
 	return func() GoalFn {
-		return func(s *State) StreamOfStates {
-			return Suspension(func() StreamOfStates {
-				return g()(s)
-			})
+		return func(s *State) *StreamOfStates {
+			return g()(s)
 		}
 	}
 }
@@ -86,17 +95,14 @@ scheme code:
 
 If n == -1 results in the whole stream being returned.
 */
-func takeStream(n int, s StreamOfStates) []*State {
+func takeStream(n int, s *StreamOfStates) []*State {
 	if n == 0 {
 		return nil
 	}
 	if s == nil {
 		return nil
 	}
-	car, cdr := s()
-	if car != nil {
-		ss := takeStream(n-1, cdr)
-		return append([]*State{car}, ss...)
-	}
-	return takeStream(n, cdr)
+    car, cdr := s.CarCdr()
+	ss := takeStream(n-1, cdr)
+	return append([]*State{car}, ss...)
 }
