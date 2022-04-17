@@ -30,11 +30,9 @@ func exts(x *ast.Variable, v *ast.SExpr, s Substitutions) (Substitutions, bool) 
 	if occurs(x, v, s) {
 		return nil, false
 	}
-	m := make(map[uint64]*ast.SExpr, len(s))
-	for key, value := range s {
-		m[key] = value
-	}
-	m[x.Index] = v
+    m := make(Substitutions, len(s)+1)
+    copy(m, s)
+    m[len(s)] = SubPair{Key:x.Index, Value:v}
 	return m, true
 }
 
