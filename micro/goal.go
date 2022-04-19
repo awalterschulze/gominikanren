@@ -2,7 +2,7 @@ package micro
 
 import (
 	"fmt"
-    "sort"
+	"sort"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
@@ -27,8 +27,8 @@ func EmptyState() *State {
 }
 
 type SubPair struct {
-    Key uint64
-    Value *ast.SExpr
+	Key   uint64
+	Value *ast.SExpr
 }
 
 // Substitutions is a list of substitutions represented by a sexprs pair.
@@ -38,7 +38,7 @@ func (s Substitutions) String() string {
 	sexprs := make([]*ast.SExpr, len(s))
 	sort.Slice(s, func(i, j int) bool { return s[i].Key < s[j].Key })
 	for i, pair := range s {
-        k, v := pair.Key, pair.Value
+		k, v := pair.Key, pair.Value
 		vv := Var(k)
 		vvv := ast.Cons(vv, v)
 		sexprs[len(s)-1-i] = vvv
