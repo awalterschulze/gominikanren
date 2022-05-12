@@ -4,9 +4,7 @@ package errors
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
-	"unicode"
 
 	"github.com/awalterschulze/gominikanren/sexpr/token"
 )
@@ -24,79 +22,35 @@ type Error struct {
 
 func (e *Error) String() string {
 	w := new(strings.Builder)
+	fmt.Fprintf(w, "Error")
 	if e.Err != nil {
-		fmt.Fprintln(w, "Error ", e.Err)
+		fmt.Fprintf(w, " %s\n", e.Err)
 	} else {
-		fmt.Fprintln(w, "Error")
+		fmt.Fprintf(w, "\n")
 	}
 	fmt.Fprintf(w, "Token: type=%d, lit=%s\n", e.ErrorToken.Type, e.ErrorToken.Lit)
 	fmt.Fprintf(w, "Pos: offset=%d, line=%d, column=%d\n", e.ErrorToken.Pos.Offset, e.ErrorToken.Pos.Line, e.ErrorToken.Pos.Column)
-	fmt.Fprint(w, "Expected one of: ")
+	fmt.Fprintf(w, "Expected one of: ")
 	for _, sym := range e.ExpectedTokens {
-		fmt.Fprint(w, string(sym), " ")
+		fmt.Fprintf(w, "%s ", sym)
 	}
-	fmt.Fprintln(w, "ErrorSymbol:")
+	fmt.Fprintf(w, "ErrorSymbol:\n")
 	for _, sym := range e.ErrorSymbols {
 		fmt.Fprintf(w, "%v\n", sym)
 	}
-
 	return w.String()
 }
 
-func DescribeExpected(tokens []string) string {
-	switch len(tokens) {
-	case 0:
-		return "unexpected additional tokens"
-
-	case 1:
-		return "expected " + tokens[0]
-
-	case 2:
-		return "expected either " + tokens[0] + " or " + tokens[1]
-
-	case 3:
-		// Oxford-comma rules require more than 3 items in a list for the
-		// comma to appear before the 'or'
-		return fmt.Sprintf("expected one of %s, %s or %s", tokens[0], tokens[1], tokens[2])
-
-	default:
-		// Oxford-comma separated alternatives list.
-		tokens = append(tokens[:len(tokens)-1], "or "+tokens[len(tokens)-1])
-		return "expected one of " + strings.Join(tokens, ", ")
-	}
-}
-
-func DescribeToken(tok *token.Token) string {
-	switch tok.Type {
-	case token.INVALID:
-		return fmt.Sprintf("unknown/invalid token %q", tok.Lit)
-	case token.EOF:
-		return "end-of-file"
-	default:
-		return fmt.Sprintf("%q", tok.Lit)
-	}
-}
-
 func (e *Error) Error() string {
-	// identify the line and column of the error in 'gnu' style so it can be understood
-	// by editors and IDEs; user will need to prefix it with a filename.
-	text := fmt.Sprintf("%d:%d: error: ", e.ErrorToken.Pos.Line, e.ErrorToken.Pos.Column)
-
+	w := new(strings.Builder)
+	fmt.Fprintf(w, "Error in S%d: %s, %s", e.StackTop, token.TokMap.TokenString(e.ErrorToken), e.ErrorToken.Pos.String())
 	if e.Err != nil {
-		// Custom error specified, e.g. by << nil, errors.New("missing newline") >>
-		text += e.Err.Error()
+		fmt.Fprintf(w, ": %+v", e.Err)
 	} else {
-		tokens := make([]string, len(e.ExpectedTokens))
-		for idx, token := range e.ExpectedTokens {
-			if !unicode.IsLetter(rune(token[0])) {
-				token = strconv.Quote(token)
-			}
-			tokens[idx] = token
+		fmt.Fprintf(w, ", expected one of: ")
+		for _, expected := range e.ExpectedTokens {
+			fmt.Fprintf(w, "%s ", expected)
 		}
-		text += DescribeExpected(tokens)
-		actual := DescribeToken(e.ErrorToken)
-		text += fmt.Sprintf("; got: %s", actual)
 	}
-
-	return text
+	return w.String()
 }
