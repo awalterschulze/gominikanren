@@ -26,6 +26,7 @@ func EmptyState() *State {
 	return &State{}
 }
 
+// SubPair is a substitution pair
 type SubPair struct {
 	Key   uint64
 	Value *ast.SExpr

@@ -12,14 +12,15 @@ type StreamOfStates struct {
 	mem   *StreamOfStates
 }
 
-func (s *StreamOfStates) CarCdr() (*State, *StreamOfStates) {
-	if s.proc == nil {
-		return s.state, nil
+// CarCdr returns both the car and cdr of a stream of states
+func (stream *StreamOfStates) CarCdr() (*State, *StreamOfStates) {
+	if stream.proc == nil {
+		return stream.state, nil
 	}
-	if s.mem == nil {
-		s.mem = s.proc()
+	if stream.mem == nil {
+		stream.mem = stream.proc()
 	}
-	return s.state, s.mem
+	return stream.state, stream.mem
 }
 
 // String returns a string representation of a stream of states.
@@ -34,6 +35,7 @@ func (stream *StreamOfStates) String() string {
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
+// NewStream returns a stream from a head plus a continuation
 func NewStream(s *State, proc func() *StreamOfStates) *StreamOfStates {
 	return &StreamOfStates{state: s, proc: proc}
 }
