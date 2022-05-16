@@ -7,5 +7,5 @@ require (
 	github.com/goccmack/gocc v0.0.0-20211213154817-7ea699349eca // indirect
 	github.com/kisielk/errcheck v1.6.0 // indirect
 	github.com/kisielk/gotool v1.0.0 // indirect
-	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
+	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 )
