@@ -62,22 +62,20 @@ scheme code:
 let loop not only declares a function, called loop, but also calls it, in the same line.
 */
 func IfThenElseO(g1, g2, g3 micro.Goal) micro.Goal {
-	return func() micro.GoalFn {
-		return func(s *micro.State) micro.StreamOfStates {
-			return ifThenElseLoop(g2, g3, s, g1()(s))
-		}
+	return func(s *micro.State) *micro.StreamOfStates {
+		return ifThenElseLoop(g2, g3, s, g1(s))
 	}
 }
 
-func ifThenElseLoop(g2, g3 micro.Goal, s *micro.State, sinf micro.StreamOfStates) micro.StreamOfStates {
+func ifThenElseLoop(g2, g3 micro.Goal, s *micro.State, sinf *micro.StreamOfStates) *micro.StreamOfStates {
 	if sinf == nil {
-		return g3()(s)
+		return g3(s)
 	}
-	car, cdr := sinf()
+	car, cdr := sinf.CarCdr()
 	if car != nil {
 		return micro.Bind(sinf, g2)
 	}
-	return micro.Suspension(func() micro.StreamOfStates {
+	return micro.Suspension(func() *micro.StreamOfStates {
 		return ifThenElseLoop(g2, g3, s, cdr)
 	})
 }

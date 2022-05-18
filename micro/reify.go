@@ -54,11 +54,9 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	}
 	if vv.IsVariable() {
 		n := reifyName(len(s))
-		m := make(map[uint64]*ast.SExpr, len(s))
-		for key, value := range s {
-			m[key] = value
-		}
-		m[vv.Atom.Var.Index] = n
+		m := make(Substitutions, len(s)+1)
+		copy(m, s)
+		m[len(s)] = SubPair{Key: vv.Atom.Var.Index, Value: n}
 		return m
 	}
 	if vv.IsPair() {

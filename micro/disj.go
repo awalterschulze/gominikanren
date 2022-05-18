@@ -12,12 +12,10 @@ scheme code:
 	)
 */
 func Disj(g1, g2 Goal) Goal {
-	return func() GoalFn {
-		return func(s *State) StreamOfStates {
-			g1s := g1()(s)
-			g2s := g2()(s)
-			return Mplus(g1s, g2s)
-		}
+	return func(s *State) *StreamOfStates {
+		g1s := g1(s)
+		g2s := g2(s)
+		return Mplus(g1s, g2s)
 	}
 }
 
@@ -46,17 +44,17 @@ scheme code:
 		)
 	)
 */
-func Mplus(s1, s2 StreamOfStates) StreamOfStates {
+func Mplus(s1, s2 *StreamOfStates) *StreamOfStates {
 	if s1 == nil {
 		return s2
 	}
-	car, cdr := s1()
+	car, cdr := s1.CarCdr()
 	if car != nil { // not a suspension => procedure? == false
-		return func() (*State, StreamOfStates) {
-			return car, Mplus(cdr, s2)
-		}
+		return NewStream(car, func() *StreamOfStates {
+			return Mplus(cdr, s2)
+		})
 	}
-	return Suspension(func() StreamOfStates {
+	return Suspension(func() *StreamOfStates {
 		return Mplus(s2, cdr)
 	})
 }

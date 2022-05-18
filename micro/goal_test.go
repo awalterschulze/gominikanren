@@ -25,7 +25,7 @@ func TestEqualO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			stream := EqualO(uexpr, vexpr)()(EmptyState())
+			stream := EqualO(uexpr, vexpr)(EmptyState())
 			got := stream.String()
 			if got != want {
 				t.Fatalf("got %s want %s", got, want)
@@ -35,20 +35,20 @@ func TestEqualO(t *testing.T) {
 }
 
 func TestFailureO(t *testing.T) {
-	if got, want := FailureO()(EmptyState()).String(), "()"; got != want {
+	if got, want := FailureO(EmptyState()).String(), "()"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
 
 func TestSuccessO(t *testing.T) {
-	if got, want := SuccessO()(EmptyState()).String(), "((() . 0))"; got != want {
+	if got, want := SuccessO(EmptyState()).String(), "((() . 0))"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
 
 func TestNeverO(t *testing.T) {
-	n := NeverO()(EmptyState())
-	s, sok := n()
+	n := NeverO(EmptyState())
+	s, sok := n.CarCdr()
 	if s != nil {
 		t.Fatalf("expected suspension")
 	}
@@ -65,8 +65,8 @@ func TestDisj1(t *testing.T) {
 			x,
 		),
 		NeverO,
-	)()(EmptyState())
-	s, sok := d()
+	)(EmptyState())
+	s, sok := d.CarCdr()
 	got := s.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
@@ -87,15 +87,15 @@ func TestDisj2(t *testing.T) {
 			ast.NewSymbol("olive"),
 			x,
 		),
-	)()(EmptyState())
-	s, sok := d()
+	)(EmptyState())
+	s, sok := d.CarCdr()
 	if s != nil {
 		t.Fatalf("expected suspension")
 	}
 	if sok == nil {
 		t.Fatalf("expected more")
 	}
-	s, sok = sok()
+	s, sok = sok.CarCdr()
 	got := s.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
@@ -109,12 +109,12 @@ func TestDisj2(t *testing.T) {
 }
 
 func TestAlwaysO(t *testing.T) {
-	a := AlwaysO()(EmptyState())
-	s, sok := a()
+	a := AlwaysO(EmptyState())
+	s, sok := a.CarCdr()
 	if s != nil {
 		t.Fatal("expected suspension")
 	}
-	s, sok = sok()
+	s, sok = sok.CarCdr()
 	got := s.String()
 	want := "(() . 0)"
 	if got != want {

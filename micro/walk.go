@@ -40,11 +40,12 @@ func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
 	if ss == nil {
 		return nil, false
 	}
-	value, ok := ss[v.Index]
-	if !ok {
-		return nil, false
+	for _, pair := range ss {
+		if pair.Key == v.Index {
+			return pair.Value, true
+		}
 	}
-	return value, true
+	return nil, false
 }
 
 /*

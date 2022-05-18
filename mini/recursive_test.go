@@ -15,14 +15,14 @@ import (
     ((very-recursiveo))
     ((nevero))))
 */
-func veryRecursiveO() micro.GoalFn {
+func veryRecursiveO(s *micro.State) *micro.StreamOfStates {
 	return Conde(
 		[]micro.Goal{micro.NeverO},
 		[]micro.Goal{veryRecursiveO},
 		[]micro.Goal{micro.AlwaysO},
 		[]micro.Goal{veryRecursiveO},
 		[]micro.Goal{micro.NeverO},
-	)()
+	)(s)
 }
 
 func TestRecursive(t *testing.T) {

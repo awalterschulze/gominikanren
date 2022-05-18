@@ -38,9 +38,9 @@ func TestReify(t *testing.T) {
 	a3 := ast.NewList(w, v, u)
 	e := ast.NewList(a1, a2, a3)
 	ss := Substitutions{
-		indexOf(x): e.Car().Cdr(),
-		indexOf(y): e.Cdr().Car().Cdr(),
-		indexOf(w): e.Cdr().Cdr().Car().Cdr(),
+		SubPair{indexOf(x), e.Car().Cdr()},
+		SubPair{indexOf(y), e.Cdr().Car().Cdr()},
+		SubPair{indexOf(w), e.Cdr().Cdr().Car().Cdr()},
 	}
 	gote := ReifyIntVarFromState(indexOf(x))(&State{Substitutions: ss})
 	got := gote.String()

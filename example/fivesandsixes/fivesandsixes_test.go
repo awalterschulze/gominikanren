@@ -8,24 +8,24 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func fives(x *ast.SExpr) micro.GoalFn {
+func fives(x *ast.SExpr) micro.Goal {
 	return micro.Zzz(micro.Disj(
 		micro.EqualO(
 			x,
 			ast.NewInt(5),
 		),
-		func() micro.GoalFn { return fives(x) },
-	))()
+		func(s *micro.State) *micro.StreamOfStates { return fives(x)(s) },
+	))
 }
 
-func sixes(x *ast.SExpr) micro.GoalFn {
+func sixes(x *ast.SExpr) micro.Goal {
 	return micro.Zzz(micro.Disj(
 		micro.EqualO(
 			x,
 			ast.NewInt(6),
 		),
-		func() micro.GoalFn { return sixes(x) },
-	))()
+		func(s *micro.State) *micro.StreamOfStates { return sixes(x)(s) },
+	))
 }
 
 func TestFivesAndSixes(t *testing.T) {
@@ -52,7 +52,7 @@ func TestFivesAndSixes(t *testing.T) {
 	states = micro.RunGoal(
 		2,
 		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
-			return func() micro.GoalFn { return fives(x) }
+			return fives(x)
 		}),
 	)
 	got = micro.MKReify(states)
@@ -65,8 +65,8 @@ func TestFivesAndSixes(t *testing.T) {
 		10,
 		micro.CallFresh(func(x *ast.SExpr) micro.Goal {
 			return micro.Disj(
-				func() micro.GoalFn { return fives(x) },
-				func() micro.GoalFn { return sixes(x) },
+				fives(x),
+				sixes(x),
 			)
 		}),
 	)

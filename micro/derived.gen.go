@@ -4,7 +4,6 @@ package micro
 
 import (
 	ast "github.com/awalterschulze/gominikanren/sexpr/ast"
-	"sort"
 )
 
 // deriveTuple3SVars returns a function, which returns the input values.
@@ -37,21 +36,6 @@ func deriveTuple3SVar(v0 *ast.SExpr, v1 Substitutions, v2 string) func() (*ast.S
 	return func() (*ast.SExpr, Substitutions, string) {
 		return v0, v1, v2
 	}
-}
-
-// deriveSorted sorts the slice inplace and also returns it.
-func deriveSorted(list []uint64) []uint64 {
-	sort.Slice(list, func(i, j int) bool { return list[i] < list[j] })
-	return list
-}
-
-// deriveKeys returns the keys of the input map as a slice.
-func deriveKeys(m map[uint64]*ast.SExpr) []uint64 {
-	keys := make([]uint64, 0, len(m))
-	for key := range m {
-		keys = append(keys, key)
-	}
-	return keys
 }
 
 // deriveFmapRs returns a list where each element of the input list has been morphed by the input function.

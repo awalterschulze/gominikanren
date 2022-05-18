@@ -29,11 +29,9 @@ scheme code:
 	)
 */
 func CallFresh(f func(*ast.SExpr) Goal) Goal {
-	return func() GoalFn {
-		return func(s *State) StreamOfStates {
-			v := Var(s.Counter)
-			ss := &State{s.Substitutions, s.Counter + 1}
-			return f(v)()(ss)
-		}
+	return func(s *State) *StreamOfStates {
+		v := Var(s.Counter)
+		ss := &State{s.Substitutions, s.Counter + 1}
+		return f(v)(ss)
 	}
 }

@@ -20,7 +20,7 @@ func TestIfThenElseSuccess(t *testing.T) {
 		micro.SuccessO,
 		micro.EqualO(ast.NewSymbol("#f"), y),
 		micro.EqualO(ast.NewSymbol("#t"), y),
-	)()
+	)
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
@@ -37,7 +37,7 @@ func TestIfThenElseFailure(t *testing.T) {
 		micro.FailureO,
 		micro.EqualO(ast.NewSymbol("#f"), y),
 		micro.EqualO(ast.NewSymbol("#t"), y),
-	)()
+	)
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
@@ -57,7 +57,7 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 		micro.EqualO(ast.NewSymbol("#t"), x),
 		micro.EqualO(ast.NewSymbol("#f"), y),
 		micro.EqualO(ast.NewSymbol("#t"), y),
-	)()
+	)
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
@@ -81,7 +81,7 @@ func TestIfThenElseDisjoint(t *testing.T) {
 		),
 		micro.EqualO(ast.NewSymbol("#f"), y),
 		micro.EqualO(ast.NewSymbol("#t"), y),
-	)()
+	)
 	ss := ifte(micro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
