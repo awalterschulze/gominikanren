@@ -1,11 +1,14 @@
 module github.com/awalterschulze/gominikanren
 
-go 1.16
+go 1.17
 
 require (
-	github.com/awalterschulze/goderive v0.0.0-20220428144255-849e9385b9d1 // indirect
-	github.com/goccmack/gocc v0.0.0-20211213154817-7ea699349eca // indirect
-	github.com/kisielk/errcheck v1.6.0 // indirect
+	github.com/awalterschulze/goderive v0.0.0-20230228170144-9d8b5e1d9113 // indirect
+	github.com/goccmack/gocc v0.0.0-20230126145457-e83a72a787a0 // indirect
+	github.com/kisielk/errcheck v1.6.3 // indirect
 	github.com/kisielk/gotool v1.0.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 )

@@ -1,5 +1,5 @@
-.PHONY: travis
-travis:
+.PHONY: ci
+ci:
 	go install github.com/goccmack/gocc
 	go install github.com/awalterschulze/goderive
 	make regenerate
