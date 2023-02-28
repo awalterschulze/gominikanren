@@ -15,7 +15,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,      // INVALID
-			nil,      // $
+			nil,      // ␚
 			shift(4), // (
 			nil,      // )
 			nil,      // space
@@ -31,7 +31,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,          // INVALID
-			accept(true), // $
+			accept(true), // ␚
 			nil,          // (
 			nil,          // )
 			nil,          // space
@@ -47,7 +47,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			reduce(1), // $, reduce: SExpr
+			reduce(1), // ␚, reduce: SExpr
 			nil,       // (
 			nil,       // )
 			nil,       // space
@@ -63,7 +63,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			reduce(2), // $, reduce: SExpr
+			reduce(2), // ␚, reduce: SExpr
 			nil,       // (
 			nil,       // )
 			nil,       // space
@@ -79,7 +79,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(13), // (
 			shift(14), // )
 			nil,       // space
@@ -95,7 +95,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			reduce(9), // $, reduce: Atom
+			reduce(9), // ␚, reduce: Atom
 			nil,       // (
 			nil,       // )
 			nil,       // space
@@ -111,7 +111,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(10), // $, reduce: Atom
+			reduce(10), // ␚, reduce: Atom
 			nil,        // (
 			nil,        // )
 			nil,        // space
@@ -127,7 +127,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(11), // $, reduce: Atom
+			reduce(11), // ␚, reduce: Atom
 			nil,        // (
 			nil,        // )
 			nil,        // space
@@ -143,7 +143,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(12), // $, reduce: Atom
+			reduce(12), // ␚, reduce: Atom
 			nil,        // (
 			nil,        // )
 			nil,        // space
@@ -159,7 +159,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(13), // $, reduce: Atom
+			reduce(13), // ␚, reduce: Atom
 			nil,        // (
 			nil,        // )
 			nil,        // space
@@ -175,7 +175,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(20), // )
 			shift(21), // space
@@ -191,7 +191,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(1), // ), reduce: SExpr
 			reduce(1), // space, reduce: SExpr
@@ -207,7 +207,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(2), // ), reduce: SExpr
 			reduce(2), // space, reduce: SExpr
@@ -223,7 +223,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(13), // (
 			shift(23), // )
 			nil,       // space
@@ -239,7 +239,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			reduce(3), // $, reduce: Pair
+			reduce(3), // ␚, reduce: Pair
 			nil,       // (
 			nil,       // )
 			nil,       // space
@@ -255,7 +255,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(9), // ), reduce: Atom
 			reduce(9), // space, reduce: Atom
@@ -271,7 +271,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(10), // ), reduce: Atom
 			reduce(10), // space, reduce: Atom
@@ -287,7 +287,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(11), // ), reduce: Atom
 			reduce(11), // space, reduce: Atom
@@ -303,7 +303,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(12), // ), reduce: Atom
 			reduce(12), // space, reduce: Atom
@@ -319,7 +319,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(13), // ), reduce: Atom
 			reduce(13), // space, reduce: Atom
@@ -335,7 +335,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			reduce(4), // $, reduce: Pair
+			reduce(4), // ␚, reduce: Pair
 			nil,       // (
 			nil,       // )
 			nil,       // space
@@ -351,7 +351,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(13), // (
 			nil,       // )
 			nil,       // space
@@ -367,7 +367,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(27), // )
 			shift(28), // space
@@ -383,7 +383,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(3), // ), reduce: Pair
 			reduce(3), // space, reduce: Pair
@@ -399,7 +399,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(7), // ), reduce: ContinueList
 			shift(29), // space
@@ -415,7 +415,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(30), // )
 			nil,       // space
@@ -431,7 +431,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			nil,       // )
 			shift(31), // space
@@ -447,7 +447,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(4), // ), reduce: Pair
 			reduce(4), // space, reduce: Pair
@@ -463,7 +463,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(13), // (
 			nil,       // )
 			nil,       // space
@@ -479,7 +479,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(13), // (
 			nil,       // )
 			nil,       // space
@@ -495,7 +495,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			reduce(5), // $, reduce: Pair
+			reduce(5), // ␚, reduce: Pair
 			nil,       // (
 			nil,       // )
 			nil,       // space
@@ -511,7 +511,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(38), // (
 			nil,       // )
 			nil,       // space
@@ -527,7 +527,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(44), // )
 			nil,       // space
@@ -543,7 +543,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			nil,       // )
 			shift(45), // space
@@ -559,7 +559,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(8), // ), reduce: ContinueList
 			nil,       // space
@@ -575,7 +575,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(46), // )
 			nil,       // space
@@ -591,7 +591,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(1), // ), reduce: SExpr
 			nil,       // space
@@ -607,7 +607,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(2), // ), reduce: SExpr
 			nil,       // space
@@ -623,7 +623,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(13), // (
 			shift(48), // )
 			nil,       // space
@@ -639,7 +639,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(9), // ), reduce: Atom
 			nil,       // space
@@ -655,7 +655,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(10), // ), reduce: Atom
 			nil,        // space
@@ -671,7 +671,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(11), // ), reduce: Atom
 			nil,        // space
@@ -687,7 +687,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(12), // ), reduce: Atom
 			nil,        // space
@@ -703,7 +703,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			nil,        // $
+			nil,        // ␚
 			nil,        // (
 			reduce(13), // ), reduce: Atom
 			nil,        // space
@@ -719,7 +719,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(5), // ), reduce: Pair
 			reduce(5), // space, reduce: Pair
@@ -735,7 +735,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(38), // (
 			nil,       // )
 			nil,       // space
@@ -751,7 +751,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			reduce(6), // $, reduce: Pair
+			reduce(6), // ␚, reduce: Pair
 			nil,       // (
 			nil,       // )
 			nil,       // space
@@ -767,7 +767,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(50), // )
 			shift(51), // space
@@ -783,7 +783,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(3), // ), reduce: Pair
 			nil,       // space
@@ -799,7 +799,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(52), // )
 			nil,       // space
@@ -815,7 +815,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(4), // ), reduce: Pair
 			nil,       // space
@@ -831,7 +831,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(13), // (
 			nil,       // )
 			nil,       // space
@@ -847,7 +847,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(6), // ), reduce: Pair
 			reduce(6), // space, reduce: Pair
@@ -863,7 +863,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(55), // )
 			nil,       // space
@@ -879,7 +879,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			nil,       // )
 			shift(56), // space
@@ -895,7 +895,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(5), // ), reduce: Pair
 			nil,       // space
@@ -911,7 +911,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			shift(38), // (
 			nil,       // )
 			nil,       // space
@@ -927,7 +927,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			shift(58), // )
 			nil,       // space
@@ -943,7 +943,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
-			nil,       // $
+			nil,       // ␚
 			nil,       // (
 			reduce(6), // ), reduce: Pair
 			nil,       // space

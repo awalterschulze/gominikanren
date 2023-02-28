@@ -1,5 +1,5 @@
-.PHONY: travis
-travis:
+.PHONY: ci
+ci:
 	go install github.com/goccmack/gocc
 	go install github.com/awalterschulze/goderive
 	make regenerate
@@ -32,12 +32,10 @@ diff:
 
 .PHONY: errcheck
 errcheck:
-	go get github.com/kisielk/errcheck
 	errcheck ./...
 
 .PHONY: lint
 lint:
-	go get golang.org/x/lint/golint
 	golint -set_exit_status ./micro
 	golint -set_exit_status ./mini
 	golint -set_exit_status ./sexpr
