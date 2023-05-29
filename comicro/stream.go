@@ -60,7 +60,6 @@ func Suspension(proc func() StreamOfStates) StreamOfStates {
 	c := make(chan *State, 0)
 	go func() {
 		defer close(c)
-		// we need to send two nils, otherwise when we cons execution doesn't really get suspended, but is executed immediately after the first read.
 		c <- nil
 		if proc == nil {
 			return
