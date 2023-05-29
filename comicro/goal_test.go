@@ -88,24 +88,30 @@ func TestDisj2(t *testing.T) {
 			x,
 		),
 	)(EmptyState())
-	s, sok := d.CarCdr()
+	s, ss := d.CarCdr()
 	if s != nil {
 		t.Fatalf("expected suspension")
 	}
-	if sok == nil {
+	if ss == nil {
 		t.Fatalf("expected more")
 	}
-	s, sok = sok.CarCdr()
-	got := s.String()
-	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
-	want := "((,x . olive) . 0)"
-	if got != want {
-		t.Fatalf("got %s != want %s", got, want)
+	for s := range ss {
+		if s != nil {
+			got := s.String()
+			// reifying y; we assigned it a random uint64 and lost track of it
+			got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
+			want := "((,x . olive) . 0)"
+			if got != want {
+				t.Fatalf("got %s != want %s", got, want)
+			}
+			break
+		}
 	}
-	if sok == nil {
+	_, ok := <-ss
+	if !ok {
 		t.Fatalf("expected never ending")
 	}
+
 }
 
 func TestAlwaysO(t *testing.T) {
