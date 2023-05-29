@@ -1,6 +1,6 @@
 module github.com/awalterschulze/gominikanren
 
-go 1.17
+go 1.20
 
 require (
 	github.com/awalterschulze/goderive v0.0.0-20230228170144-9d8b5e1d9113
