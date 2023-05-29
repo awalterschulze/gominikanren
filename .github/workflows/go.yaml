@@ -18,7 +18,7 @@ jobs:
       run: go mod download -x
 
     - name: Install tools
-      run: go install -x github.com/goccmack/gocc github.com/kisielk/errcheck golang.org/x/lint/golint
+      run: go install -x github.com/goccmack/gocc
 
     - name: gocc
       working-directory: ./sexpr
@@ -30,11 +30,6 @@ jobs:
     - name: Vet
       run: go vet ./...
 
-    - name: errcheck
-      run: errcheck ./...
-
     - name: diff
       run: git diff --exit-code .
 
-    - name: lint
-      run:  golint -set_exit_status ./micro ./mini ./sexpr

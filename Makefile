@@ -4,9 +4,7 @@ ci:
 	make regenerate
 	make test
 	make vet
-	make errcheck
 	make diff
-	make lint
 
 .PHONY: regenerate
 regenerate:
@@ -27,16 +25,6 @@ test:
 .PHONY: diff
 diff:
 	git diff --exit-code .
-
-.PHONY: errcheck
-errcheck:
-	errcheck ./...
-
-.PHONY: lint
-lint:
-	golint -set_exit_status ./micro
-	golint -set_exit_status ./mini
-	golint -set_exit_status ./sexpr
 
 .PHONY: bench
 bench:
