@@ -89,11 +89,11 @@ func ReifyIntVarFromState(v uint64) func(s *State) *ast.SExpr {
 // Reify reifies the input variable for the given input states.
 // NOTE: this is not the same reify as in the paper, mKreify
 func Reify(v string, ss []*State) []*ast.SExpr {
-	return deriveFmapRs(ReifyVarFromState(v), ss)
+	return fmap(ReifyVarFromState(v), ss)
 }
 
 // MKReify finds reifications for the first introduced var
 // NOTE: the way we've set this up now, vX is a reserved keyword
 func MKReify(ss []*State) []*ast.SExpr {
-	return deriveFmapRs(ReifyIntVarFromState(0), ss)
+	return fmap(ReifyIntVarFromState(0), ss)
 }

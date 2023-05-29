@@ -18,10 +18,7 @@ jobs:
       run: go mod download -x
 
     - name: Install tools
-      run: go install -x github.com/goccmack/gocc github.com/awalterschulze/goderive github.com/kisielk/errcheck golang.org/x/lint/golint
-
-    - name: goderive
-      run: goderive ./...
+      run: go install -x github.com/goccmack/gocc github.com/kisielk/errcheck golang.org/x/lint/golint
 
     - name: gocc
       working-directory: ./sexpr

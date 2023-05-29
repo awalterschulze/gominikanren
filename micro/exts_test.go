@@ -15,9 +15,9 @@ func TestOccurs(t *testing.T) {
 	x := ast.NewVar("x", 0)
 	y := ast.NewVar("y", 1)
 	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, bool){
-		deriveTuple3SVars(x, x, Substitutions(nil), true),
-		deriveTuple3SVars(x, y, nil, false),
-		deriveTuple3SVars(x, ast.NewList(y), Substitutions{
+		tuple4(x, x, Substitutions(nil), true),
+		tuple4(x, y, Substitutions(nil), false),
+		tuple4(x, ast.NewList(y), Substitutions{
 			SubPair{indexOf(y), x},
 		}, true),
 	}
@@ -37,16 +37,16 @@ func TestExts(t *testing.T) {
 	y := ast.NewVar("y", 1)
 	z := ast.NewVar("z", 2)
 	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions){
-		deriveTupleE(x, ast.NewSymbol("a"), Substitutions(nil), Substitutions{
+		tuple4(x, ast.NewSymbol("a"), Substitutions(nil), Substitutions{
 			SubPair{indexOf(x), ast.NewSymbol("a")},
 		}),
-		deriveTupleE(x, ast.NewList(x), Substitutions(nil), Substitutions(nil)),
-		deriveTupleE(x, ast.NewList(y),
+		tuple4(x, ast.NewList(x), Substitutions(nil), Substitutions(nil)),
+		tuple4(x, ast.NewList(y),
 			Substitutions{
 				SubPair{indexOf(y), x},
 			},
 			Substitutions(nil)),
-		deriveTupleE(x, ast.NewSymbol("e"),
+		tuple4(x, ast.NewSymbol("e"),
 			Substitutions{
 				SubPair{indexOf(z), x},
 				SubPair{indexOf(y), z},

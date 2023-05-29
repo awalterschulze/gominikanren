@@ -1,7 +1,6 @@
 .PHONY: ci
 ci:
 	go install github.com/goccmack/gocc
-	go install github.com/awalterschulze/goderive
 	make regenerate
 	make test
 	make vet
@@ -11,7 +10,6 @@ ci:
 
 .PHONY: regenerate
 regenerate:
-	goderive ./...
 	(cd sexpr && make regenerate)
 
 .PHONY: vet

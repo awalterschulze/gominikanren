@@ -11,8 +11,8 @@ import (
 
 func TestEqualO(t *testing.T) {
 	tests := []func() (string, string, string){
-		deriveTuple3("#f", "#f", "((() . 0))"),
-		deriveTuple3("#f", "#t", "()"),
+		tuple3("#f", "#f", "((() . 0))"),
+		tuple3("#f", "#t", "()"),
 	}
 	for _, test := range tests {
 		u, v, want := test()
@@ -130,7 +130,7 @@ func TestRunGoalAlways3(t *testing.T) {
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}
-	sss := deriveFmaps(func(s *State) string {
+	sss := fmap(func(s *State) string {
 		return s.String()
 	}, ss)
 	got := "(" + strings.Join(sss, " ") + ")"

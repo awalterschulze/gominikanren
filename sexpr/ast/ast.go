@@ -1,8 +1,10 @@
 package ast
 
 import (
+	"bytes"
 	"fmt"
 	"math/rand"
+	"reflect"
 	"strconv"
 	"time"
 )
@@ -63,11 +65,31 @@ func (p *Pair) String() string {
 }
 
 func (s *SExpr) Equal(ss *SExpr) bool {
-	return deriveEqual(s, ss)
+	return reflect.DeepEqual(s, ss)
 }
 
 func (s *SExpr) GoString() string {
-	return deriveGoString(s)
+	return goStringSExpr(s)
+}
+
+// goStringSExpr returns a recursive representation of this as a valid go string.
+func goStringSExpr(this *SExpr) string {
+	buf := bytes.NewBuffer(nil)
+	fmt.Fprintf(buf, "func() *ast.SExpr {\n")
+	if this == nil {
+		fmt.Fprintf(buf, "return nil\n")
+	} else {
+		fmt.Fprintf(buf, "this := &ast.SExpr{}\n")
+		if this.Pair != nil {
+			fmt.Fprintf(buf, "this.Pair = %s\n", goStringPair(this.Pair))
+		}
+		if this.Atom != nil {
+			fmt.Fprintf(buf, "this.Atom = %s\n", goStringAtom(this.Atom))
+		}
+		fmt.Fprintf(buf, "return this\n")
+	}
+	fmt.Fprintf(buf, "}()\n")
+	return buf.String()
 }
 
 func (s *SExpr) IsVariable() bool {
@@ -87,7 +109,35 @@ type Atom struct {
 }
 
 func (a *Atom) GoString() string {
-	return deriveGoStringAtom(a)
+	return goStringAtom(a)
+}
+
+func goStringAtom(this *Atom) string {
+	buf := bytes.NewBuffer(nil)
+	fmt.Fprintf(buf, "func() *ast.Atom {\n")
+	if this == nil {
+		fmt.Fprintf(buf, "return nil\n")
+	} else {
+		fmt.Fprintf(buf, "this := &ast.Atom{}\n")
+		if this.Str != nil {
+			fmt.Fprintf(buf, "this.Str = func (v string) *string { return &v }(%#v)\n", *this.Str)
+		}
+		if this.Symbol != nil {
+			fmt.Fprintf(buf, "this.Symbol = func (v string) *string { return &v }(%#v)\n", *this.Symbol)
+		}
+		if this.Float != nil {
+			fmt.Fprintf(buf, "this.Float = func (v float64) *float64 { return &v }(%#v)\n", *this.Float)
+		}
+		if this.Int != nil {
+			fmt.Fprintf(buf, "this.Int = func (v int64) *int64 { return &v }(%#v)\n", *this.Int)
+		}
+		if this.Var != nil {
+			fmt.Fprintf(buf, "this.Var = %s\n", goStringVar(this.Var))
+		}
+		fmt.Fprintf(buf, "return this\n")
+	}
+	fmt.Fprintf(buf, "}()\n")
+	return buf.String()
 }
 
 func (a *Atom) String() string {
@@ -194,11 +244,27 @@ func (v *Variable) String() string {
 }
 
 func (v *Variable) GoString() string {
-	return deriveGoStringVar(v)
+	return goStringVar(v)
+}
+
+// goStringVar returns a recursive representation of this as a valid go string.
+func goStringVar(this *Variable) string {
+	buf := bytes.NewBuffer(nil)
+	fmt.Fprintf(buf, "func() *ast.Variable {\n")
+	if this == nil {
+		fmt.Fprintf(buf, "return nil\n")
+	} else {
+		fmt.Fprintf(buf, "this := &ast.Variable{}\n")
+		fmt.Fprintf(buf, "this.Name = %#v\n", this.Name)
+		fmt.Fprintf(buf, "this.Index = %#v\n", this.Index)
+		fmt.Fprintf(buf, "return this\n")
+	}
+	fmt.Fprintf(buf, "}()\n")
+	return buf.String()
 }
 
 func (v *Variable) Equal(vv *Variable) bool {
-	return deriveEqualVar(v, vv)
+	return reflect.DeepEqual(v, vv)
 }
 
 func NewList(ss ...*SExpr) *SExpr {
@@ -209,4 +275,24 @@ func NewList(ss ...*SExpr) *SExpr {
 		return Cons(ss[0], nil)
 	}
 	return Cons(ss[0], NewList(ss[1:]...))
+}
+
+// goStringPair returns a recursive representation of this as a valid go string.
+func goStringPair(this *Pair) string {
+	buf := bytes.NewBuffer(nil)
+	fmt.Fprintf(buf, "func() *ast.Pair {\n")
+	if this == nil {
+		fmt.Fprintf(buf, "return nil\n")
+	} else {
+		fmt.Fprintf(buf, "this := &ast.Pair{}\n")
+		if this.Car != nil {
+			fmt.Fprintf(buf, "this.Car = %s\n", goStringSExpr(this.Car))
+		}
+		if this.Cdr != nil {
+			fmt.Fprintf(buf, "this.Cdr = %s\n", goStringSExpr(this.Cdr))
+		}
+		fmt.Fprintf(buf, "return this\n")
+	}
+	fmt.Fprintf(buf, "}()\n")
+	return buf.String()
 }

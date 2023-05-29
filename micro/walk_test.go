@@ -23,18 +23,18 @@ func TestWalk(t *testing.T) {
 		SubPair{indexOf(w), x},
 	}
 	tests := []func() (*ast.SExpr, Substitutions, string){
-		deriveTuple3SVar(z, zaxwyz, "a"),
-		deriveTuple3SVar(y, zaxwyz, "a"),
-		deriveTuple3SVar(x, zaxwyz, ",w"),
-		deriveTuple3SVar(x, xyvxwx, ",y"),
-		deriveTuple3SVar(v, xyvxwx, ",y"),
-		deriveTuple3SVar(w, xyvxwx, ",y"),
-		deriveTuple3SVar(w, Substitutions{
+		tuple3(z, zaxwyz, "a"),
+		tuple3(y, zaxwyz, "a"),
+		tuple3(x, zaxwyz, ",w"),
+		tuple3(x, xyvxwx, ",y"),
+		tuple3(v, xyvxwx, ",y"),
+		tuple3(w, xyvxwx, ",y"),
+		tuple3(w, Substitutions{
 			SubPair{indexOf(x), ast.NewSymbol("b")},
 			SubPair{indexOf(z), y},
 			SubPair{indexOf(w), ast.NewList(x, ast.NewSymbol("e"), z)},
 		}, "(,x e ,z)"),
-		deriveTuple3SVar(y, Substitutions{
+		tuple3(y, Substitutions{
 			SubPair{indexOf(x), ast.NewSymbol("e")},
 			SubPair{indexOf(z), x},
 			SubPair{indexOf(y), z},
@@ -68,18 +68,18 @@ func TestWalkStar(t *testing.T) {
 		{indexOf(w), x},
 	}
 	tests := []func() (*ast.SExpr, Substitutions, string){
-		deriveTuple3SVar(z, zaxwyz, "a"),
-		deriveTuple3SVar(y, zaxwyz, "a"),
-		deriveTuple3SVar(x, zaxwyz, ",w"),
-		deriveTuple3SVar(x, xyvxwx, ",y"),
-		deriveTuple3SVar(v, xyvxwx, ",y"),
-		deriveTuple3SVar(w, xyvxwx, ",y"),
-		deriveTuple3SVar(w, Substitutions{
+		tuple3(z, zaxwyz, "a"),
+		tuple3(y, zaxwyz, "a"),
+		tuple3(x, zaxwyz, ",w"),
+		tuple3(x, xyvxwx, ",y"),
+		tuple3(v, xyvxwx, ",y"),
+		tuple3(w, xyvxwx, ",y"),
+		tuple3(w, Substitutions{
 			{indexOf(x), ast.NewSymbol("b")},
 			{indexOf(z), y},
 			{indexOf(w), ast.NewList(x, ast.NewSymbol("e"), z)},
 		}, "(b e ,y)"),
-		deriveTuple3SVar(y, Substitutions{
+		tuple3(y, Substitutions{
 			{indexOf(x), ast.NewSymbol("e")},
 			{indexOf(z), x},
 			{indexOf(y), z},

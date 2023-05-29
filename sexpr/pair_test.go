@@ -8,19 +8,19 @@ import (
 
 func TestCons(t *testing.T) {
 	tests := []func() (string, string, string){
-		deriveTuple3("a", "b", "(a . b)"),
-		deriveTuple3("(a)", "b", "((a) . b)"),
-		deriveTuple3("(a)", "(b)", "((a) b)"),
-		deriveTuple3("a", "(b)", "(a b)"),
-		deriveTuple3("(a)", "(b c)", "((a) b c)"),
-		deriveTuple3("a", "(b c)", "(a b c)"),
-		deriveTuple3("(a b)", "(c d)", "((a b) c d)"),
-		deriveTuple3("a", "()", "(a)"),
-		deriveTuple3("(a)", "()", "((a))"),
-		deriveTuple3("(a b)", "()", "((a b))"),
-		deriveTuple3("()", "()", "(())"),
-		deriveTuple3("()", "(b)", "(() b)"),
-		deriveTuple3("()", "(b c)", "(() b c)"),
+		tuple3("a", "b", "(a . b)"),
+		tuple3("(a)", "b", "((a) . b)"),
+		tuple3("(a)", "(b)", "((a) b)"),
+		tuple3("a", "(b)", "(a b)"),
+		tuple3("(a)", "(b c)", "((a) b c)"),
+		tuple3("a", "(b c)", "(a b c)"),
+		tuple3("(a b)", "(c d)", "((a b) c d)"),
+		tuple3("a", "()", "(a)"),
+		tuple3("(a)", "()", "((a))"),
+		tuple3("(a b)", "()", "((a b))"),
+		tuple3("()", "()", "(())"),
+		tuple3("()", "(b)", "(() b)"),
+		tuple3("()", "(b c)", "(() b c)"),
 	}
 	for _, test := range tests {
 		car, cdr, want := test()
@@ -54,8 +54,8 @@ func TestCons(t *testing.T) {
 
 func TestCar(t *testing.T) {
 	tests := []func() (string, string){
-		deriveTuple("(,z . a)", ",z"),
-		deriveTuple(`(z a)`, "z"),
+		tuple2("(,z . a)", ",z"),
+		tuple2(`(z a)`, "z"),
 	}
 	for _, test := range tests {
 		input, want := test()
@@ -74,11 +74,11 @@ func TestCar(t *testing.T) {
 
 func TestCdr(t *testing.T) {
 	tests := []func() (string, string){
-		deriveTuple("(,z . b)", "b"),
-		deriveTuple("(,z . (,x e ,y))", "(,x e ,y)"),
-		deriveTuple(`(z a)`, "(a)"),
-		deriveTuple("((,z . b) (,x . ,y))", "((,x . ,y))"),
-		deriveTuple("((,z . b) (,x . ,y) (,y . a))", "((,x . ,y) (,y . a))"),
+		tuple2("(,z . b)", "b"),
+		tuple2("(,z . (,x e ,y))", "(,x e ,y)"),
+		tuple2(`(z a)`, "(a)"),
+		tuple2("((,z . b) (,x . ,y))", "((,x . ,y))"),
+		tuple2("((,z . b) (,x . ,y) (,y . a))", "((,x . ,y) (,y . a))"),
 	}
 	for _, test := range tests {
 		input, want := test()
