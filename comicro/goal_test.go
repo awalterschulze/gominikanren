@@ -66,7 +66,12 @@ func TestDisj1(t *testing.T) {
 		),
 		NeverO,
 	)(EmptyState())
-	s, sok := d.CarCdr()
+	var s *State
+	for s = range d {
+		if s != nil {
+			break
+		}
+	}
 	got := s.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
@@ -74,7 +79,8 @@ func TestDisj1(t *testing.T) {
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
-	if sok == nil {
+	_, ok := <-d
+	if !ok {
 		t.Fatalf("expected never ending")
 	}
 }
@@ -88,14 +94,7 @@ func TestDisj2(t *testing.T) {
 			x,
 		),
 	)(EmptyState())
-	s, ss := d.CarCdr()
-	if s != nil {
-		t.Fatalf("expected suspension")
-	}
-	if ss == nil {
-		t.Fatalf("expected more")
-	}
-	for s := range ss {
+	for s := range d {
 		if s != nil {
 			got := s.String()
 			// reifying y; we assigned it a random uint64 and lost track of it
@@ -107,7 +106,7 @@ func TestDisj2(t *testing.T) {
 			break
 		}
 	}
-	_, ok := <-ss
+	_, ok := <-d
 	if !ok {
 		t.Fatalf("expected never ending")
 	}
@@ -116,17 +115,19 @@ func TestDisj2(t *testing.T) {
 
 func TestAlwaysO(t *testing.T) {
 	a := AlwaysO(EmptyState())
-	s, sok := a.CarCdr()
-	if s != nil {
-		t.Fatal("expected suspension")
+	var s *State
+	for s = range a {
+		if s != nil {
+			break
+		}
 	}
-	s, sok = sok.CarCdr()
 	got := s.String()
 	want := "(() . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
-	if sok == nil {
+	_, ok := <-a
+	if !ok {
 		t.Fatalf("expected never ending")
 	}
 }

@@ -70,8 +70,9 @@ func TestNoReify(t *testing.T) {
 		strs[i] = ss[i].String()
 	}
 	got := "(" + strings.Join(strs, " ") + ")"
-	want := "(olive oil)"
-	if got != want {
-		t.Fatalf("got %s != want %s", got, want)
+	want1 := "(olive oil)"
+	want2 := "(oil olive)"
+	if got != want1 && got != want2 {
+		t.Fatalf("got %s != want %s or %s", got, want1, want2)
 	}
 }

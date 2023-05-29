@@ -1,5 +1,7 @@
 package comicro
 
+import "sync"
+
 /*
 Disj is a goal that returns a logical OR of the input goals.
 
@@ -53,11 +55,21 @@ func Mplus(s1, s2 StreamOfStates) StreamOfStates {
 	s := make(chan *State, 0)
 	go func() {
 		defer close(s)
-		s1ok, s2ok := true, true
-		for s1ok || s2ok {
-			s1ok = sendUntilSuspend(s1, s)
-			s2ok = sendUntilSuspend(s2, s)
-		}
+		wait := sync.WaitGroup{}
+		wait.Add(2)
+		go func() {
+			for a1 := range s1 {
+				s <- a1
+			}
+			wait.Done()
+		}()
+		go func() {
+			for a2 := range s2 {
+				s <- a2
+			}
+			wait.Done()
+		}()
+		wait.Wait()
 	}()
 	return s
 }
