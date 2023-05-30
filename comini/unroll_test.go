@@ -1,6 +1,7 @@
 package comini
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -9,8 +10,10 @@ import (
 )
 
 func TestMemberO(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := ast.Sort(comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	sexprs := ast.Sort(comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return MemberO(
 			q,
 			list,
@@ -24,7 +27,7 @@ func TestMemberO(t *testing.T) {
 			t.Fatalf("expected %d, but got %d instead", i, *sexpr.Atom.Int)
 		}
 	}
-	sexprs = ast.Sort(comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	sexprs = ast.Sort(comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return MemberOUnrolled(list)(q)
 	}))
 	if len(sexprs) != 3 {
@@ -38,8 +41,10 @@ func TestMemberO(t *testing.T) {
 }
 
 func TestMapO(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	sexprs := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return MapO(
 			comicro.EqualO,
 			q,
@@ -55,8 +60,10 @@ func TestMapO(t *testing.T) {
 }
 
 func TestMapOUnrolled(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	sexprs := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return MapOUnrolled(list)(comicro.EqualO, q)
 	})
 	if len(sexprs) != 1 {
@@ -68,8 +75,10 @@ func TestMapOUnrolled(t *testing.T) {
 }
 
 func TestMapODoubleUnrolled(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	sexprs := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return MapODoubleUnrolled(comicro.EqualO, list)(q)
 	})
 	if len(sexprs) != 1 {

@@ -1,6 +1,7 @@
 package comicro
 
 import (
+	"context"
 	"reflect"
 	"strings"
 	"testing"
@@ -14,7 +15,7 @@ func fives(x *ast.SExpr) Goal {
 			x,
 			ast.NewInt(5),
 		),
-		func(s *State) StreamOfStates { return fives(x)(s) },
+		func(ctx context.Context, s *State) StreamOfStates { return fives(x)(ctx, s) },
 	))
 }
 
@@ -24,15 +25,17 @@ func sixes(x *ast.SExpr) Goal {
 			x,
 			ast.NewInt(6),
 		),
-		func(s *State) StreamOfStates { return sixes(x)(s) },
+		func(ctx context.Context, s *State) StreamOfStates { return sixes(x)(ctx, s) },
 	))
 }
 
 func TestFivesAndSixes(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	ast5 := ast.NewInt(5)
 
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
-	states := RunGoal(
+	states := RunGoal(ctx,
 		1,
 		CallFresh(func(q *ast.SExpr) Goal {
 			return EqualO(
@@ -48,7 +51,7 @@ func TestFivesAndSixes(t *testing.T) {
 
 	// (define (fives x) (disj (≡ x 5) (fives x)))
 	// ((call/fresh fives) empty-state)
-	states = RunGoal(
+	states = RunGoal(ctx,
 		2,
 		CallFresh(func(x *ast.SExpr) Goal {
 			return fives(x)
@@ -60,7 +63,7 @@ func TestFivesAndSixes(t *testing.T) {
 		t.Fatalf("expected %#v but got %#v", got, want)
 	}
 
-	states = RunGoal(
+	states = RunGoal(ctx,
 		10,
 		CallFresh(func(x *ast.SExpr) Goal {
 			return Disj(

@@ -1,6 +1,9 @@
 package comicro
 
-import "sync"
+import (
+	"context"
+	"sync"
+)
 
 /*
 Disj is a goal that returns a logical OR of the input goals.
@@ -14,10 +17,10 @@ scheme code:
 	)
 */
 func Disj(g1, g2 Goal) Goal {
-	return func(s *State) StreamOfStates {
-		g1s := g1(s)
-		g2s := g2(s)
-		return Mplus(g1s, g2s)
+	return func(ctx context.Context, s *State) StreamOfStates {
+		g1s := g1(ctx, s)
+		g2s := g2(ctx, s)
+		return Mplus(ctx, g1s, g2s)
 	}
 }
 
@@ -48,7 +51,7 @@ scheme code:
 
 not a suspension => procedure? == false
 */
-func Mplus(s1, s2 StreamOfStates) StreamOfStates {
+func Mplus(ctx context.Context, s1, s2 StreamOfStates) StreamOfStates {
 	if s1 == nil {
 		return s2
 	}
@@ -62,13 +65,21 @@ func Mplus(s1, s2 StreamOfStates) StreamOfStates {
 		wait.Add(2)
 		go func() {
 			for a1 := range s1 {
-				s <- a1
+				select {
+				case <-ctx.Done():
+					return
+				case s <- a1:
+				}
 			}
 			wait.Done()
 		}()
 		go func() {
 			for a2 := range s2 {
-				s <- a2
+				select {
+				case <-ctx.Done():
+					return
+				case s <- a2:
+				}
 			}
 			wait.Done()
 		}()

@@ -1,6 +1,7 @@
 package comicro
 
 import (
+	"context"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
@@ -18,7 +19,7 @@ scheme code:
 	)
 */
 func TestFreshKiwi(t *testing.T) {
-	ss := RunGoal(1,
+	ss := RunGoal(context.Background(), 1,
 		CallFresh(func(fruit *ast.SExpr) Goal {
 			return EqualO(
 				ast.NewSymbol("plum"),

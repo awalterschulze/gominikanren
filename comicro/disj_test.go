@@ -1,11 +1,16 @@
 package comicro
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestMplus1(t *testing.T) {
-	s1 := single(s_x1())
-	s2 := single(s_xy_y1())
-	s := Mplus(s1, s2)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s1 := single(ctx, s_x1())
+	s2 := single(ctx, s_xy_y1())
+	s := Mplus(context.Background(), s1, s2)
 	count := 0
 	for a := range s {
 		if a == nil {
@@ -19,9 +24,11 @@ func TestMplus1(t *testing.T) {
 }
 
 func TestMplusSuspend(t *testing.T) {
-	s1 := suspend(single(s_x1()))
-	s2 := cons(s_xy_y1(), suspend(single(nil)))
-	s := Mplus(s1, s2)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s1 := suspend(ctx, single(ctx, s_x1()))
+	s2 := cons(ctx, s_xy_y1(), suspend(ctx, single(ctx, nil)))
+	s := Mplus(context.Background(), s1, s2)
 	count := 0
 	for a := range s {
 		if a != nil {
@@ -34,9 +41,11 @@ func TestMplusSuspend(t *testing.T) {
 }
 
 func TestMplusNeverO(t *testing.T) {
-	s1 := NeverO(EmptyState())
-	s2 := single(s_x1())
-	s := Mplus(s1, s2)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s1 := NeverO(ctx, EmptyState())
+	s2 := single(ctx, s_x1())
+	s := Mplus(ctx, s1, s2)
 	count := 0
 	for i := 0; i < 5; i++ {
 		a, ok := <-s

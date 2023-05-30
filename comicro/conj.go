@@ -1,5 +1,7 @@
 package comicro
 
+import "context"
+
 /*
 Conj is a goal that returns a logical AND of the input goals.
 
@@ -12,9 +14,9 @@ scheme code:
 	)
 */
 func Conj(g1, g2 Goal) Goal {
-	return func(s *State) StreamOfStates {
-		g1s := g1(s)
-		return Bind(g1s, g2)
+	return func(ctx context.Context, s *State) StreamOfStates {
+		g1s := g1(ctx, s)
+		return Bind(ctx, g1s, g2)
 	}
 }
 
@@ -33,15 +35,15 @@ scheme code:
 
 not a suspension => procedure? == false
 */
-func Bind(s StreamOfStates, g Goal) StreamOfStates {
+func Bind(ctx context.Context, s StreamOfStates, g Goal) StreamOfStates {
 	if s == nil {
 		return nil
 	}
 	car, cdr := s.CarCdr()
 	if car != nil { // not a suspension => procedure? == false
-		return Mplus(g(car), Bind(cdr, g))
+		return Mplus(ctx, g(ctx, car), Bind(ctx, cdr, g))
 	}
-	return Suspension(func() StreamOfStates {
-		return Bind(cdr, g)
+	return Suspension(ctx, func() StreamOfStates {
+		return Bind(ctx, cdr, g)
 	})
 }

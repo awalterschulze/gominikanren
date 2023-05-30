@@ -1,6 +1,7 @@
 package comicro
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -10,6 +11,8 @@ import (
 )
 
 func TestEqualO(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	tests := []func() (string, string, string){
 		tuple3("#f", "#f", "((() . 0))"),
 		tuple3("#f", "#t", "()"),
@@ -25,7 +28,7 @@ func TestEqualO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			stream := EqualO(uexpr, vexpr)(EmptyState())
+			stream := EqualO(uexpr, vexpr)(ctx, EmptyState())
 			got := stream.String()
 			if got != want {
 				t.Fatalf("got %s want %s", got, want)
@@ -35,19 +38,25 @@ func TestEqualO(t *testing.T) {
 }
 
 func TestFailureO(t *testing.T) {
-	if got, want := FailureO(EmptyState()).String(), "()"; got != want {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if got, want := FailureO(ctx, EmptyState()).String(), "()"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
 
 func TestSuccessO(t *testing.T) {
-	if got, want := SuccessO(EmptyState()).String(), "((() . 0))"; got != want {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if got, want := SuccessO(ctx, EmptyState()).String(), "((() . 0))"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
 
 func TestNeverO(t *testing.T) {
-	n := NeverO(EmptyState())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := NeverO(ctx, EmptyState())
 	s, sok := n.CarCdr()
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -58,6 +67,8 @@ func TestNeverO(t *testing.T) {
 }
 
 func TestDisj1(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	x := ast.NewVariable("x")
 	d := Disj(
 		EqualO(
@@ -65,7 +76,7 @@ func TestDisj1(t *testing.T) {
 			x,
 		),
 		NeverO,
-	)(EmptyState())
+	)(ctx, EmptyState())
 	var s *State
 	for s = range d {
 		if s != nil {
@@ -86,6 +97,8 @@ func TestDisj1(t *testing.T) {
 }
 
 func TestDisj2(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	x := ast.NewVariable("x")
 	d := Disj(
 		NeverO,
@@ -93,7 +106,7 @@ func TestDisj2(t *testing.T) {
 			ast.NewSymbol("olive"),
 			x,
 		),
-	)(EmptyState())
+	)(ctx, EmptyState())
 	for s := range d {
 		if s != nil {
 			got := s.String()
@@ -114,7 +127,9 @@ func TestDisj2(t *testing.T) {
 }
 
 func TestAlwaysO(t *testing.T) {
-	a := AlwaysO(EmptyState())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	a := AlwaysO(ctx, EmptyState())
 	var s *State
 	for s = range a {
 		if s != nil {
@@ -133,7 +148,9 @@ func TestAlwaysO(t *testing.T) {
 }
 
 func TestRunGoalAlways3(t *testing.T) {
-	ss := RunGoal(3, AlwaysO)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ss := RunGoal(ctx, 3, AlwaysO)
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}
@@ -148,6 +165,8 @@ func TestRunGoalAlways3(t *testing.T) {
 }
 
 func TestRunGoalDisj2(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		ast.NewVariable("x"),
@@ -157,13 +176,15 @@ func TestRunGoalDisj2(t *testing.T) {
 		ast.NewVariable("x"),
 	)
 	g := Disj(e1, e2)
-	ss := RunGoal(5, g)
+	ss := RunGoal(ctx, 5, g)
 	if len(ss) != 2 {
 		t.Fatalf("expected 2, got %d: %v", len(ss), ss)
 	}
 }
 
 func TestRunGoalConj2NoResults(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	x := ast.NewVariable("x")
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
@@ -174,13 +195,15 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 		x,
 	)
 	g := Conj(e1, e2)
-	ss := RunGoal(5, g)
+	ss := RunGoal(ctx, 5, g)
 	if len(ss) != 0 {
 		t.Fatalf("expected 0, got %d: %v", len(ss), ss)
 	}
 }
 
 func TestRunGoalConj2OneResults(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	x := ast.NewVariable("x")
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
@@ -191,7 +214,7 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 		x,
 	)
 	g := Conj(e1, e2)
-	ss := RunGoal(5, g)
+	ss := RunGoal(ctx, 5, g)
 	if len(ss) != 1 {
 		t.Fatalf("expected 1, got %d: %v", len(ss), ss)
 	}

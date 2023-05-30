@@ -1,6 +1,7 @@
 package comini
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -9,6 +10,8 @@ import (
 )
 
 func TestOnce(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	// assigning var index by hand since we want x < y
 	// otherwise test can fail because of int order in substitution map
 	x := ast.NewVar("x", 10001)
@@ -21,7 +24,7 @@ func TestOnce(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(comicro.EmptyState())
+	ss := ifte(ctx, comicro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)
