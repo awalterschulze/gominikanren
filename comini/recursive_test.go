@@ -3,7 +3,7 @@ package comini
 import (
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 )
 
 /*
@@ -16,25 +16,25 @@ import (
 	  ((very-recursiveo))
 	  ((nevero))))
 */
-func veryRecursiveO(s *micro.State) *micro.StreamOfStates {
+func veryRecursiveO(s *comicro.State) comicro.StreamOfStates {
 	return Conde(
-		[]micro.Goal{micro.NeverO},
-		[]micro.Goal{veryRecursiveO},
-		[]micro.Goal{micro.AlwaysO},
-		[]micro.Goal{veryRecursiveO},
-		[]micro.Goal{micro.NeverO},
+		[]comicro.Goal{comicro.NeverO},
+		[]comicro.Goal{veryRecursiveO},
+		[]comicro.Goal{comicro.AlwaysO},
+		[]comicro.Goal{veryRecursiveO},
+		[]comicro.Goal{comicro.NeverO},
 	)(s)
 }
 
 func TestRecursive(t *testing.T) {
-	ss := micro.RunGoal(
+	ss := comicro.RunGoal(
 		5,
-		micro.Zzz(veryRecursiveO),
+		comicro.Zzz(veryRecursiveO),
 	)
 	if len(ss) != 5 {
 		t.Fatalf("expected %d, but got %d results", 5, len(ss))
 	}
-	sexprs := micro.Reify("q", ss)
+	sexprs := comicro.Reify("q", ss)
 	for _, sexpr := range sexprs {
 		if sexpr.String() != "_0" {
 			t.Fatalf("expected %s, but got %s instead", "_0", sexpr.String())

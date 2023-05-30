@@ -1,7 +1,7 @@
 package comini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 )
 
 /*
@@ -13,34 +13,34 @@ ConjPlus is a macro that extends conjunction to arbitrary arguments
 	((_ g) (Zzz g))
 	((_ g0 g . . . ) (conj (Zzz g0) (conj+ g . . . )))))
 */
-func ConjPlus(gs ...micro.Goal) micro.Goal {
+func ConjPlus(gs ...comicro.Goal) comicro.Goal {
 	if len(gs) == 0 {
-		return micro.SuccessO
+		return comicro.SuccessO
 	}
 	if len(gs) == 1 {
-		return micro.Zzz(gs[0])
+		return comicro.Zzz(gs[0])
 	}
-	g1 := micro.Zzz(gs[0])
+	g1 := comicro.Zzz(gs[0])
 	g2 := ConjPlus(gs[1:]...)
-	return func(s *micro.State) *micro.StreamOfStates {
+	return func(s *comicro.State) comicro.StreamOfStates {
 		g1s := g1(s)
-		return micro.Bind(g1s, g2)
+		return comicro.Bind(g1s, g2)
 	}
 }
 
 // ConjPlusNoZzz is the conj+ macro without wrapping
 // its goals in a suspension (zzz)
-func ConjPlusNoZzz(gs ...micro.Goal) micro.Goal {
+func ConjPlusNoZzz(gs ...comicro.Goal) comicro.Goal {
 	if len(gs) == 0 {
-		return micro.SuccessO
+		return comicro.SuccessO
 	}
 	if len(gs) == 1 {
 		return gs[0]
 	}
 	g1 := gs[0]
 	g2 := ConjPlusNoZzz(gs[1:]...)
-	return func(s *micro.State) *micro.StreamOfStates {
+	return func(s *comicro.State) comicro.StreamOfStates {
 		g1s := g1(s)
-		return micro.Bind(g1s, g2)
+		return comicro.Bind(g1s, g2)
 	}
 }

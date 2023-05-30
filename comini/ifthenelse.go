@@ -1,7 +1,7 @@
 package comini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 )
 
 /*
@@ -61,21 +61,21 @@ scheme code:
 
 let loop not only declares a function, called loop, but also calls it, in the same line.
 */
-func IfThenElseO(g1, g2, g3 micro.Goal) micro.Goal {
-	return func(s *micro.State) *micro.StreamOfStates {
-		return ifThenElseLoop(g2, g3, s, g1(s))
+func IfThenElseO(cond, thn, els comicro.Goal) comicro.Goal {
+	return func(s *comicro.State) comicro.StreamOfStates {
+		return ifThenElseLoop(thn, els, s, cond(s))
 	}
 }
 
-func ifThenElseLoop(g2, g3 micro.Goal, s *micro.State, sinf *micro.StreamOfStates) *micro.StreamOfStates {
-	if sinf == nil {
-		return g3(s)
+func ifThenElseLoop(thn, els comicro.Goal, s *comicro.State, cond comicro.StreamOfStates) comicro.StreamOfStates {
+	if cond == nil {
+		return els(s)
 	}
-	car, cdr := sinf.CarCdr()
+	car, cdr := cond.CarCdr()
 	if car != nil {
-		return micro.Bind(sinf, g2)
+		return comicro.Bind(comicro.ConsStream(car, func() comicro.StreamOfStates { return cdr }), thn)
 	}
-	return micro.Suspension(func() *micro.StreamOfStates {
-		return ifThenElseLoop(g2, g3, s, cdr)
+	return comicro.Suspension(func() comicro.StreamOfStates {
+		return ifThenElseLoop(thn, els, s, cdr)
 	})
 }

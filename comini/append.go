@@ -1,7 +1,7 @@
 package comini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -42,19 +42,19 @@ scheme code:
 		)
 	)
 */
-func AppendO(l, t, out *ast.SExpr) micro.Goal {
-	return micro.Zzz(
-		micro.Disj(
-			micro.Conj(
+func AppendO(l, t, out *ast.SExpr) comicro.Goal {
+	return comicro.Zzz(
+		comicro.Disj(
+			comicro.Conj(
 				NullO(l),
-				micro.EqualO(t, out),
+				comicro.EqualO(t, out),
 			),
-			micro.CallFresh(func(a *ast.SExpr) micro.Goal {
-				return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
-					return micro.CallFresh(func(res *ast.SExpr) micro.Goal {
-						return micro.Conj(
+			comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
+					return comicro.CallFresh(func(res *ast.SExpr) comicro.Goal {
+						return comicro.Conj(
 							ConsO(a, d, l),
-							micro.Conj(
+							comicro.Conj(
 								ConsO(a, res, out),
 								AppendO(d, t, res),
 							),
@@ -67,21 +67,21 @@ func AppendO(l, t, out *ast.SExpr) micro.Goal {
 }
 
 // NullO is a goal that checks if a list is null.
-func NullO(x *ast.SExpr) micro.Goal {
-	return micro.EqualO(x, nil)
+func NullO(x *ast.SExpr) comicro.Goal {
+	return comicro.EqualO(x, nil)
 }
 
 // ConsO is a goal that conses the first two expressions into the third.
-func ConsO(a, d, p *ast.SExpr) micro.Goal {
-	return func(s *micro.State) *micro.StreamOfStates {
+func ConsO(a, d, p *ast.SExpr) comicro.Goal {
+	return func(s *comicro.State) comicro.StreamOfStates {
 		l := ast.Cons(a, d)
-		return micro.EqualO(l, p)(s)
+		return comicro.EqualO(l, p)(s)
 	}
 }
 
 // CarO is a goal where the second parameter is the head of the list in the first parameter.
-func CarO(p, a *ast.SExpr) micro.Goal {
-	return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
-		return micro.EqualO(ast.Cons(a, d), p)
+func CarO(p, a *ast.SExpr) comicro.Goal {
+	return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
+		return comicro.EqualO(ast.Cons(a, d), p)
 	})
 }
