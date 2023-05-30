@@ -134,7 +134,12 @@ func takeStream(n int, s StreamOfStates) []*State {
 	if s == nil {
 		return nil
 	}
-	res := make([]*State, 0, n)
+	var res []*State
+	if n < 0 {
+		res = []*State{}
+	} else {
+		res = make([]*State, 0, n)
+	}
 	i := 0
 	for {
 		if i == n {
