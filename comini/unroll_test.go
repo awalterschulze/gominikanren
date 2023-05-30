@@ -4,18 +4,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 func TestMemberO(t *testing.T) {
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+	sexprs := ast.Sort(comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
 		return MemberO(
 			q,
 			list,
 		)
-	})
+	}))
 	if len(sexprs) != 3 {
 		t.Fatalf("expected len %d, but got len %d instead", 3, len(sexprs))
 	}
@@ -24,9 +24,9 @@ func TestMemberO(t *testing.T) {
 			t.Fatalf("expected %d, but got %d instead", i, *sexpr.Atom.Int)
 		}
 	}
-	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+	sexprs = ast.Sort(comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
 		return MemberOUnrolled(list)(q)
-	})
+	}))
 	if len(sexprs) != 3 {
 		t.Fatalf("expected len %d, but got len %d instead", 3, len(sexprs))
 	}
@@ -39,9 +39,9 @@ func TestMemberO(t *testing.T) {
 
 func TestMapO(t *testing.T) {
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
 		return MapO(
-			micro.EqualO,
+			comicro.EqualO,
 			q,
 			list,
 		)
@@ -52,8 +52,12 @@ func TestMapO(t *testing.T) {
 	if !reflect.DeepEqual(sexprs[0], list) {
 		t.Fatalf("expected output matches input list, but got %#v", sexprs[0])
 	}
-	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
-		return MapOUnrolled(list)(micro.EqualO, q)
+}
+
+func TestMapOUnrolled(t *testing.T) {
+	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
+	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+		return MapOUnrolled(list)(comicro.EqualO, q)
 	})
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))
@@ -61,8 +65,12 @@ func TestMapO(t *testing.T) {
 	if !reflect.DeepEqual(sexprs[0], list) {
 		t.Fatalf("expected output matches input list, but got %#v", sexprs[0])
 	}
-	sexprs = micro.Run(-1, func(q *ast.SExpr) micro.Goal {
-		return MapODoubleUnrolled(micro.EqualO, list)(q)
+}
+
+func TestMapODoubleUnrolled(t *testing.T) {
+	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
+	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+		return MapODoubleUnrolled(comicro.EqualO, list)(q)
 	})
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d, but got len %d instead", 1, len(sexprs))

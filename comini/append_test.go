@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -35,11 +35,11 @@ import (
 */
 // results in all the combinations of two lists that when appended will result in (cake & ice d t)
 func TestAppendOAllCombinations(t *testing.T) {
-	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(x *ast.SExpr) micro.Goal {
-			return micro.CallFresh(func(y *ast.SExpr) micro.Goal {
-				return micro.Conj(
-					micro.EqualO(
+	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+		return comicro.CallFresh(func(x *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(func(y *ast.SExpr) comicro.Goal {
+				return comicro.Conj(
+					comicro.EqualO(
 						ast.Cons(x, ast.Cons(y, nil)),
 						q,
 					),
@@ -58,7 +58,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 			})
 		})
 	})
-	got := ast.NewList(sexprs...).String()
+	got := ast.NewList(ast.Sort(sexprs)...).String()
 	want := "((() (cake & ice d t)) ((cake) (& ice d t)) ((cake &) (ice d t)) ((cake & ice) (d t)) ((cake & ice d) (t)) ((cake & ice d t) ()))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -66,7 +66,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 }
 
 func TestAppendOSingleList(t *testing.T) {
-	ss := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+	ss := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.Cons(ast.NewSymbol("b"), nil),
@@ -81,7 +81,7 @@ func TestAppendOSingleList(t *testing.T) {
 }
 
 func TestAppendOSingleAtom(t *testing.T) {
-	ss := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
+	ss := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.NewSymbol("b"),
@@ -108,10 +108,10 @@ func TestCarO(t *testing.T) {
 			),
 			ast.NewSymbol("a"),
 		),
-		micro.EqualO(ast.NewSymbol("#t"), y),
-		micro.EqualO(ast.NewSymbol("#f"), y),
+		comicro.EqualO(ast.NewSymbol("#t"), y),
+		comicro.EqualO(ast.NewSymbol("#f"), y),
 	)
-	ss := ifte(micro.EmptyState())
+	ss := ifte(comicro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)

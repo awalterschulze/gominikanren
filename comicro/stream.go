@@ -1,6 +1,7 @@
 package comicro
 
 import (
+	"sort"
 	"strings"
 )
 
@@ -22,14 +23,14 @@ func (stream StreamOfStates) CarCdr() (*State, StreamOfStates) {
 // Warning: If the list is infinite this function will not terminate.
 func (stream StreamOfStates) String() string {
 	buf := []string{}
-	var s *State
-	for stream != nil {
-		s, stream = stream.CarCdr()
-		if s == nil {
-			continue
+	if stream != nil {
+		for s := range stream {
+			if s != nil {
+				buf = append(buf, s.String())
+			}
 		}
-		buf = append(buf, s.String())
 	}
+	sort.Strings(buf)
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
@@ -43,6 +44,9 @@ func ConsStream(s *State, proc func() StreamOfStates) StreamOfStates {
 			return
 		}
 		stream := proc()
+		if stream == nil {
+			return
+		}
 		for s := range stream {
 			c <- s
 		}
@@ -57,10 +61,10 @@ func NewSingletonStream(s *State) StreamOfStates {
 
 // Suspension prepends a nil state infront of the input stream of states.
 func Suspension(proc func() StreamOfStates) StreamOfStates {
-	c := make(chan *State, 0)
+	newStream := make(chan *State, 0)
 	go func() {
-		defer close(c)
-		c <- nil
+		defer close(newStream)
+		newStream <- nil
 		if proc == nil {
 			return
 		}
@@ -68,11 +72,11 @@ func Suspension(proc func() StreamOfStates) StreamOfStates {
 		if stream == nil {
 			return
 		}
-		for s := range stream {
-			c <- s
+		for state := range stream {
+			newStream <- state
 		}
 	}()
-	return c
+	return newStream
 }
 
 /*
@@ -149,10 +153,11 @@ func takeStream(n int, s StreamOfStates) []*State {
 		if !ok {
 			break
 		}
-		if a != nil {
-			res = append(res, a)
-			i++
+		if a == nil {
+			continue
 		}
+		res = append(res, a)
+		i++
 	}
 	return res
 }

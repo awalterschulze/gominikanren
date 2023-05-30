@@ -52,6 +52,9 @@ func Mplus(s1, s2 StreamOfStates) StreamOfStates {
 	if s1 == nil {
 		return s2
 	}
+	if s2 == nil {
+		return s1
+	}
 	s := make(chan *State, 0)
 	go func() {
 		defer close(s)
@@ -72,15 +75,4 @@ func Mplus(s1, s2 StreamOfStates) StreamOfStates {
 		wait.Wait()
 	}()
 	return s
-}
-
-func sendUntilSuspend(src StreamOfStates, dst chan *State) bool {
-	for a := range src {
-		if a == nil {
-			dst <- nil
-			return true
-		}
-		dst <- a
-	}
-	return false
 }

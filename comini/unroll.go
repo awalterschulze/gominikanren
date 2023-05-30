@@ -1,7 +1,7 @@
 package comini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -29,13 +29,13 @@ but we can optimise if we detect y is bound
 	  [(membero x d)]
 	  )))
 */
-func MemberO(x, y *ast.SExpr) micro.Goal {
-	return micro.Zzz(micro.CallFresh(func(a *ast.SExpr) micro.Goal {
-		return micro.CallFresh(func(d *ast.SExpr) micro.Goal {
-			return micro.Conj(
-				micro.EqualO(y, ast.Cons(a, d)),
-				micro.Disj(
-					micro.EqualO(x, a),
+func MemberO(x, y *ast.SExpr) comicro.Goal {
+	return comicro.Zzz(comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
+		return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
+			return comicro.Conj(
+				comicro.EqualO(y, ast.Cons(a, d)),
+				comicro.Disj(
+					comicro.EqualO(x, a),
 					MemberO(x, d),
 				),
 			)
@@ -45,21 +45,21 @@ func MemberO(x, y *ast.SExpr) micro.Goal {
 
 // MemberOUnrolled is the partial application version of MemberO
 // taking the second argument (the list) first
-func MemberOUnrolled(y *ast.SExpr) func(*ast.SExpr) micro.Goal {
-	goals := []func(*ast.SExpr) micro.Goal{}
+func MemberOUnrolled(y *ast.SExpr) func(*ast.SExpr) comicro.Goal {
+	goals := []func(*ast.SExpr) comicro.Goal{}
 	for {
 		if y == nil {
 			break
 		}
 		car, cdr := y.Car(), y.Cdr()
-		goals = append(goals, func(x *ast.SExpr) micro.Goal {
-			return micro.EqualO(x, car)
+		goals = append(goals, func(x *ast.SExpr) comicro.Goal {
+			return comicro.EqualO(x, car)
 		})
 		y = cdr
 	}
 	n := len(goals)
-	return func(x *ast.SExpr) micro.Goal {
-		gs := make([]micro.Goal, n)
+	return func(x *ast.SExpr) comicro.Goal {
+		gs := make([]comicro.Goal, n)
 		for i, g := range goals {
 			gs[i] = g(x)
 		}
@@ -89,21 +89,21 @@ we can detect either and unroll before applying search
 	    )]
 	))
 */
-func MapO(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x, y *ast.SExpr) micro.Goal {
+func MapO(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x, y *ast.SExpr) comicro.Goal {
 	return Conde(
-		[]micro.Goal{
-			micro.EqualO(x, nil),
-			micro.EqualO(y, nil),
+		[]comicro.Goal{
+			comicro.EqualO(x, nil),
+			comicro.EqualO(y, nil),
 		},
-		[]micro.Goal{
+		[]comicro.Goal{
 			// really missing Fresh (xa xd ya yd) here
-			micro.CallFresh(func(xa *ast.SExpr) micro.Goal {
-				return micro.CallFresh(func(xd *ast.SExpr) micro.Goal {
-					return micro.CallFresh(func(ya *ast.SExpr) micro.Goal {
-						return micro.CallFresh(func(yd *ast.SExpr) micro.Goal {
+			comicro.CallFresh(func(xa *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(func(xd *ast.SExpr) comicro.Goal {
+					return comicro.CallFresh(func(ya *ast.SExpr) comicro.Goal {
+						return comicro.CallFresh(func(yd *ast.SExpr) comicro.Goal {
 							return ConjPlus(
-								micro.EqualO(x, ast.Cons(xa, xd)),
-								micro.EqualO(y, ast.Cons(ya, yd)),
+								comicro.EqualO(x, ast.Cons(xa, xd)),
+								comicro.EqualO(y, ast.Cons(ya, yd)),
 								f(xa, ya),
 								MapO(f, xd, yd),
 							)
@@ -116,21 +116,21 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x, y *ast.SExpr) micro.Goal
 }
 
 // MapOUnrolled is partial application of MapO with y already filled in
-func MapOUnrolled(list *ast.SExpr) func(func(*ast.SExpr, *ast.SExpr) micro.Goal, *ast.SExpr) micro.Goal {
-	goals := []func(func(*ast.SExpr, *ast.SExpr) micro.Goal, *ast.SExpr) micro.Goal{}
+func MapOUnrolled(list *ast.SExpr) func(func(*ast.SExpr, *ast.SExpr) comicro.Goal, *ast.SExpr) comicro.Goal {
+	goals := []func(func(*ast.SExpr, *ast.SExpr) comicro.Goal, *ast.SExpr) comicro.Goal{}
 	for {
 		if list == nil {
 			break
 		}
 		car, cdr := list.Car(), list.Cdr()
-		goals = append(goals, func(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x *ast.SExpr) micro.Goal {
+		goals = append(goals, func(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x *ast.SExpr) comicro.Goal {
 			return f(x, car)
 		})
 		list = cdr
 	}
 	n := len(goals)
-	return func(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x *ast.SExpr) micro.Goal {
-		gs := make([]micro.Goal, n+1)
+	return func(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x *ast.SExpr) comicro.Goal {
+		gs := make([]comicro.Goal, n+1)
 		vars := make([]*ast.SExpr, n)
 		var cons *ast.SExpr = nil
 		for i := 0; i < n; i++ {
@@ -139,27 +139,27 @@ func MapOUnrolled(list *ast.SExpr) func(func(*ast.SExpr, *ast.SExpr) micro.Goal,
 			gs[n-i] = goals[n-i-1](f, v)
 			cons = ast.Cons(v, cons)
 		}
-		gs[0] = micro.EqualO(x, cons)
+		gs[0] = comicro.EqualO(x, cons)
 		return ConjPlus(gs...)
 	}
 }
 
 // MapODoubleUnrolled is partial application of MapO with f and y already filled in
-func MapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) micro.Goal, list *ast.SExpr) func(*ast.SExpr) micro.Goal {
-	goals := []func(*ast.SExpr) micro.Goal{}
+func MapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, list *ast.SExpr) func(*ast.SExpr) comicro.Goal {
+	goals := []func(*ast.SExpr) comicro.Goal{}
 	for {
 		if list == nil {
 			break
 		}
 		car, cdr := list.Car(), list.Cdr()
-		goals = append(goals, func(x *ast.SExpr) micro.Goal {
+		goals = append(goals, func(x *ast.SExpr) comicro.Goal {
 			return f(x, car)
 		})
 		list = cdr
 	}
 	n := len(goals)
-	return func(x *ast.SExpr) micro.Goal {
-		gs := make([]micro.Goal, n+1)
+	return func(x *ast.SExpr) comicro.Goal {
+		gs := make([]comicro.Goal, n+1)
 		vars := make([]*ast.SExpr, n)
 		var cons *ast.SExpr = nil
 		for i := 0; i < n; i++ {
@@ -168,7 +168,7 @@ func MapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) micro.Goal, list *ast.SEx
 			gs[n-i] = goals[n-i-1](v)
 			cons = ast.Cons(v, cons)
 		}
-		gs[0] = micro.EqualO(x, cons)
+		gs[0] = comicro.EqualO(x, cons)
 		return ConjPlus(gs...)
 	}
 }

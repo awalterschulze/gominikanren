@@ -1,7 +1,7 @@
 package comini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"github.com/awalterschulze/gominikanren/comicro"
 )
 
 /*
@@ -34,21 +34,21 @@ scheme code:
 		)
 	)
 */
-func OnceO(g micro.Goal) micro.Goal {
-	return func(s *micro.State) *micro.StreamOfStates {
+func OnceO(g comicro.Goal) comicro.Goal {
+	return func(s *comicro.State) comicro.StreamOfStates {
 		return onceLoop(g(s))
 	}
 }
 
-func onceLoop(ss *micro.StreamOfStates) *micro.StreamOfStates {
+func onceLoop(ss comicro.StreamOfStates) comicro.StreamOfStates {
 	if ss == nil {
 		return nil
 	}
 	car, cdr := ss.CarCdr()
 	if car != nil {
-		return micro.NewSingletonStream(car)
+		return comicro.NewSingletonStream(car)
 	}
-	return micro.Suspension(func() *micro.StreamOfStates {
+	return comicro.Suspension(func() comicro.StreamOfStates {
 		return onceLoop(cdr)
 	})
 }
