@@ -1,6 +1,10 @@
 package comicro
 
-import "github.com/awalterschulze/gominikanren/sexpr/ast"
+import (
+	"context"
+
+	"github.com/awalterschulze/gominikanren/sexpr/ast"
+)
 
 func s_x1() *State {
 	return &State{
@@ -34,18 +38,18 @@ func empty() *State {
 	return EmptyState()
 }
 
-func single(s *State) StreamOfStates {
-	return NewSingletonStream(s)
+func single(ctx context.Context, s *State) StreamOfStates {
+	return NewSingletonStream(ctx, s)
 }
 
-func cons(s *State, ss StreamOfStates) StreamOfStates {
-	return ConsStream(s, func() StreamOfStates {
+func cons(ctx context.Context, s *State, ss StreamOfStates) StreamOfStates {
+	return ConsStream(ctx, s, func() StreamOfStates {
 		return ss
 	})
 }
 
-func suspend(ss StreamOfStates) StreamOfStates {
-	return Suspension(func() StreamOfStates {
+func suspend(ctx context.Context, ss StreamOfStates) StreamOfStates {
+	return Suspension(ctx, func() StreamOfStates {
 		return ss
 	})
 }

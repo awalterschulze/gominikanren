@@ -1,6 +1,7 @@
 package comini
 
 import (
+	"context"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
@@ -16,18 +17,20 @@ import (
 	  ((very-recursiveo))
 	  ((nevero))))
 */
-func veryRecursiveO(s *comicro.State) comicro.StreamOfStates {
+func veryRecursiveO(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
 	return Conde(
 		[]comicro.Goal{comicro.NeverO},
 		[]comicro.Goal{veryRecursiveO},
 		[]comicro.Goal{comicro.AlwaysO},
 		[]comicro.Goal{veryRecursiveO},
 		[]comicro.Goal{comicro.NeverO},
-	)(s)
+	)(ctx, s)
 }
 
 func TestRecursive(t *testing.T) {
-	ss := comicro.RunGoal(
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ss := comicro.RunGoal(ctx,
 		5,
 		comicro.Zzz(veryRecursiveO),
 	)

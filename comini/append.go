@@ -1,6 +1,8 @@
 package comini
 
 import (
+	"context"
+
 	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
@@ -73,9 +75,9 @@ func NullO(x *ast.SExpr) comicro.Goal {
 
 // ConsO is a goal that conses the first two expressions into the third.
 func ConsO(a, d, p *ast.SExpr) comicro.Goal {
-	return func(s *comicro.State) comicro.StreamOfStates {
+	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
 		l := ast.Cons(a, d)
-		return comicro.EqualO(l, p)(s)
+		return comicro.EqualO(l, p)(ctx, s)
 	}
 }
 

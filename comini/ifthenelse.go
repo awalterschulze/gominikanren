@@ -1,6 +1,8 @@
 package comini
 
 import (
+	"context"
+
 	"github.com/awalterschulze/gominikanren/comicro"
 )
 
@@ -62,20 +64,20 @@ scheme code:
 let loop not only declares a function, called loop, but also calls it, in the same line.
 */
 func IfThenElseO(cond, thn, els comicro.Goal) comicro.Goal {
-	return func(s *comicro.State) comicro.StreamOfStates {
-		return ifThenElseLoop(thn, els, s, cond(s))
+	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
+		return ifThenElseLoop(ctx, thn, els, s, cond(ctx, s))
 	}
 }
 
-func ifThenElseLoop(thn, els comicro.Goal, s *comicro.State, cond comicro.StreamOfStates) comicro.StreamOfStates {
+func ifThenElseLoop(ctx context.Context, thn, els comicro.Goal, s *comicro.State, cond comicro.StreamOfStates) comicro.StreamOfStates {
 	if cond == nil {
-		return els(s)
+		return els(ctx, s)
 	}
 	car, cdr := cond.CarCdr()
 	if car != nil {
-		return comicro.Bind(comicro.ConsStream(car, func() comicro.StreamOfStates { return cdr }), thn)
+		return comicro.Bind(ctx, comicro.ConsStream(ctx, car, func() comicro.StreamOfStates { return cdr }), thn)
 	}
-	return comicro.Suspension(func() comicro.StreamOfStates {
-		return ifThenElseLoop(thn, els, s, cdr)
+	return comicro.Suspension(ctx, func() comicro.StreamOfStates {
+		return ifThenElseLoop(ctx, thn, els, s, cdr)
 	})
 }

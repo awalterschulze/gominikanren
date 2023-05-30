@@ -1,6 +1,7 @@
 package comini
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -35,7 +36,9 @@ import (
 */
 // results in all the combinations of two lists that when appended will result in (cake & ice d t)
 func TestAppendOAllCombinations(t *testing.T) {
-	sexprs := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	sexprs := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return comicro.CallFresh(func(x *ast.SExpr) comicro.Goal {
 			return comicro.CallFresh(func(y *ast.SExpr) comicro.Goal {
 				return comicro.Conj(
@@ -66,7 +69,9 @@ func TestAppendOAllCombinations(t *testing.T) {
 }
 
 func TestAppendOSingleList(t *testing.T) {
-	ss := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ss := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.Cons(ast.NewSymbol("b"), nil),
@@ -81,7 +86,9 @@ func TestAppendOSingleList(t *testing.T) {
 }
 
 func TestAppendOSingleAtom(t *testing.T) {
-	ss := comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ss := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.NewSymbol("b"),
@@ -96,6 +103,8 @@ func TestAppendOSingleAtom(t *testing.T) {
 }
 
 func TestCarO(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	y := ast.NewVariable("y")
 	ifte := IfThenElseO(
 		CarO(
@@ -111,7 +120,7 @@ func TestCarO(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 	)
-	ss := ifte(comicro.EmptyState())
+	ss := ifte(ctx, comicro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)

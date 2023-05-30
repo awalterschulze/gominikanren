@@ -1,6 +1,8 @@
 package comini
 
 import (
+	"context"
+
 	"github.com/awalterschulze/gominikanren/comicro"
 )
 
@@ -35,20 +37,20 @@ scheme code:
 	)
 */
 func OnceO(g comicro.Goal) comicro.Goal {
-	return func(s *comicro.State) comicro.StreamOfStates {
-		return onceLoop(g(s))
+	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
+		return onceLoop(ctx, g(ctx, s))
 	}
 }
 
-func onceLoop(ss comicro.StreamOfStates) comicro.StreamOfStates {
+func onceLoop(ctx context.Context, ss comicro.StreamOfStates) comicro.StreamOfStates {
 	if ss == nil {
 		return nil
 	}
 	car, cdr := ss.CarCdr()
 	if car != nil {
-		return comicro.NewSingletonStream(car)
+		return comicro.NewSingletonStream(ctx, car)
 	}
-	return comicro.Suspension(func() comicro.StreamOfStates {
-		return onceLoop(cdr)
+	return comicro.Suspension(ctx, func() comicro.StreamOfStates {
+		return onceLoop(ctx, cdr)
 	})
 }

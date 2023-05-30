@@ -1,9 +1,12 @@
 package comicro
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestStreamSingle(t *testing.T) {
-	s := NewSingletonStream(EmptyState())
+	s := NewSingletonStream(context.Background(), EmptyState())
 	if s == nil {
 		t.Fatalf("expected non nil stream")
 	}
@@ -21,7 +24,7 @@ func TestStreamSingle(t *testing.T) {
 }
 
 func TestStreamCons(t *testing.T) {
-	s := ConsStream(EmptyState(), func() StreamOfStates { return NewSingletonStream(EmptyState()) })
+	s := ConsStream(context.Background(), EmptyState(), func() StreamOfStates { return NewSingletonStream(context.Background(), EmptyState()) })
 	if s == nil {
 		t.Fatalf("expected non nil stream")
 	}

@@ -1,6 +1,8 @@
 package comini
 
 import (
+	"context"
+
 	"github.com/awalterschulze/gominikanren/comicro"
 )
 
@@ -22,9 +24,9 @@ func ConjPlus(gs ...comicro.Goal) comicro.Goal {
 	}
 	g1 := comicro.Zzz(gs[0])
 	g2 := ConjPlus(gs[1:]...)
-	return func(s *comicro.State) comicro.StreamOfStates {
-		g1s := g1(s)
-		return comicro.Bind(g1s, g2)
+	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
+		g1s := g1(ctx, s)
+		return comicro.Bind(ctx, g1s, g2)
 	}
 }
 
@@ -39,8 +41,8 @@ func ConjPlusNoZzz(gs ...comicro.Goal) comicro.Goal {
 	}
 	g1 := gs[0]
 	g2 := ConjPlusNoZzz(gs[1:]...)
-	return func(s *comicro.State) comicro.StreamOfStates {
-		g1s := g1(s)
-		return comicro.Bind(g1s, g2)
+	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
+		g1s := g1(ctx, s)
+		return comicro.Bind(ctx, g1s, g2)
 	}
 }

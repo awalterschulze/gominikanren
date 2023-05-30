@@ -1,6 +1,7 @@
 package comini_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
@@ -99,7 +100,9 @@ func fib(conj func(...comicro.Goal) comicro.Goal, x, y *ast.SExpr) comicro.Goal 
 }
 
 func runFib(n int, f func(...comicro.Goal) comicro.Goal) []*ast.SExpr {
-	return comicro.Run(-1, func(q *ast.SExpr) comicro.Goal {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	return comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
 		return fib(f, makenat(n), q)
 	})
 }

@@ -1,6 +1,7 @@
 package comini
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -15,13 +16,15 @@ func indexOf(x *ast.SExpr) uint64 {
 }
 
 func TestIfThenElseSuccess(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	y := ast.NewVariable("y")
 	ifte := IfThenElseO(
 		comicro.SuccessO,
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(comicro.EmptyState())
+	ss := ifte(ctx, comicro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
@@ -32,13 +35,15 @@ func TestIfThenElseSuccess(t *testing.T) {
 }
 
 func TestIfThenElseFailure(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	y := ast.NewVariable("y")
 	ifte := IfThenElseO(
 		comicro.FailureO,
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(comicro.EmptyState())
+	ss := ifte(ctx, comicro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
@@ -49,6 +54,8 @@ func TestIfThenElseFailure(t *testing.T) {
 }
 
 func TestIfThenElseXIsTrue(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	// assigning var index by hand since we want x < y
 	// otherwise test can fail because of int order in substitution map
 	x := ast.NewVar("x", 10001)
@@ -58,7 +65,7 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(comicro.EmptyState())
+	ss := ifte(ctx, comicro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)
@@ -70,6 +77,8 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 }
 
 func TestIfThenElseDisjoint(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	// assigning var index by hand since we want x < y
 	// otherwise test can fail because of int order in substitution map
 	x := ast.NewVar("x", 10001)
@@ -82,7 +91,7 @@ func TestIfThenElseDisjoint(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(comicro.EmptyState())
+	ss := ifte(ctx, comicro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)

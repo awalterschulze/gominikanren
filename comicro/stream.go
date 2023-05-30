@@ -1,6 +1,7 @@
 package comicro
 
 import (
+	"context"
 	"sort"
 	"strings"
 )
@@ -35,11 +36,16 @@ func (stream StreamOfStates) String() string {
 }
 
 // ConsStream returns a stream from a head plus a continuation
-func ConsStream(s *State, proc func() StreamOfStates) StreamOfStates {
+func ConsStream(ctx context.Context, s *State, proc func() StreamOfStates) StreamOfStates {
 	c := make(chan *State, 0)
 	go func() {
 		defer close(c)
-		c <- s
+		select {
+		case <-ctx.Done():
+			return
+		case c <- s:
+		}
+
 		if proc == nil {
 			return
 		}
@@ -48,23 +54,31 @@ func ConsStream(s *State, proc func() StreamOfStates) StreamOfStates {
 			return
 		}
 		for s := range stream {
-			c <- s
+			select {
+			case <-ctx.Done():
+				return
+			case c <- s:
+			}
 		}
 	}()
 	return c
 }
 
 // NewSingletonStream returns the input state as a stream of states containing only the head state.
-func NewSingletonStream(s *State) StreamOfStates {
-	return ConsStream(s, nil)
+func NewSingletonStream(ctx context.Context, s *State) StreamOfStates {
+	return ConsStream(ctx, s, nil)
 }
 
 // Suspension prepends a nil state infront of the input stream of states.
-func Suspension(proc func() StreamOfStates) StreamOfStates {
+func Suspension(ctx context.Context, proc func() StreamOfStates) StreamOfStates {
 	newStream := make(chan *State, 0)
 	go func() {
 		defer close(newStream)
-		newStream <- nil
+		select {
+		case <-ctx.Done():
+			return
+		case newStream <- nil:
+		}
 		if proc == nil {
 			return
 		}
@@ -73,7 +87,11 @@ func Suspension(proc func() StreamOfStates) StreamOfStates {
 			return
 		}
 		for state := range stream {
-			newStream <- state
+			select {
+			case <-ctx.Done():
+				return
+			case newStream <- state:
+			}
 		}
 	}()
 	return newStream
@@ -88,9 +106,9 @@ Zzz is the macro to add inverse-eta-delay less tediously
 	((_ g) (λg (s/c) (λ$ () (g s/c))))))
 */
 func Zzz(g Goal) Goal {
-	return func(s *State) StreamOfStates {
-		return Suspension(func() StreamOfStates {
-			return g(s)
+	return func(ctx context.Context, s *State) StreamOfStates {
+		return Suspension(ctx, func() StreamOfStates {
+			return g(ctx, s)
 		})
 	}
 }

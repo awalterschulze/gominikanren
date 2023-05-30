@@ -1,6 +1,7 @@
 package comicro
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -61,7 +62,7 @@ func TestNoReify(t *testing.T) {
 		x,
 	)
 	g := Disj(e1, e2)
-	states := RunGoal(5, g)
+	states := RunGoal(context.Background(), 5, g)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
 	r := ReifyIntVarFromState(indexOf(x))
