@@ -35,7 +35,16 @@ func Run(ctx context.Context, n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
 func SuccessO(ctx context.Context, s *State) StreamOfStates {
-	return NewSingletonStream(ctx, s)
+	newStream := make(chan *State, 0)
+	go func() {
+		defer close(newStream)
+		select {
+		case <-ctx.Done():
+			return
+		case newStream <- s:
+		}
+	}()
+	return newStream
 }
 
 // FailureO is a goal that always returns an empty stream of states.
@@ -58,11 +67,21 @@ scheme code:
 */
 func EqualO(u, v *ast.SExpr) Goal {
 	return func(ctx context.Context, s *State) StreamOfStates {
-		ss, sok := unify(u, v, s.Substitutions)
-		if sok {
-			return NewSingletonStream(ctx, &State{Substitutions: ss, Counter: s.Counter})
-		}
-		return nil
+		newStream := make(chan *State, 0)
+		go func() {
+			defer close(newStream)
+			ss, sok := unify(u, v, s.Substitutions)
+			var res *State = nil
+			if sok {
+				res = &State{Substitutions: ss, Counter: s.Counter}
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case newStream <- res:
+			}
+		}()
+		return newStream
 	}
 }
 
@@ -80,9 +99,18 @@ scheme code:
 	)
 */
 func NeverO(ctx context.Context, s *State) StreamOfStates {
-	return Suspension(ctx, func() StreamOfStates {
-		return NeverO(ctx, s)
-	})
+	newStream := make(chan *State, 0)
+	go func() {
+		defer close(newStream)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case newStream <- nil:
+			}
+		}
+	}()
+	return newStream
 }
 
 /*
@@ -105,7 +133,21 @@ scheme code:
 	)
 */
 func AlwaysO(ctx context.Context, s *State) StreamOfStates {
-	return Suspension(ctx, func() StreamOfStates {
-		return Disj(SuccessO, AlwaysO)(ctx, s)
-	})
+	newStream := make(chan *State, 0)
+	go func() {
+		defer close(newStream)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case newStream <- nil:
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case newStream <- s:
+			}
+		}
+	}()
+	return newStream
 }

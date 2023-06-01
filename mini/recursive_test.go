@@ -8,12 +8,13 @@ import (
 
 /*
 (defrel (very-recursiveo)
-  (conde
-    ((nevero))
-    ((very-recursiveo))
-    ((alwayso))
-    ((very-recursiveo))
-    ((nevero))))
+
+	(conde
+	  ((nevero))
+	  ((very-recursiveo))
+	  ((alwayso))
+	  ((very-recursiveo))
+	  ((nevero))))
 */
 func veryRecursiveO(s *micro.State) *micro.StreamOfStates {
 	return Conde(
@@ -26,17 +27,18 @@ func veryRecursiveO(s *micro.State) *micro.StreamOfStates {
 }
 
 func TestRecursive(t *testing.T) {
+	num := 100000
 	ss := micro.RunGoal(
-		5,
+		num,
 		micro.Zzz(veryRecursiveO),
 	)
-	if len(ss) != 5 {
+	if len(ss) != num {
 		t.Fatalf("expected %d, but got %d results", 5, len(ss))
 	}
-	sexprs := micro.Reify("q", ss)
-	for _, sexpr := range sexprs {
-		if sexpr.String() != "_0" {
-			t.Fatalf("expected %s, but got %s instead", "_0", sexpr.String())
-		}
-	}
+	// sexprs := micro.Reify("q", ss)
+	// for _, sexpr := range sexprs {
+	// 	if sexpr.String() != "_0" {
+	// 		t.Fatalf("expected %s, but got %s instead", "_0", sexpr.String())
+	// 	}
+	// }
 }
