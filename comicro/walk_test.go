@@ -13,14 +13,14 @@ func TestWalk(t *testing.T) {
 	y := ast.NewVar("y", 4)
 	z := ast.NewVar("z", 5)
 	zaxwyz := Substitutions{
-		SubPair{indexOf(z), ast.NewSymbol("a")},
-		SubPair{indexOf(x), w},
-		SubPair{indexOf(y), z},
+		indexOf(z): ast.NewSymbol("a"),
+		indexOf(x): w,
+		indexOf(y): z,
 	}
 	xyvxwx := Substitutions{
-		SubPair{indexOf(x), y},
-		SubPair{indexOf(v), x},
-		SubPair{indexOf(w), x},
+		indexOf(x): y,
+		indexOf(v): x,
+		indexOf(w): x,
 	}
 	tests := []func() (*ast.SExpr, Substitutions, string){
 		tuple3(z, zaxwyz, "a"),
@@ -30,14 +30,14 @@ func TestWalk(t *testing.T) {
 		tuple3(v, xyvxwx, ",y"),
 		tuple3(w, xyvxwx, ",y"),
 		tuple3(w, Substitutions{
-			SubPair{indexOf(x), ast.NewSymbol("b")},
-			SubPair{indexOf(z), y},
-			SubPair{indexOf(w), ast.NewList(x, ast.NewSymbol("e"), z)},
+			indexOf(x): ast.NewSymbol("b"),
+			indexOf(z): y,
+			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
 		}, "(,x e ,z)"),
 		tuple3(y, Substitutions{
-			SubPair{indexOf(x), ast.NewSymbol("e")},
-			SubPair{indexOf(z), x},
-			SubPair{indexOf(y), z},
+			indexOf(x): ast.NewSymbol("e"),
+			indexOf(z): x,
+			indexOf(y): z,
 		}, "e"),
 	}
 	for _, test := range tests {
@@ -58,14 +58,14 @@ func TestWalkStar(t *testing.T) {
 	y := ast.NewVar("y", 4)
 	z := ast.NewVar("z", 5)
 	zaxwyz := Substitutions{
-		{indexOf(z), ast.NewSymbol("a")},
-		{indexOf(x), w},
-		{indexOf(y), z},
+		indexOf(z): ast.NewSymbol("a"),
+		indexOf(x): w,
+		indexOf(y): z,
 	}
 	xyvxwx := Substitutions{
-		{indexOf(x), y},
-		{indexOf(v), x},
-		{indexOf(w), x},
+		indexOf(x): y,
+		indexOf(v): x,
+		indexOf(w): x,
 	}
 	tests := []func() (*ast.SExpr, Substitutions, string){
 		tuple3(z, zaxwyz, "a"),
@@ -75,14 +75,14 @@ func TestWalkStar(t *testing.T) {
 		tuple3(v, xyvxwx, ",y"),
 		tuple3(w, xyvxwx, ",y"),
 		tuple3(w, Substitutions{
-			{indexOf(x), ast.NewSymbol("b")},
-			{indexOf(z), y},
-			{indexOf(w), ast.NewList(x, ast.NewSymbol("e"), z)},
+			indexOf(x): ast.NewSymbol("b"),
+			indexOf(z): y,
+			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
 		}, "(b e ,y)"),
 		tuple3(y, Substitutions{
-			{indexOf(x), ast.NewSymbol("e")},
-			{indexOf(z), x},
-			{indexOf(y), z},
+			indexOf(x): ast.NewSymbol("e"),
+			indexOf(z): x,
+			indexOf(y): z,
 		}, "e"),
 	}
 	for _, test := range tests {

@@ -9,6 +9,16 @@ func fmap[A, B any](f func(A) B, list []A) []B {
 	return out
 }
 
+func keys[A comparable, B any](m map[A]B) []A {
+	out := make([]A, len(m))
+	i := 0
+	for k := range m {
+		out[i] = k
+		i++
+	}
+	return out
+}
+
 func tuple3[A, B, C any](a A, b B, c C) func() (A, B, C) {
 	return func() (A, B, C) {
 		return a, b, c

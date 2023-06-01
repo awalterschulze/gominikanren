@@ -32,7 +32,7 @@ scheme code:
 func CallFresh(f func(*ast.SExpr) Goal) Goal {
 	return func(ctx context.Context, s *State) StreamOfStates {
 		v := Var(s.Counter)
-		ss := &State{s.Substitutions, s.Counter + 1}
+		ss := s.AddCounter()
 		return f(v)(ctx, ss)
 	}
 }

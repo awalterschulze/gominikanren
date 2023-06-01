@@ -18,7 +18,7 @@ func TestOccurs(t *testing.T) {
 		tuple4(x, x, Substitutions(nil), true),
 		tuple4(x, y, Substitutions(nil), false),
 		tuple4(x, ast.NewList(y), Substitutions{
-			SubPair{indexOf(y), x},
+			indexOf(y): x,
 		}, true),
 	}
 	for _, test := range tests {
@@ -38,23 +38,23 @@ func TestExts(t *testing.T) {
 	z := ast.NewVar("z", 2)
 	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions){
 		tuple4(x, ast.NewSymbol("a"), Substitutions(nil), Substitutions{
-			SubPair{indexOf(x), ast.NewSymbol("a")},
+			indexOf(x): ast.NewSymbol("a"),
 		}),
 		tuple4(x, ast.NewList(x), Substitutions(nil), Substitutions(nil)),
 		tuple4(x, ast.NewList(y),
 			Substitutions{
-				SubPair{indexOf(y), x},
+				indexOf(y): x,
 			},
 			Substitutions(nil)),
 		tuple4(x, ast.NewSymbol("e"),
 			Substitutions{
-				SubPair{indexOf(z), x},
-				SubPair{indexOf(y), z},
+				indexOf(z): x,
+				indexOf(y): z,
 			},
 			Substitutions{
-				SubPair{indexOf(x), ast.NewSymbol("e")},
-				SubPair{indexOf(z), x},
-				SubPair{indexOf(y), z},
+				indexOf(x): ast.NewSymbol("e"),
+				indexOf(z): x,
+				indexOf(y): z,
 			},
 		),
 	}
