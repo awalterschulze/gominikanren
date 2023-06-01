@@ -66,7 +66,16 @@ func ConsStream(ctx context.Context, s *State, proc func() StreamOfStates) Strea
 
 // NewSingletonStream returns the input state as a stream of states containing only the head state.
 func NewSingletonStream(ctx context.Context, s *State) StreamOfStates {
-	return ConsStream(ctx, s, nil)
+	newStream := make(chan *State, 0)
+	go func() {
+		defer close(newStream)
+		select {
+		case <-ctx.Done():
+			return
+		case newStream <- s:
+		}
+	}()
+	return newStream
 }
 
 // Suspension prepends a nil state infront of the input stream of states.
