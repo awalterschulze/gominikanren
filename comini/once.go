@@ -46,11 +46,11 @@ func onceLoop(ctx context.Context, ss comicro.StreamOfStates) comicro.StreamOfSt
 	if ss == nil {
 		return nil
 	}
-	car, cdr := ss.CarCdr()
-	if car != nil {
-		return comicro.NewSingletonStream(ctx, car)
+	state, rest := ss.Read(ctx)
+	if state != nil {
+		return comicro.NewSingletonStream(ctx, state)
 	}
 	return comicro.Suspension(ctx, func() comicro.StreamOfStates {
-		return onceLoop(ctx, cdr)
+		return onceLoop(ctx, rest)
 	})
 }

@@ -35,15 +35,15 @@ scheme code:
 
 not a suspension => procedure? == false
 */
-func Bind(ctx context.Context, s StreamOfStates, g Goal) StreamOfStates {
-	if s == nil {
+func Bind(ctx context.Context, stream StreamOfStates, g Goal) StreamOfStates {
+	if stream == nil {
 		return nil
 	}
-	car, cdr := s.CarCdr()
-	if car != nil { // not a suspension => procedure? == false
-		return Mplus(ctx, g(ctx, car), Bind(ctx, cdr, g))
+	state, rest := stream.Read(ctx)
+	if state != nil { // not a suspension => procedure? == false
+		return Mplus(ctx, g(ctx, state), Bind(ctx, rest, g))
 	}
 	return Suspension(ctx, func() StreamOfStates {
-		return Bind(ctx, cdr, g)
+		return Bind(ctx, rest, g)
 	})
 }
