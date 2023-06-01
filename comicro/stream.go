@@ -8,16 +8,17 @@ import (
 
 type StreamOfStates <-chan *State
 
-// CarCdr returns both the car and cdr of a stream of states
-func (stream StreamOfStates) CarCdr() (*State, StreamOfStates) {
-	if stream == nil {
+func (stream StreamOfStates) Read(ctx context.Context) (state *State, rest StreamOfStates) {
+	ok := false
+	select {
+	case state, ok = <-stream:
+	case <-ctx.Done():
 		return nil, nil
 	}
-	s, ok := <-stream
-	if !ok {
-		return s, nil
+	if ok {
+		rest = stream
 	}
-	return s, stream
+	return state, rest
 }
 
 // String returns a string representation of a stream of states.
@@ -80,30 +81,7 @@ func NewSingletonStream(ctx context.Context, s *State) StreamOfStates {
 
 // Suspension prepends a nil state infront of the input stream of states.
 func Suspension(ctx context.Context, proc func() StreamOfStates) StreamOfStates {
-	newStream := make(chan *State, 0)
-	go func() {
-		defer close(newStream)
-		select {
-		case <-ctx.Done():
-			return
-		case newStream <- nil:
-		}
-		if proc == nil {
-			return
-		}
-		stream := proc()
-		if stream == nil {
-			return
-		}
-		for state := range stream {
-			select {
-			case <-ctx.Done():
-				return
-			case newStream <- state:
-			}
-		}
-	}()
-	return newStream
+	return ConsStream(ctx, nil, proc)
 }
 
 /*

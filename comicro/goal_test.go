@@ -57,11 +57,11 @@ func TestNeverO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	n := NeverO(ctx, EmptyState())
-	s, sok := n.CarCdr()
+	s, ok := <-n
 	if s != nil {
 		t.Fatalf("expected suspension")
 	}
-	if sok == nil {
+	if !ok {
 		t.Fatalf("expected never ending")
 	}
 }
