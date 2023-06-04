@@ -58,32 +58,39 @@ func Mplus(ctx context.Context, s1, s2 StreamOfStates) StreamOfStates {
 	if s2 == nil {
 		return s1
 	}
-	s := make(chan *State, 0)
+	res := make(chan *State, 0)
 	go func() {
-		defer close(s)
-		wait := sync.WaitGroup{}
-		wait.Add(2)
-		go func() {
-			for a1 := range s1 {
-				select {
-				case <-ctx.Done():
-					return
-				case s <- a1:
-				}
-			}
-			wait.Done()
-		}()
-		go func() {
-			for a2 := range s2 {
-				select {
-				case <-ctx.Done():
-					return
-				case s <- a2:
-				}
-			}
-			wait.Done()
-		}()
-		wait.Wait()
+		defer close(res)
+		MplusWithChan(ctx, s1, s2, res)
 	}()
-	return s
+	return res
+}
+
+func MplusWithChan(ctx context.Context, s1, s2 StreamOfStates, res chan *State) {
+	wait := sync.WaitGroup{}
+	wait.Add(2)
+	go func() {
+		defer wait.Done()
+		if s1 == nil {
+			return
+		}
+		for a1 := range s1 {
+			select {
+			case <-ctx.Done():
+				return
+			case res <- a1:
+			}
+		}
+	}()
+	go func() {
+		defer wait.Done()
+		for a2 := range s2 {
+			select {
+			case <-ctx.Done():
+				return
+			case res <- a2:
+			}
+		}
+	}()
+	wait.Wait()
 }
