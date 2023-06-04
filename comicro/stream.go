@@ -8,17 +8,15 @@ import (
 
 type StreamOfStates <-chan *State
 
-func (stream StreamOfStates) Read(ctx context.Context) (state *State, rest StreamOfStates) {
-	ok := false
+func (stream StreamOfStates) Read(ctx context.Context) (*State, StreamOfStates) {
 	select {
-	case state, ok = <-stream:
+	case state, ok := <-stream:
+		if ok {
+			return state, stream
+		}
 	case <-ctx.Done():
-		return nil, nil
 	}
-	if ok {
-		rest = stream
-	}
-	return state, rest
+	return nil, nil
 }
 
 // String returns a string representation of a stream of states.
