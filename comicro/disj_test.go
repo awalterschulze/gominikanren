@@ -47,7 +47,7 @@ func TestMplusNeverO(t *testing.T) {
 	s2 := single(ctx, s_x1())
 	s := Mplus(ctx, s1, s2)
 	count := 0
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 100; i++ {
 		a, ok := <-s
 		if !ok {
 			t.Fatalf("expected never ending stream")
