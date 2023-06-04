@@ -36,6 +36,9 @@ import (
 */
 // results in all the combinations of two lists that when appended will result in (cake & ice d t)
 func TestAppendOAllCombinations(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	sexprs := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
@@ -103,6 +106,9 @@ func TestAppendOSingleAtom(t *testing.T) {
 }
 
 func TestCarO(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	y := ast.NewVariable("y")

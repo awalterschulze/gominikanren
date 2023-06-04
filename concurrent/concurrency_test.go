@@ -47,6 +47,9 @@ func memberOfLargeList(f func(...micro.Goal) micro.Goal, n int) func(*ast.SExpr)
 }
 
 func TestHeavilyConcurrentDisj(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	n := 10000
 	membero := memberOfLargeList(DisjPlus, n)
 	sexprs := micro.Run(-1, membero)

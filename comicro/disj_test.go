@@ -41,6 +41,9 @@ func TestMplusSuspend(t *testing.T) {
 }
 
 func TestMplusNeverO(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s1 := NeverO(ctx, EmptyState())
