@@ -11,16 +11,17 @@ import (
 
 /*
 (define (fib x y)
-    (conde
-    [(== x 0) (== y 0)]
-    [(== x (make-nat 1)) (== y (make-nat 1))]
-    [(fresh (n1 n2 f1 f2)
-            (succ n1 x)
-            (succ n2 n1)
-            (fib n1 f1)
-            (fib n2 f2)
-            (nat-plus f1 f2 y))]
-  ))
+
+	  (conde
+	  [(== x 0) (== y 0)]
+	  [(== x (make-nat 1)) (== y (make-nat 1))]
+	  [(fresh (n1 n2 f1 f2)
+	          (succ n1 x)
+	          (succ n2 n1)
+	          (fib n1 f1)
+	          (fib n2 f2)
+	          (nat-plus f1 f2 y))]
+	))
 */
 func fib(x, y *ast.SExpr) micro.Goal {
 	return mini.Conde(
@@ -47,6 +48,9 @@ func fib(x, y *ast.SExpr) micro.Goal {
 }
 
 func TestFibonacci(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	sexprs := micro.Run(-1, func(q *ast.SExpr) micro.Goal {
 		return fib(peano.Makenat(15), q)
 	})

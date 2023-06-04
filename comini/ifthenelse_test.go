@@ -16,6 +16,9 @@ func indexOf(x *ast.SExpr) uint64 {
 }
 
 func TestIfThenElseSuccess(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	y := ast.NewVariable("y")
@@ -35,6 +38,9 @@ func TestIfThenElseSuccess(t *testing.T) {
 }
 
 func TestIfThenElseFailure(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	y := ast.NewVariable("y")
@@ -54,6 +60,9 @@ func TestIfThenElseFailure(t *testing.T) {
 }
 
 func TestIfThenElseXIsTrue(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	// assigning var index by hand since we want x < y
@@ -77,6 +86,9 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 }
 
 func TestIfThenElseDisjoint(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	// assigning var index by hand since we want x < y

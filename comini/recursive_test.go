@@ -28,6 +28,9 @@ func veryRecursiveO(ctx context.Context, s *comicro.State) comicro.StreamOfState
 }
 
 func TestRecursive(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ss := comicro.RunGoal(ctx,

@@ -54,6 +54,9 @@ func TestSuccessO(t *testing.T) {
 }
 
 func TestNeverO(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	n := NeverO(ctx, EmptyState())
@@ -67,6 +70,9 @@ func TestNeverO(t *testing.T) {
 }
 
 func TestDisj1(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	x := ast.NewVariable("x")
@@ -97,6 +103,9 @@ func TestDisj1(t *testing.T) {
 }
 
 func TestDisj2(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	x := ast.NewVariable("x")
@@ -127,6 +136,9 @@ func TestDisj2(t *testing.T) {
 }
 
 func TestAlwaysO(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	a := AlwaysO(ctx, EmptyState())
@@ -148,6 +160,9 @@ func TestAlwaysO(t *testing.T) {
 }
 
 func TestRunGoalAlways3(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ss := RunGoal(ctx, 3, AlwaysO)
