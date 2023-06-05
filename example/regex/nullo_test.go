@@ -1,29 +1,14 @@
 package regex
 
 import (
-	"context"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func nullo(t *testing.T, f func(q *ast.SExpr) comicro.Goal, want *ast.SExpr) {
-	t.Helper()
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	sexprs := comicro.Run(ctx, 1, f)
-	if len(sexprs) != 1 {
-		t.Fatalf("expected len %d result, but got %d instead", 1, len(sexprs))
-	}
-	got := sexprs[0]
-	if !got.Equal(want) {
-		t.Fatalf("expected %s, but got %s instead", want, got)
-	}
-}
-
 func TestNullOEmptySet(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(EmptySet(), q)
@@ -33,7 +18,7 @@ func TestNullOEmptySet(t *testing.T) {
 }
 
 func TestNullOEmptyStr(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(EmptyStr(), q)
@@ -43,7 +28,7 @@ func TestNullOEmptyStr(t *testing.T) {
 }
 
 func TestNullOChar(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Char('a'), q)
@@ -53,7 +38,7 @@ func TestNullOChar(t *testing.T) {
 }
 
 func TestNullOOrNilNil(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Or(EmptyStr(), EmptyStr()), q)
@@ -63,7 +48,7 @@ func TestNullOOrNilNil(t *testing.T) {
 }
 
 func TestNullOOrNilA(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Or(EmptyStr(), Char('a')), q)
@@ -73,7 +58,7 @@ func TestNullOOrNilA(t *testing.T) {
 }
 
 func TestNullOOrANil(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Or(Char('a'), EmptyStr()), q)
@@ -83,7 +68,7 @@ func TestNullOOrANil(t *testing.T) {
 }
 
 func TestNullOOrAB(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Or(Char('a'), Char('b')), q)
@@ -93,7 +78,7 @@ func TestNullOOrAB(t *testing.T) {
 }
 
 func TestNullOConcatNilNil(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Concat(EmptyStr(), EmptyStr()), q)
@@ -103,7 +88,7 @@ func TestNullOConcatNilNil(t *testing.T) {
 }
 
 func TestNullOConcatNilA(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Concat(EmptyStr(), Char('a')), q)
@@ -113,7 +98,7 @@ func TestNullOConcatNilA(t *testing.T) {
 }
 
 func TestNullOConcatANil(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Concat(Char('a'), EmptyStr()), q)
@@ -123,7 +108,7 @@ func TestNullOConcatANil(t *testing.T) {
 }
 
 func TestNullOConcatAB(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Concat(Char('a'), Char('b')), q)
@@ -133,7 +118,7 @@ func TestNullOConcatAB(t *testing.T) {
 }
 
 func TestNullOStar(t *testing.T) {
-	nullo(
+	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
 			return NullO(Star(Char('a')), q)
