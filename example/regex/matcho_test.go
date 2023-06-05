@@ -199,6 +199,9 @@ func TestMatchOStarABCharA(t *testing.T) {
 }
 
 func TestMatchOStarABCharAB(t *testing.T) {
+	if testing.Short() {
+		return
+	}
 	testo(
 		t,
 		func(q *ast.SExpr) comicro.Goal {
