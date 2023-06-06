@@ -36,3 +36,19 @@ func CallFresh(f func(*ast.SExpr) Goal) Goal {
 		return f(v)(ctx, ss)
 	}
 }
+
+// calls n new fresh vars, it is up to the user to use them
+// (ie by assigning them to go vars in f)
+// not ideal, but better than 5 nested callfresh calls...
+func Fresh(n int, f func(...*ast.SExpr) Goal) Goal {
+    return func(ctx context.Context, s *State) StreamOfStates {
+        ss := s
+        vars := make([]*ast.SExpr, n)
+        for i:=0; i<n; i++ {
+            v := Var(ss.Counter)
+            vars[i] = v
+            ss = ss.AddCounter()
+        }
+        return f(vars...)(ctx, ss)
+    }
+}
