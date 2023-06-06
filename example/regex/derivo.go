@@ -26,20 +26,15 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 				),
 			)
 		}),
-		comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(func(da *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(func(db *ast.SExpr) comicro.Goal {
-						return comini.ConjPlus(
-							comicro.EqualO(r, Or(a, b)),
-							DerivO(a, char, da),
-							DerivO(b, char, db),
-							comicro.EqualO(out, Or(da, db)),
-						)
-					})
-				})
-			})
-		}),
+        comicro.Fresh(4, func(vars ...*ast.SExpr) comicro.Goal {
+            a, da, b, db := vars[0], vars[1], vars[2], vars[3]
+			return comini.ConjPlus(
+				comicro.EqualO(r, Or(a, b)),
+				DerivO(a, char, da),
+				DerivO(b, char, db),
+				comicro.EqualO(out, Or(da, db)),
+			)
+        }),
 		comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
 			return comicro.CallFresh(func(da *ast.SExpr) comicro.Goal {
 				return comicro.CallFresh(func(na *ast.SExpr) comicro.Goal {
