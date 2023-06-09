@@ -24,6 +24,18 @@ func (ss StreamOfStates) Read(ctx context.Context) (*State, bool) {
 	return nil, false
 }
 
+func (ss StreamOfStates) ReadNonNull(ctx context.Context) (*State, bool) {
+	for {
+		s, ok := ss.Read(ctx)
+		if !ok {
+			return nil, false
+		}
+		if s != nil {
+			return s, true
+		}
+	}
+}
+
 func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
 	if ss == nil {
 		return false

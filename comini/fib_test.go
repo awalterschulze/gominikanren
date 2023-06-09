@@ -80,20 +80,15 @@ func fib(conj func(...comicro.Goal) comicro.Goal, x, y *ast.SExpr) comicro.Goal 
 		[]comicro.Goal{comicro.EqualO(x, zero), comicro.EqualO(y, zero)},
 		[]comicro.Goal{comicro.EqualO(x, one), comicro.EqualO(y, one)},
 		[]comicro.Goal{
-			comicro.CallFresh(func(n1 *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(func(n2 *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(func(f1 *ast.SExpr) comicro.Goal {
-						return comicro.CallFresh(func(f2 *ast.SExpr) comicro.Goal {
-							return conj(
-								succ(n1, x),
-								succ(n2, n1),
-								fib(conj, n1, f1),
-								fib(conj, n2, f2),
-								natplus(f1, f2, y),
-							)
-						})
-					})
-				})
+			comicro.Fresh(4, func(vars ...*ast.SExpr) comicro.Goal {
+				n1, n2, f1, f2 := vars[0], vars[1], vars[2], vars[3]
+				return conj(
+					succ(n1, x),
+					succ(n2, n1),
+					fib(conj, n1, f1),
+					fib(conj, n2, f2),
+					natplus(f1, f2, y),
+				)
 			}),
 		},
 	)

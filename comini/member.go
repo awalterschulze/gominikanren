@@ -72,20 +72,14 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x, y *ast.SExpr) comicro.
 			comicro.EqualO(y, nil),
 		},
 		[]comicro.Goal{
-			// really missing Fresh (xa xd ya yd) here
-			comicro.CallFresh(func(xa *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(func(xd *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(func(ya *ast.SExpr) comicro.Goal {
-						return comicro.CallFresh(func(yd *ast.SExpr) comicro.Goal {
-							return ConjPlus(
-								comicro.EqualO(x, ast.Cons(xa, xd)),
-								comicro.EqualO(y, ast.Cons(ya, yd)),
-								f(xa, ya),
-								MapO(f, xd, yd),
-							)
-						})
-					})
-				})
+			comicro.Fresh(4, func(vars ...*ast.SExpr) comicro.Goal {
+				xa, xd, ya, yd := vars[0], vars[1], vars[2], vars[3]
+				return ConjPlus(
+					comicro.EqualO(x, ast.Cons(xa, xd)),
+					comicro.EqualO(y, ast.Cons(ya, yd)),
+					f(xa, ya),
+					MapO(f, xd, yd),
+				)
 			}),
 		},
 	)
