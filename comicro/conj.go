@@ -1,6 +1,9 @@
 package comicro
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
 /*
 Conj is a goal that returns a logical AND of the input goals.
@@ -36,15 +39,17 @@ scheme code:
 not a suspension => procedure? == false
 */
 func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates) {
-	headState, ok := stream.ReadNonNull(ctx)
-	if !ok {
-		return
+	wait := sync.WaitGroup{}
+	for {
+		state, ok := stream.ReadNonNull(ctx)
+		if !ok {
+			break
+		}
+		wait.Add(1)
+		go func() {
+			defer wait.Done()
+			g(ctx, state, res)
+		}()
 	}
-	heads := NewStreamForGoal(ctx, g, headState)
-	rests := NewEmptyStream()
-	go func() {
-		defer close(rests)
-		Bind(ctx, stream, g, rests)
-	}()
-	Mplus(ctx, heads, rests, res)
+	wait.Wait()
 }
