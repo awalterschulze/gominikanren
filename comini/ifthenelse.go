@@ -65,34 +65,22 @@ let loop not only declares a function, called loop, but also calls it, in the sa
 */
 func IfThenElseO(cond, thn, els comicro.Goal) comicro.Goal {
 	return func(ctx context.Context, s *comicro.State, ss comicro.StreamOfStates) {
-		conds := comicro.NewEmptyStream()
-		go func() {
-			defer close(conds)
-			cond(ctx, s, conds)
-		}()
-		ifThenElseLoop(ctx, thn, els, s, conds, ss)
+		conds := comicro.NewStreamForGoal(ctx, cond, s)
+		ifThenElseO(ctx, conds, thn, els, s, ss)
 	}
 }
 
-func ifThenElseLoop(ctx context.Context, thn, els comicro.Goal, s *comicro.State, cond comicro.StreamOfStates, res comicro.StreamOfStates) {
-	if cond == nil {
+func ifThenElseO(ctx context.Context, conds comicro.StreamOfStates, thn, els comicro.Goal, s *comicro.State, res comicro.StreamOfStates) {
+	headState, ok := conds.ReadNonNull(ctx)
+	if !ok {
 		els(ctx, s, res)
 		return
 	}
-	var rest comicro.StreamOfStates = nil
-	headState, ok := cond.Read(ctx)
-	if ok {
-		rest = cond
-	}
-	if headState != nil {
-		heads := comicro.NewStreamForGoal(ctx, thn, headState)
-		rests := comicro.NewEmptyStream()
-		go func() {
-			defer close(rests)
-			comicro.Bind(ctx, rest, thn, rests)
-		}()
-		comicro.Mplus(ctx, heads, rests, res)
-		return
-	}
-	ifThenElseLoop(ctx, thn, els, s, rest, res)
+	heads := comicro.NewStreamForGoal(ctx, thn, headState)
+	rests := comicro.NewEmptyStream()
+	go func() {
+		defer close(rests)
+		comicro.Bind(ctx, conds, thn, rests)
+	}()
+	comicro.Mplus(ctx, heads, rests, res)
 }

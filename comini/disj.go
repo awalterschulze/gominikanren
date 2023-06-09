@@ -38,30 +38,13 @@ func toStreams(ctx context.Context, gs []comicro.Goal, s *comicro.State) []comic
 }
 
 func Mplus(ctx context.Context, sss []comicro.StreamOfStates, ss comicro.StreamOfStates) {
-	sss = filterNulls(sss)
-	if len(sss) == 0 {
-		return
-	}
 	wait := sync.WaitGroup{}
 	wait.Add(len(sss))
 	for _, s1 := range sss {
-		f := func(s11 comicro.StreamOfStates) func() {
-			return func() {
-				defer wait.Done()
-				comicro.WriteStreamTo(ctx, s11, ss)
-			}
+		go func(s11 comicro.StreamOfStates) {
+			defer wait.Done()
+			comicro.WriteStreamTo(ctx, s11, ss)
 		}(s1)
-		go f()
 	}
 	wait.Wait()
-}
-
-func filterNulls(ss []comicro.StreamOfStates) []comicro.StreamOfStates {
-	res := []comicro.StreamOfStates{}
-	for _, s := range ss {
-		if s != nil {
-			res = append(res, s)
-		}
-	}
-	return res
 }

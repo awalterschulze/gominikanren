@@ -36,23 +36,15 @@ scheme code:
 not a suspension => procedure? == false
 */
 func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates) {
-	if stream == nil {
+	headState, ok := stream.ReadNonNull(ctx)
+	if !ok {
 		return
 	}
-	state, ok := stream.Read(ctx)
-	var rest StreamOfStates = nil
-	if ok {
-		rest = stream
-	}
-	if state != nil { // not a suspension => procedure? == false
-		gs := NewStreamForGoal(ctx, g, state)
-		bs := NewEmptyStream()
-		go func() {
-			defer close(bs)
-			Bind(ctx, rest, g, bs)
-		}()
-		Mplus(ctx, gs, bs, res)
-		return
-	}
-	Bind(ctx, rest, g, res)
+	heads := NewStreamForGoal(ctx, g, headState)
+	rests := NewEmptyStream()
+	go func() {
+		defer close(rests)
+		Bind(ctx, stream, g, rests)
+	}()
+	Mplus(ctx, heads, rests, res)
 }
