@@ -73,7 +73,11 @@ func ifThenElseLoop(ctx context.Context, thn, els comicro.Goal, s *comicro.State
 	if cond == nil {
 		return els(ctx, s)
 	}
-	headState, rest := cond.Read(ctx)
+	var rest comicro.StreamOfStates = nil
+	headState, ok := cond.Read(ctx)
+	if ok {
+		rest = cond
+	}
 	if headState != nil {
 		return comicro.Mplus(ctx, thn(ctx, headState), comicro.Bind(ctx, rest, thn))
 	}

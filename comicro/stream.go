@@ -6,17 +6,44 @@ import (
 	"strings"
 )
 
-type StreamOfStates <-chan *State
+type StreamOfStates chan *State
 
-func (stream StreamOfStates) Read(ctx context.Context) (*State, StreamOfStates) {
+func NewEmptyStream() StreamOfStates {
+	return make(chan *State, 0)
+}
+
+func (stream StreamOfStates) Read(ctx context.Context) (*State, bool) {
+	if stream == nil {
+		return nil, false
+	}
 	select {
 	case state, ok := <-stream:
-		if ok {
-			return state, stream
-		}
+		return state, ok
 	case <-ctx.Done():
 	}
-	return nil, nil
+	return nil, false
+}
+
+func (stream StreamOfStates) Write(ctx context.Context, s *State) bool {
+	if stream == nil {
+		return false
+	}
+	select {
+	case <-ctx.Done():
+		return false
+	case stream <- s:
+		return true
+	}
+}
+
+func WriteStreamTo(ctx context.Context, src StreamOfStates, dst StreamOfStates) {
+	for {
+		s, ok := src.Read(ctx)
+		if !ok {
+			return
+		}
+		dst.Write(ctx, s)
+	}
 }
 
 // String returns a string representation of a stream of states.
@@ -65,14 +92,10 @@ func ConsStream(ctx context.Context, s *State, proc func() StreamOfStates) Strea
 
 // NewSingletonStream returns the input state as a stream of states containing only the head state.
 func NewSingletonStream(ctx context.Context, s *State) StreamOfStates {
-	newStream := make(chan *State, 0)
+	newStream := NewEmptyStream()
 	go func() {
 		defer close(newStream)
-		select {
-		case <-ctx.Done():
-			return
-		case newStream <- s:
-		}
+		newStream.Write(ctx, s)
 	}()
 	return newStream
 }
