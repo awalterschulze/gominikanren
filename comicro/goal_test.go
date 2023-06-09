@@ -28,8 +28,8 @@ func TestEqualO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			stream := EqualO(uexpr, vexpr)(ctx, EmptyState())
-			got := stream.String()
+			ss := NewStreamForGoal(ctx, EqualO(uexpr, vexpr), EmptyState())
+			got := ss.String()
 			if got != want {
 				t.Fatalf("got %s want %s", got, want)
 			}
@@ -40,7 +40,8 @@ func TestEqualO(t *testing.T) {
 func TestFailureO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	if got, want := FailureO(ctx, EmptyState()).String(), "()"; got != want {
+	ss := NewStreamForGoal(ctx, FailureO, EmptyState())
+	if got, want := ss.String(), "()"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
@@ -48,7 +49,8 @@ func TestFailureO(t *testing.T) {
 func TestSuccessO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	if got, want := SuccessO(ctx, EmptyState()).String(), "((() . 0))"; got != want {
+	ss := NewStreamForGoal(ctx, SuccessO, EmptyState())
+	if got, want := ss.String(), "((() . 0))"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
@@ -59,8 +61,8 @@ func TestNeverO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	n := NeverO(ctx, EmptyState())
-	s, ok := <-n
+	ss := NewStreamForGoal(ctx, NeverO, EmptyState())
+	s, ok := <-ss
 	if s != nil {
 		t.Fatalf("expected suspension")
 	}
@@ -76,15 +78,18 @@ func TestDisj1(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	x := ast.NewVariable("x")
-	d := Disj(
-		EqualO(
-			ast.NewSymbol("olive"),
-			x,
+	ss := NewStreamForGoal(ctx,
+		Disj(
+			EqualO(
+				ast.NewSymbol("olive"),
+				x,
+			),
+			NeverO,
 		),
-		NeverO,
-	)(ctx, EmptyState())
+		EmptyState(),
+	)
 	var s *State
-	for s = range d {
+	for s = range ss {
 		if s != nil {
 			break
 		}
@@ -96,7 +101,7 @@ func TestDisj1(t *testing.T) {
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
-	_, ok := <-d
+	_, ok := <-ss
 	if !ok {
 		t.Fatalf("expected never ending")
 	}
@@ -109,14 +114,17 @@ func TestDisj2(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	x := ast.NewVariable("x")
-	d := Disj(
-		NeverO,
-		EqualO(
-			ast.NewSymbol("olive"),
-			x,
+	ss := NewStreamForGoal(ctx,
+		Disj(
+			NeverO,
+			EqualO(
+				ast.NewSymbol("olive"),
+				x,
+			),
 		),
-	)(ctx, EmptyState())
-	for s := range d {
+		EmptyState(),
+	)
+	for s := range ss {
 		if s != nil {
 			got := s.String()
 			// reifying y; we assigned it a random uint64 and lost track of it
@@ -128,7 +136,7 @@ func TestDisj2(t *testing.T) {
 			break
 		}
 	}
-	_, ok := <-d
+	_, ok := <-ss
 	if !ok {
 		t.Fatalf("expected never ending")
 	}
@@ -141,9 +149,9 @@ func TestAlwaysO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	a := AlwaysO(ctx, EmptyState())
+	ss := NewStreamForGoal(ctx, AlwaysO, EmptyState())
 	var s *State
-	for s = range a {
+	for s = range ss {
 		if s != nil {
 			break
 		}
@@ -153,7 +161,7 @@ func TestAlwaysO(t *testing.T) {
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
-	_, ok := <-a
+	_, ok := <-ss
 	if !ok {
 		t.Fatalf("expected never ending")
 	}

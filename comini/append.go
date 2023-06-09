@@ -45,26 +45,24 @@ scheme code:
 	)
 */
 func AppendO(l, t, out *ast.SExpr) comicro.Goal {
-	return comicro.Zzz(
-		comicro.Disj(
-			comicro.Conj(
-				NullO(l),
-				comicro.EqualO(t, out),
-			),
-			comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(func(res *ast.SExpr) comicro.Goal {
-						return comicro.Conj(
-							ConsO(a, d, l),
-							comicro.Conj(
-								ConsO(a, res, out),
-								AppendO(d, t, res),
-							),
-						)
-					})
-				})
-			}),
+	return comicro.Disj(
+		comicro.Conj(
+			NullO(l),
+			comicro.EqualO(t, out),
 		),
+		comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(func(res *ast.SExpr) comicro.Goal {
+					return comicro.Conj(
+						ConsO(a, d, l),
+						comicro.Conj(
+							ConsO(a, res, out),
+							AppendO(d, t, res),
+						),
+					)
+				})
+			})
+		}),
 	)
 }
 
@@ -75,9 +73,9 @@ func NullO(x *ast.SExpr) comicro.Goal {
 
 // ConsO is a goal that conses the first two expressions into the third.
 func ConsO(a, d, p *ast.SExpr) comicro.Goal {
-	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
+	return func(ctx context.Context, s *comicro.State, ss comicro.StreamOfStates) {
 		l := ast.Cons(a, d)
-		return comicro.EqualO(l, p)(ctx, s)
+		comicro.EqualO(l, p)(ctx, s, ss)
 	}
 }
 

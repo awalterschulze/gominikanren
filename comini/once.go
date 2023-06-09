@@ -37,14 +37,15 @@ scheme code:
 	)
 */
 func OnceO(g comicro.Goal) comicro.Goal {
-	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
-		return onceLoop(ctx, g(ctx, s))
+	return func(ctx context.Context, s *comicro.State, ss comicro.StreamOfStates) {
+		gs := comicro.NewStreamForGoal(ctx, g, s)
+		onceLoop(ctx, gs, ss)
 	}
 }
 
-func onceLoop(ctx context.Context, ss comicro.StreamOfStates) comicro.StreamOfStates {
+func onceLoop(ctx context.Context, ss comicro.StreamOfStates, res comicro.StreamOfStates) {
 	if ss == nil {
-		return nil
+		return
 	}
 	var rest comicro.StreamOfStates = nil
 	state, ok := ss.Read(ctx)
@@ -52,9 +53,8 @@ func onceLoop(ctx context.Context, ss comicro.StreamOfStates) comicro.StreamOfSt
 		rest = ss
 	}
 	if state != nil {
-		return comicro.NewSingletonStream(ctx, state)
+		res.Write(ctx, state)
+		return
 	}
-	return comicro.Suspension(ctx, func() comicro.StreamOfStates {
-		return onceLoop(ctx, rest)
-	})
+	onceLoop(ctx, rest, res)
 }

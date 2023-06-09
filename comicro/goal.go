@@ -7,7 +7,7 @@ import (
 )
 
 // Goal is a function that takes a state and returns a stream of states.
-type Goal func(context.Context, *State) StreamOfStates
+type Goal func(context.Context, *State, StreamOfStates)
 
 /*
 RunGoal calls a goal with an emptystate and n possible resulting states.
@@ -21,31 +21,26 @@ scheme code:
 If n == -1 then all possible states are returned.
 */
 func RunGoal(ctx context.Context, n int, g Goal) []*State {
-	ss := g(ctx, EmptyState())
+	ss := NewStreamForGoal(ctx, g, EmptyState())
 	return takeStream(n, ss)
 }
 
 // Run behaves like the default miniKanren run command
 func Run(ctx context.Context, n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
 	v := Var(0)
-	ss := g(v)(ctx, &State{nil, 1})
+	ss := NewStreamForGoal(ctx, g(v), &State{nil, 1})
 	states := takeStream(n, ss)
 	return MKReify(states)
 }
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
-func SuccessO(ctx context.Context, s *State) StreamOfStates {
-	newStream := NewEmptyStream()
-	go func() {
-		defer close(newStream)
-		newStream.Write(ctx, s)
-	}()
-	return newStream
+func SuccessO(ctx context.Context, s *State, ss StreamOfStates) {
+	ss.Write(ctx, s)
 }
 
 // FailureO is a goal that always returns an empty stream of states.
-func FailureO(ctx context.Context, s *State) StreamOfStates {
-	return nil
+func FailureO(ctx context.Context, s *State, ss StreamOfStates) {
+	return
 }
 
 /*
@@ -62,18 +57,8 @@ scheme code:
 	)
 */
 func EqualO(u, v *ast.SExpr) Goal {
-	return func(ctx context.Context, s *State) StreamOfStates {
-		newStream := NewEmptyStream()
-		go func() {
-			defer close(newStream)
-			ss, sok := unify(u, v, s.Substitutions)
-			var res *State = nil
-			if sok {
-				res = &State{Substitutions: ss, Counter: s.Counter}
-			}
-			newStream.Write(ctx, res)
-		}()
-		return newStream
+	return func(ctx context.Context, s *State, ss StreamOfStates) {
+		ss.Write(ctx, Unify(s, u, v))
 	}
 }
 
@@ -90,17 +75,12 @@ scheme code:
 		)
 	)
 */
-func NeverO(ctx context.Context, s *State) StreamOfStates {
-	newStream := NewEmptyStream()
-	go func() {
-		defer close(newStream)
-		for {
-			if ok := newStream.Write(ctx, nil); !ok {
-				return
-			}
+func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
+	for {
+		if ok := ss.Write(ctx, nil); !ok {
+			return
 		}
-	}()
-	return newStream
+	}
 }
 
 /*
@@ -122,18 +102,13 @@ scheme code:
 		)
 	)
 */
-func AlwaysO(ctx context.Context, s *State) StreamOfStates {
-	newStream := NewEmptyStream()
-	go func() {
-		defer close(newStream)
-		for {
-			if ok := newStream.Write(ctx, nil); !ok {
-				return
-			}
-			if ok := newStream.Write(ctx, s); !ok {
-				return
-			}
+func AlwaysO(ctx context.Context, s *State, ss StreamOfStates) {
+	for {
+		if ok := ss.Write(ctx, nil); !ok {
+			return
 		}
-	}()
-	return newStream
+		if ok := ss.Write(ctx, s); !ok {
+			return
+		}
+	}
 }

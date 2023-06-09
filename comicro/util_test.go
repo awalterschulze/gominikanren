@@ -41,15 +41,3 @@ func empty() *State {
 func single(ctx context.Context, s *State) StreamOfStates {
 	return NewSingletonStream(ctx, s)
 }
-
-func cons(ctx context.Context, s *State, ss StreamOfStates) StreamOfStates {
-	return ConsStream(ctx, s, func() StreamOfStates {
-		return ss
-	})
-}
-
-func suspend(ctx context.Context, ss StreamOfStates) StreamOfStates {
-	return Suspension(ctx, func() StreamOfStates {
-		return ss
-	})
-}

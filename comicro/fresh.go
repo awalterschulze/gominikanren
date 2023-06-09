@@ -30,10 +30,10 @@ scheme code:
 	)
 */
 func CallFresh(f func(*ast.SExpr) Goal) Goal {
-	return func(ctx context.Context, s *State) StreamOfStates {
+	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		v := Var(s.Counter)
-		ss := s.AddCounter()
-		return f(v)(ctx, ss)
+		s1 := s.AddCounter()
+		f(v)(ctx, s1, ss)
 	}
 }
 
@@ -41,14 +41,14 @@ func CallFresh(f func(*ast.SExpr) Goal) Goal {
 // (ie by assigning them to go vars in f)
 // not ideal, but better than 5 nested callfresh calls...
 func Fresh(n int, f func(...*ast.SExpr) Goal) Goal {
-    return func(ctx context.Context, s *State) StreamOfStates {
-        ss := s
-        vars := make([]*ast.SExpr, n)
-        for i:=0; i<n; i++ {
-            v := Var(ss.Counter)
-            vars[i] = v
-            ss = ss.AddCounter()
-        }
-        return f(vars...)(ctx, ss)
-    }
+	return func(ctx context.Context, s *State, ss StreamOfStates) {
+		s1 := s
+		vars := make([]*ast.SExpr, n)
+		for i := 0; i < n; i++ {
+			v := Var(s1.Counter)
+			vars[i] = v
+			s1 = s1.AddCounter()
+		}
+		f(vars...)(ctx, s1, ss)
+	}
 }

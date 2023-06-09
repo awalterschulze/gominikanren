@@ -30,7 +30,7 @@ but we can optimise if we detect y is bound
 	  )))
 */
 func MemberO(x, y *ast.SExpr) comicro.Goal {
-	return comicro.Zzz(comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
+	return comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
 		return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
 			return comicro.Conj(
 				comicro.EqualO(y, ast.Cons(a, d)),
@@ -40,31 +40,7 @@ func MemberO(x, y *ast.SExpr) comicro.Goal {
 				),
 			)
 		})
-	}))
-}
-
-// MemberOUnrolled is the partial application version of MemberO
-// taking the second argument (the list) first
-func MemberOUnrolled(y *ast.SExpr) func(*ast.SExpr) comicro.Goal {
-	goals := []func(*ast.SExpr) comicro.Goal{}
-	for {
-		if y == nil {
-			break
-		}
-		car, cdr := y.Car(), y.Cdr()
-		goals = append(goals, func(x *ast.SExpr) comicro.Goal {
-			return comicro.EqualO(x, car)
-		})
-		y = cdr
-	}
-	n := len(goals)
-	return func(x *ast.SExpr) comicro.Goal {
-		gs := make([]comicro.Goal, n)
-		for i, g := range goals {
-			gs[i] = g(x)
-		}
-		return DisjPlus(gs...)
-	}
+	})
 }
 
 /*
@@ -113,62 +89,4 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x, y *ast.SExpr) comicro.
 			}),
 		},
 	)
-}
-
-// MapOUnrolled is partial application of MapO with y already filled in
-func MapOUnrolled(list *ast.SExpr) func(func(*ast.SExpr, *ast.SExpr) comicro.Goal, *ast.SExpr) comicro.Goal {
-	goals := []func(func(*ast.SExpr, *ast.SExpr) comicro.Goal, *ast.SExpr) comicro.Goal{}
-	for {
-		if list == nil {
-			break
-		}
-		car, cdr := list.Car(), list.Cdr()
-		goals = append(goals, func(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x *ast.SExpr) comicro.Goal {
-			return f(x, car)
-		})
-		list = cdr
-	}
-	n := len(goals)
-	return func(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x *ast.SExpr) comicro.Goal {
-		gs := make([]comicro.Goal, n+1)
-		vars := make([]*ast.SExpr, n)
-		var cons *ast.SExpr = nil
-		for i := 0; i < n; i++ {
-			v := ast.NewVariable("")
-			vars[i] = v
-			gs[n-i] = goals[n-i-1](f, v)
-			cons = ast.Cons(v, cons)
-		}
-		gs[0] = comicro.EqualO(x, cons)
-		return ConjPlus(gs...)
-	}
-}
-
-// MapODoubleUnrolled is partial application of MapO with f and y already filled in
-func MapODoubleUnrolled(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, list *ast.SExpr) func(*ast.SExpr) comicro.Goal {
-	goals := []func(*ast.SExpr) comicro.Goal{}
-	for {
-		if list == nil {
-			break
-		}
-		car, cdr := list.Car(), list.Cdr()
-		goals = append(goals, func(x *ast.SExpr) comicro.Goal {
-			return f(x, car)
-		})
-		list = cdr
-	}
-	n := len(goals)
-	return func(x *ast.SExpr) comicro.Goal {
-		gs := make([]comicro.Goal, n+1)
-		vars := make([]*ast.SExpr, n)
-		var cons *ast.SExpr = nil
-		for i := 0; i < n; i++ {
-			v := ast.NewVariable("")
-			vars[i] = v
-			gs[n-i] = goals[n-i-1](v)
-			cons = ast.Cons(v, cons)
-		}
-		gs[0] = comicro.EqualO(x, cons)
-		return ConjPlus(gs...)
-	}
 }

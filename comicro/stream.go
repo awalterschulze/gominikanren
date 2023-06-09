@@ -12,28 +12,32 @@ func NewEmptyStream() StreamOfStates {
 	return make(chan *State, 0)
 }
 
-func (stream StreamOfStates) Read(ctx context.Context) (*State, bool) {
-	if stream == nil {
+func (ss StreamOfStates) Read(ctx context.Context) (*State, bool) {
+	if ss == nil {
 		return nil, false
 	}
 	select {
-	case state, ok := <-stream:
-		return state, ok
+	case s, ok := <-ss:
+		return s, ok
 	case <-ctx.Done():
 	}
 	return nil, false
 }
 
-func (stream StreamOfStates) Write(ctx context.Context, s *State) bool {
-	if stream == nil {
+func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
+	if ss == nil {
 		return false
 	}
 	select {
 	case <-ctx.Done():
 		return false
-	case stream <- s:
+	case ss <- s:
 		return true
 	}
+}
+
+func (ss StreamOfStates) Close() {
+	close(ss)
 }
 
 func WriteStreamTo(ctx context.Context, src StreamOfStates, dst StreamOfStates) {
@@ -42,16 +46,18 @@ func WriteStreamTo(ctx context.Context, src StreamOfStates, dst StreamOfStates) 
 		if !ok {
 			return
 		}
-		dst.Write(ctx, s)
+		if ok := dst.Write(ctx, s); !ok {
+			return
+		}
 	}
 }
 
 // String returns a string representation of a stream of states.
 // Warning: If the list is infinite this function will not terminate.
-func (stream StreamOfStates) String() string {
+func (ss StreamOfStates) String() string {
 	buf := []string{}
-	if stream != nil {
-		for s := range stream {
+	if ss != nil {
+		for s := range ss {
 			if s != nil {
 				buf = append(buf, s.String())
 			}
@@ -61,65 +67,27 @@ func (stream StreamOfStates) String() string {
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
-// ConsStream returns a stream from a head plus a continuation
-func ConsStream(ctx context.Context, s *State, proc func() StreamOfStates) StreamOfStates {
-	c := make(chan *State, 0)
-	go func() {
-		defer close(c)
-		select {
-		case <-ctx.Done():
-			return
-		case c <- s:
-		}
-
-		if proc == nil {
-			return
-		}
-		stream := proc()
-		if stream == nil {
-			return
-		}
-		for s := range stream {
-			select {
-			case <-ctx.Done():
-				return
-			case c <- s:
-			}
-		}
-	}()
-	return c
-}
-
 // NewSingletonStream returns the input state as a stream of states containing only the head state.
 func NewSingletonStream(ctx context.Context, s *State) StreamOfStates {
-	newStream := NewEmptyStream()
+	ss := NewEmptyStream()
 	go func() {
-		defer close(newStream)
-		newStream.Write(ctx, s)
+		defer close(ss)
+		ss.Write(ctx, s)
 	}()
-	return newStream
+	return ss
 }
 
-// Suspension prepends a nil state infront of the input stream of states.
-func Suspension(ctx context.Context, proc func() StreamOfStates) StreamOfStates {
-	return ConsStream(ctx, nil, proc)
+func NewStreamForGoal(ctx context.Context, g Goal, s *State) StreamOfStates {
+	ss := NewEmptyStream()
+	go func() {
+		defer close(ss)
+		g(ctx, s, ss)
+	}()
+	return ss
 }
 
 /*
 Zzz is the macro to add inverse-eta-delay less tediously
-
-(define- syntax Zzz
-(syntax- rules ()
-
-	((_ g) (λg (s/c) (λ$ () (g s/c))))))
-*/
-func Zzz(g Goal) Goal {
-	return func(ctx context.Context, s *State) StreamOfStates {
-		return Suspension(ctx, func() StreamOfStates {
-			return g(ctx, s)
-		})
-	}
-}
 
 /*
 takeStream returns the first n states from the stream of states as a list.
