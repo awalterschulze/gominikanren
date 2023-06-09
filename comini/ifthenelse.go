@@ -64,14 +64,20 @@ scheme code:
 let loop not only declares a function, called loop, but also calls it, in the same line.
 */
 func IfThenElseO(cond, thn, els comicro.Goal) comicro.Goal {
-	return func(ctx context.Context, s *comicro.State) comicro.StreamOfStates {
-		return ifThenElseLoop(ctx, thn, els, s, cond(ctx, s))
+	return func(ctx context.Context, s *comicro.State, ss comicro.StreamOfStates) {
+		conds := comicro.NewEmptyStream()
+		go func() {
+			defer close(conds)
+			cond(ctx, s, conds)
+		}()
+		ifThenElseLoop(ctx, thn, els, s, conds, ss)
 	}
 }
 
-func ifThenElseLoop(ctx context.Context, thn, els comicro.Goal, s *comicro.State, cond comicro.StreamOfStates) comicro.StreamOfStates {
+func ifThenElseLoop(ctx context.Context, thn, els comicro.Goal, s *comicro.State, cond comicro.StreamOfStates, res comicro.StreamOfStates) {
 	if cond == nil {
-		return els(ctx, s)
+		els(ctx, s, res)
+		return
 	}
 	var rest comicro.StreamOfStates = nil
 	headState, ok := cond.Read(ctx)
@@ -79,9 +85,14 @@ func ifThenElseLoop(ctx context.Context, thn, els comicro.Goal, s *comicro.State
 		rest = cond
 	}
 	if headState != nil {
-		return comicro.Mplus(ctx, thn(ctx, headState), comicro.Bind(ctx, rest, thn))
+		heads := comicro.NewStreamForGoal(ctx, thn, headState)
+		rests := comicro.NewEmptyStream()
+		go func() {
+			defer close(rests)
+			comicro.Bind(ctx, rest, thn, rests)
+		}()
+		comicro.Mplus(ctx, heads, rests, res)
+		return
 	}
-	return comicro.Suspension(ctx, func() comicro.StreamOfStates {
-		return ifThenElseLoop(ctx, thn, els, s, rest)
-	})
+	ifThenElseLoop(ctx, thn, els, s, rest, res)
 }

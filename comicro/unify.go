@@ -57,3 +57,11 @@ func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 	}
 	return nil, false
 }
+
+func Unify(s *State, u, v *ast.SExpr) *State {
+	substitutions, ok := unify(u, v, s.Substitutions)
+	if !ok {
+		return nil
+	}
+	return &State{Substitutions: substitutions, Counter: s.Counter}
+}

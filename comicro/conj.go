@@ -14,9 +14,9 @@ scheme code:
 	)
 */
 func Conj(g1, g2 Goal) Goal {
-	return func(ctx context.Context, s *State) StreamOfStates {
-		g1s := g1(ctx, s)
-		return Bind(ctx, g1s, g2)
+	return func(ctx context.Context, s *State, ss StreamOfStates) {
+		g1s := NewStreamForGoal(ctx, g1, s)
+		Bind(ctx, g1s, g2, ss)
 	}
 }
 
@@ -35,9 +35,9 @@ scheme code:
 
 not a suspension => procedure? == false
 */
-func Bind(ctx context.Context, stream StreamOfStates, g Goal) StreamOfStates {
+func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates) {
 	if stream == nil {
-		return nil
+		return
 	}
 	state, ok := stream.Read(ctx)
 	var rest StreamOfStates = nil
@@ -45,9 +45,14 @@ func Bind(ctx context.Context, stream StreamOfStates, g Goal) StreamOfStates {
 		rest = stream
 	}
 	if state != nil { // not a suspension => procedure? == false
-		return Mplus(ctx, g(ctx, state), Bind(ctx, rest, g))
+		gs := NewStreamForGoal(ctx, g, state)
+		bs := NewEmptyStream()
+		go func() {
+			defer close(bs)
+			Bind(ctx, rest, g, bs)
+		}()
+		Mplus(ctx, gs, bs, res)
+		return
 	}
-	return Suspension(ctx, func() StreamOfStates {
-		return Bind(ctx, rest, g)
-	})
+	Bind(ctx, rest, g, res)
 }

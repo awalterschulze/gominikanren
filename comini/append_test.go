@@ -126,7 +126,7 @@ func TestCarO(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 	)
-	ss := ifte(ctx, comicro.EmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)

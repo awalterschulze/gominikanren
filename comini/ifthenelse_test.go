@@ -27,7 +27,7 @@ func TestIfThenElseSuccess(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(ctx, comicro.EmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
@@ -49,7 +49,7 @@ func TestIfThenElseFailure(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(ctx, comicro.EmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.EmptyState())
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
@@ -74,7 +74,7 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(ctx, comicro.EmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)
@@ -103,7 +103,7 @@ func TestIfThenElseDisjoint(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := ifte(ctx, comicro.EmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.EmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)

@@ -10,23 +10,23 @@ import (
 )
 
 func fives(x *ast.SExpr) Goal {
-	return Zzz(Disj(
+	return Disj(
 		EqualO(
 			x,
 			ast.NewInt(5),
 		),
-		func(ctx context.Context, s *State) StreamOfStates { return fives(x)(ctx, s) },
-	))
+		func(ctx context.Context, s *State, ss StreamOfStates) { fives(x)(ctx, s, ss) },
+	)
 }
 
 func sixes(x *ast.SExpr) Goal {
-	return Zzz(Disj(
+	return Disj(
 		EqualO(
 			x,
 			ast.NewInt(6),
 		),
-		func(ctx context.Context, s *State) StreamOfStates { return sixes(x)(ctx, s) },
-	))
+		func(ctx context.Context, s *State, ss StreamOfStates) { sixes(x)(ctx, s, ss) },
+	)
 }
 
 func TestFivesAndSixes(t *testing.T) {
@@ -46,7 +46,7 @@ func TestFivesAndSixes(t *testing.T) {
 	got := MKReify(states)
 	want := []*ast.SExpr{ast5}
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("expected %#v but got %#v", got, want)
+		t.Fatalf("expected %#v but got %#v", want, got)
 	}
 
 	// (define (fives x) (disj (≡ x 5) (fives x)))
@@ -60,7 +60,7 @@ func TestFivesAndSixes(t *testing.T) {
 	got = MKReify(states)
 	want = []*ast.SExpr{ast5, ast5}
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("expected %#v but got %#v", got, want)
+		t.Fatalf("expected %#v but got %#v", want, got)
 	}
 
 	states = RunGoal(ctx,
