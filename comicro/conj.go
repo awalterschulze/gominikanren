@@ -39,7 +39,11 @@ func Bind(ctx context.Context, stream StreamOfStates, g Goal) StreamOfStates {
 	if stream == nil {
 		return nil
 	}
-	state, rest := stream.Read(ctx)
+	state, ok := stream.Read(ctx)
+	var rest StreamOfStates = nil
+	if ok {
+		rest = stream
+	}
 	if state != nil { // not a suspension => procedure? == false
 		return Mplus(ctx, g(ctx, state), Bind(ctx, rest, g))
 	}

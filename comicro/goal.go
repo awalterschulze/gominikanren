@@ -35,14 +35,10 @@ func Run(ctx context.Context, n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
 func SuccessO(ctx context.Context, s *State) StreamOfStates {
-	newStream := make(chan *State, 0)
+	newStream := NewEmptyStream()
 	go func() {
 		defer close(newStream)
-		select {
-		case <-ctx.Done():
-			return
-		case newStream <- s:
-		}
+		newStream.Write(ctx, s)
 	}()
 	return newStream
 }
@@ -67,7 +63,7 @@ scheme code:
 */
 func EqualO(u, v *ast.SExpr) Goal {
 	return func(ctx context.Context, s *State) StreamOfStates {
-		newStream := make(chan *State, 0)
+		newStream := NewEmptyStream()
 		go func() {
 			defer close(newStream)
 			ss, sok := unify(u, v, s.Substitutions)
@@ -75,11 +71,7 @@ func EqualO(u, v *ast.SExpr) Goal {
 			if sok {
 				res = &State{Substitutions: ss, Counter: s.Counter}
 			}
-			select {
-			case <-ctx.Done():
-				return
-			case newStream <- res:
-			}
+			newStream.Write(ctx, res)
 		}()
 		return newStream
 	}
@@ -99,14 +91,12 @@ scheme code:
 	)
 */
 func NeverO(ctx context.Context, s *State) StreamOfStates {
-	newStream := make(chan *State, 0)
+	newStream := NewEmptyStream()
 	go func() {
 		defer close(newStream)
 		for {
-			select {
-			case <-ctx.Done():
+			if ok := newStream.Write(ctx, nil); !ok {
 				return
-			case newStream <- nil:
 			}
 		}
 	}()
@@ -133,19 +123,15 @@ scheme code:
 	)
 */
 func AlwaysO(ctx context.Context, s *State) StreamOfStates {
-	newStream := make(chan *State, 0)
+	newStream := NewEmptyStream()
 	go func() {
 		defer close(newStream)
 		for {
-			select {
-			case <-ctx.Done():
+			if ok := newStream.Write(ctx, nil); !ok {
 				return
-			case newStream <- nil:
 			}
-			select {
-			case <-ctx.Done():
+			if ok := newStream.Write(ctx, s); !ok {
 				return
-			case newStream <- s:
 			}
 		}
 	}()

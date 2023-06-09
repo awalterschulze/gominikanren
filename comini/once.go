@@ -46,7 +46,11 @@ func onceLoop(ctx context.Context, ss comicro.StreamOfStates) comicro.StreamOfSt
 	if ss == nil {
 		return nil
 	}
-	state, rest := ss.Read(ctx)
+	var rest comicro.StreamOfStates = nil
+	state, ok := ss.Read(ctx)
+	if ok {
+		rest = ss
+	}
 	if state != nil {
 		return comicro.NewSingletonStream(ctx, state)
 	}

@@ -60,7 +60,7 @@ func Mplus(ctx context.Context, ss []comicro.StreamOfStates) comicro.StreamOfSta
 	if len(ss) == 1 {
 		return ss[0]
 	}
-	s := make(chan *comicro.State, 0)
+	s := comicro.NewEmptyStream()
 	go func() {
 		defer close(s)
 		wait := sync.WaitGroup{}
@@ -68,14 +68,8 @@ func Mplus(ctx context.Context, ss []comicro.StreamOfStates) comicro.StreamOfSta
 		for _, s1 := range ss {
 			f := func(s11 comicro.StreamOfStates) func() {
 				return func() {
-					for a1 := range s11 {
-						select {
-						case <-ctx.Done():
-							return
-						case s <- a1:
-						}
-					}
-					wait.Done()
+					defer wait.Done()
+					comicro.WriteStreamTo(ctx, s11, s)
 				}
 			}(s1)
 			go f()
