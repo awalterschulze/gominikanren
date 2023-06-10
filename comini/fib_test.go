@@ -21,11 +21,11 @@ func benchFib(b *testing.B, num int, f func(...comicro.Goal) comicro.Goal) {
 }
 
 func BenchmarkFib10Co(b *testing.B) {
-	benchFib(b, 10, comini.ConjPlus)
+	benchFib(b, 10, comini.Conjs)
 }
 
 func BenchmarkFib15Co(b *testing.B) {
-	benchFib(b, 15, comini.ConjPlus)
+	benchFib(b, 15, comini.Conjs)
 }
 
 // peano numbers and extralogical convenience functions
@@ -64,7 +64,7 @@ func natplus(x, y, z *ast.SExpr) comicro.Goal {
 		[]comicro.Goal{
 			comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
 				return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
-					return comini.ConjPlus(
+					return comini.Conjs(
 						succ(a, x),
 						succ(b, z),
 						natplus(a, y, b),

@@ -7,7 +7,7 @@ import (
 )
 
 func NullO(r, out *ast.SExpr) comicro.Goal {
-	return comini.DisjPlus(
+	return comini.Disjs(
 		comicro.Conj(
 			comicro.EqualO(r, EmptySet()),
 			comicro.EqualO(out, EmptySet()),
@@ -26,16 +26,16 @@ func NullO(r, out *ast.SExpr) comicro.Goal {
 			return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Or(a, b)),
-					comini.DisjPlus(
-						comini.ConjPlus(
+					comini.Disjs(
+						comini.Conjs(
 							NullO(a, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
 						),
-						comini.ConjPlus(
+						comini.Conjs(
 							NullO(b, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
 						),
-						comini.ConjPlus(
+						comini.Conjs(
 							NullO(a, EmptySet()),
 							NullO(b, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
@@ -48,16 +48,16 @@ func NullO(r, out *ast.SExpr) comicro.Goal {
 			return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Concat(a, b)),
-					comini.DisjPlus(
-						comini.ConjPlus(
+					comini.Disjs(
+						comini.Conjs(
 							NullO(a, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
 						),
-						comini.ConjPlus(
+						comini.Conjs(
 							NullO(b, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
 						),
-						comini.ConjPlus(
+						comini.Conjs(
 							NullO(a, EmptyStr()),
 							NullO(b, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
