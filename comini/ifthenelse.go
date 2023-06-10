@@ -78,9 +78,9 @@ func ifThenElseO(ctx context.Context, conds comicro.StreamOfStates, thn, els com
 	}
 	heads := comicro.NewStreamForGoal(ctx, thn, headState)
 	rests := comicro.NewEmptyStream()
-	go func() {
+	comicro.Go(ctx, nil, func() {
 		defer close(rests)
 		comicro.Bind(ctx, conds, thn, rests)
-	}()
+	})
 	comicro.Mplus(ctx, heads, rests, res)
 }

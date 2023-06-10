@@ -45,11 +45,7 @@ func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates
 		if !ok {
 			break
 		}
-		wait.Add(1)
-		go func() {
-			defer wait.Done()
-			g(ctx, state, res)
-		}()
+		Go(ctx, &wait, func() { g(ctx, state, res) })
 	}
 	wait.Wait()
 }

@@ -211,44 +211,52 @@ func TestMatchOStarABCharAB(t *testing.T) {
 	)
 }
 
-// func TestGenMatchO(t *testing.T) {
-// if testing.Short() {
-// 	return
-// }
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	defer cancel()
-// 	g := func(q *ast.SExpr) comicro.Goal {
-// 		return MatchO(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
-// 	}
-// 	ss := comicro.RunStream(ctx, g)
-// 	for {
-// 		s, ok := <-ss
-// 		if !ok {
-// 			return
-// 		}
-// 		if s != nil {
-// 			fmt.Printf("%s\n", s.String())
-// 		}
-// 	}
-// }
-
 // func TestGenSDerivOs(t *testing.T) {
 // 	if testing.Short() {
 // 		return
 // 	}
 // 	ctx, cancel := context.WithCancel(context.Background())
+// 	ctx = comicro.SetMaxRoutines(ctx, 10000)
 // 	defer cancel()
 // 	g := func(q *ast.SExpr) comicro.Goal {
 // 		return SDerivOs(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
 // 	}
 // 	ss := comicro.RunStream(ctx, g)
+// 	count := 0
 // 	for {
-// 		s, ok := <-ss
+// 		s, ok := comicro.ReadNonNull(ctx, ss)
 // 		if !ok {
 // 			return
 // 		}
-// 		if s != nil {
-// 			fmt.Printf("%s\n", s.String())
+// 		count++
+// 		fmt.Printf("%s\n", s.String())
+// 		if count > 10 {
+// 			return
+// 		}
+// 	}
+// }
+
+// func TestGenMatchO(t *testing.T) {
+// 	if testing.Short() {
+// 		return
+// 	}
+// 	ctx, cancel := context.WithCancel(context.Background())
+// 	ctx = comicro.SetMaxRoutines(ctx, 100)
+// 	defer cancel()
+// 	g := func(q *ast.SExpr) comicro.Goal {
+// 		return MatchO(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
+// 	}
+// 	ss := comicro.RunStream(ctx, g)
+// 	count := 0
+// 	for {
+// 		s, ok := comicro.ReadNonNull(ctx, ss)
+// 		if !ok {
+// 			return
+// 		}
+// 		count++
+// 		fmt.Printf("%s\n", s.String())
+// 		if count > 10 {
+// 			return
 // 		}
 // 	}
 // }

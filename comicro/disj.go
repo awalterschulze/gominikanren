@@ -19,15 +19,8 @@ scheme code:
 func Disj(g1, g2 Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		wait := sync.WaitGroup{}
-		wait.Add(2)
-		go func() {
-			defer wait.Done()
-			g1(ctx, s, ss)
-		}()
-		go func() {
-			defer wait.Done()
-			g2(ctx, s, ss)
-		}()
+		Go(ctx, &wait, func() { g1(ctx, s, ss) })
+		Go(ctx, &wait, func() { g2(ctx, s, ss) })
 		wait.Wait()
 	}
 }
@@ -61,14 +54,7 @@ not a suspension => procedure? == false
 */
 func Mplus(ctx context.Context, s1, s2, res StreamOfStates) {
 	wait := sync.WaitGroup{}
-	wait.Add(2)
-	go func() {
-		defer wait.Done()
-		WriteStreamTo(ctx, s1, res)
-	}()
-	go func() {
-		defer wait.Done()
-		WriteStreamTo(ctx, s2, res)
-	}()
+	Go(ctx, &wait, func() { WriteStreamTo(ctx, s1, res) })
+	Go(ctx, &wait, func() { WriteStreamTo(ctx, s2, res) })
 	wait.Wait()
 }
