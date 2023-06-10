@@ -1,6 +1,8 @@
 package regex
 
 import (
+	"context"
+	"fmt"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
@@ -98,4 +100,67 @@ func TestDerivOStarAB(t *testing.T) {
 			Star(Concat(Char('a'), Char('b'))),
 		),
 	)
+}
+
+func TestGenDeriveOA(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	g := func(q *ast.SExpr) comicro.Goal {
+		return DerivO(Char('a'), q, EmptyStr())
+	}
+	ss := comicro.RunStream(ctx, g)
+	for {
+		s, ok := <-ss
+		if !ok {
+			return
+		}
+		if s != nil {
+			fmt.Printf("%s\n", s.String())
+		}
+	}
+}
+
+func TestGenDeriveOB(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	g := func(q *ast.SExpr) comicro.Goal {
+		return DerivO(Char('a'), q, EmptySet())
+	}
+	ss := comicro.RunStream(ctx, g)
+	for {
+		s, ok := <-ss
+		if !ok {
+			return
+		}
+		if s != nil {
+			fmt.Printf("%s\n", s.String())
+		}
+	}
+}
+
+func TestGenDeriveOAOrB(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	g := func(q *ast.SExpr) comicro.Goal {
+		return DerivO(Or(Char('a'), Char('b')), q, Or(EmptySet(), EmptyStr()))
+	}
+	ss := comicro.RunStream(ctx, g)
+	for {
+		s, ok := <-ss
+		if !ok {
+			return
+		}
+		if s != nil {
+			fmt.Printf("%s\n", s.String())
+		}
+	}
 }

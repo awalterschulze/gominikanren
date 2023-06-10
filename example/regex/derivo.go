@@ -16,16 +16,7 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(r, EmptyStr()),
 			comicro.EqualO(out, EmptySet()),
 		),
-		comicro.CallFresh(func(c *ast.SExpr) comicro.Goal {
-			return comicro.Conj(
-				comicro.EqualO(r, CharFromSExpr(c)),
-				comini.IfThenElseO(
-					comicro.EqualO(char, c),
-					comicro.EqualO(out, EmptyStr()),
-					comicro.EqualO(out, EmptySet()),
-				),
-			)
-		}),
+		DeriveCharO(r, char, out),
 		comicro.Fresh(4, func(vars ...*ast.SExpr) comicro.Goal {
 			a, da, b, db := vars[0], vars[1], vars[2], vars[3]
 			return comini.ConjPlus(
@@ -61,5 +52,55 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 				)
 			})
 		}),
+	)
+}
+
+func DeriveCharO(r, char, out *ast.SExpr) comicro.Goal {
+	return comini.DisjPlus(
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('a')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('a'))),
+			comicro.EqualO(out, EmptyStr()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('a')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('b'))),
+			comicro.EqualO(out, EmptySet()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('a')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('c'))),
+			comicro.EqualO(out, EmptySet()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('b')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('a'))),
+			comicro.EqualO(out, EmptySet()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('b')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('b'))),
+			comicro.EqualO(out, EmptyStr()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('b')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('c'))),
+			comicro.EqualO(out, EmptySet()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('c')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('a'))),
+			comicro.EqualO(out, EmptySet()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('c')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('b'))),
+			comicro.EqualO(out, EmptySet()),
+		),
+		comini.ConjPlus(
+			comicro.EqualO(char, CharSymbol('c')),
+			comicro.EqualO(r, CharFromSExpr(CharSymbol('c'))),
+			comicro.EqualO(out, EmptyStr()),
+		),
 	)
 }

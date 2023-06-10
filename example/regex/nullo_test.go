@@ -127,31 +127,16 @@ func TestNullOStar(t *testing.T) {
 	)
 }
 
-// func TestNullOGenEmptyStr(t *testing.T) {
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	defer cancel()
-// 	g := comicro.CallFresh(func(q *ast.SExpr) comicro.Goal {
-// 		return NullO(q, EmptyStr())
-// 	})
-// 	ss := g(ctx, &comicro.State{Substitutions: nil, Counter: 1})
-// 	for {
-// 		s, ok := <-ss
-// 		if !ok {
-// 			return
-// 		}
-// 		if s != nil {
-// 			fmt.Printf("%s\n", s.String())
-// 		}
-// 	}
+// func TestGenNullO(t *testing.T) {
+// if testing.Short() {
+// 	return
 // }
-
-// func TestNullOGenEmptySet(t *testing.T) {
 // 	ctx, cancel := context.WithCancel(context.Background())
 // 	defer cancel()
-// 	g := comicro.CallFresh(func(q *ast.SExpr) comicro.Goal {
-// 		return NullO(q, EmptySet())
-// 	})
-// 	ss := g(ctx, &comicro.State{Substitutions: nil, Counter: 1})
+// 	g := func(q *ast.SExpr) comicro.Goal {
+// 		return NullO(q, EmptyStr())
+// 	}
+// 	ss := comicro.RunStream(ctx, g)
 // 	for {
 // 		s, ok := <-ss
 // 		if !ok {

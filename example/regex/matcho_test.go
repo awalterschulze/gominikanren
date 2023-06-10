@@ -210,3 +210,24 @@ func TestMatchOStarABCharAB(t *testing.T) {
 		EmptyStr(),
 	)
 }
+
+// func TestGenMatchO(t *testing.T) {
+// if testing.Short() {
+// 	return
+// }
+// 	ctx, cancel := context.WithCancel(context.Background())
+// 	defer cancel()
+// 	g := func(q *ast.SExpr) comicro.Goal {
+// 		return MatchO(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
+// 	}
+// 	ss := comicro.RunStream(ctx, g)
+// 	for {
+// 		s, ok := <-ss
+// 		if !ok {
+// 			return
+// 		}
+// 		if s != nil {
+// 			fmt.Printf("%s\n", s.String())
+// 		}
+// 	}
+// }
