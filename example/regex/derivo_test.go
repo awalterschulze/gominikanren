@@ -113,13 +113,11 @@ func TestGenDeriveOA(t *testing.T) {
 	}
 	ss := comicro.RunStream(ctx, g)
 	for {
-		s, ok := <-ss
+		s, ok := comicro.ReadNonNull(ctx, ss)
 		if !ok {
 			return
 		}
-		if s != nil {
-			fmt.Printf("%s\n", s.String())
-		}
+		fmt.Printf("%s\n", s.String())
 	}
 }
 
@@ -134,13 +132,11 @@ func TestGenDeriveOB(t *testing.T) {
 	}
 	ss := comicro.RunStream(ctx, g)
 	for {
-		s, ok := <-ss
+		s, ok := comicro.ReadNonNull(ctx, ss)
 		if !ok {
 			return
 		}
-		if s != nil {
-			fmt.Printf("%s\n", s.String())
-		}
+		fmt.Printf("%s\n", s.String())
 	}
 }
 
@@ -155,12 +151,10 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	}
 	ss := comicro.RunStream(ctx, g)
 	for {
-		s, ok := <-ss
+		s, ok := comicro.ReadNonNull(ctx, ss)
 		if !ok {
 			return
 		}
-		if s != nil {
-			fmt.Printf("%s\n", s.String())
-		}
+		fmt.Printf("%s\n", s.String())
 	}
 }
