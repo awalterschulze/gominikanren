@@ -7,7 +7,7 @@ import (
 )
 
 func SDerivO(r, char, out *ast.SExpr) comicro.Goal {
-	return comini.DisjPlus(
+	return comini.Disjs(
 		comicro.Conj(
 			comicro.EqualO(r, EmptySet()),
 			comicro.EqualO(out, EmptySet()),
@@ -21,7 +21,7 @@ func SDerivO(r, char, out *ast.SExpr) comicro.Goal {
 			return comicro.CallFresh(func(da *ast.SExpr) comicro.Goal {
 				return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
 					return comicro.CallFresh(func(db *ast.SExpr) comicro.Goal {
-						return comini.ConjPlus(
+						return comini.Conjs(
 							comicro.EqualO(r, Or(a, b)),
 							SDerivO(a, char, da),
 							SDerivO(b, char, db),
@@ -38,7 +38,7 @@ func SDerivO(r, char, out *ast.SExpr) comicro.Goal {
 						return comicro.CallFresh(func(db *ast.SExpr) comicro.Goal {
 							return comicro.CallFresh(func(ca *ast.SExpr) comicro.Goal {
 								return comicro.CallFresh(func(cb *ast.SExpr) comicro.Goal {
-									return comini.ConjPlus(
+									return comini.Conjs(
 										comicro.EqualO(r, Concat(a, b)),
 										SDerivO(a, char, da),
 										SDerivO(b, char, db),
@@ -56,7 +56,7 @@ func SDerivO(r, char, out *ast.SExpr) comicro.Goal {
 		}),
 		comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
 			return comicro.CallFresh(func(da *ast.SExpr) comicro.Goal {
-				return comini.ConjPlus(
+				return comini.Conjs(
 					comicro.EqualO(r, Star(a)),
 					SDerivO(a, char, da),
 					SimpleConcatO(da, r, out),

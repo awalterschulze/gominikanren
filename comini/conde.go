@@ -15,7 +15,7 @@ Conde is a disjunction of conjunctions
 func Conde(gs ...[]comicro.Goal) comicro.Goal {
 	conj := make([]comicro.Goal, len(gs))
 	for i, v := range gs {
-		conj[i] = ConjPlus(v...)
+		conj[i] = Conjs(v...)
 	}
-	return DisjPlus(conj...)
+	return Disjs(conj...)
 }

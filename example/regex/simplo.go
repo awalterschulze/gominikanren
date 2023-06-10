@@ -24,13 +24,13 @@ func ShortCircuitDisj(a, b comicro.Goal) comicro.Goal {
 func simplO(r, s *ast.SExpr) comicro.Goal {
 	return comicro.Fresh(2, func(vars ...*ast.SExpr) comicro.Goal {
 		r1, r2 := vars[0], vars[1]
-		return comini.ConjPlus(
-			comini.DisjPlus(
-				comini.ConjPlus(
+		return comini.Conjs(
+			comini.Disjs(
+				comini.Conjs(
 					comicro.EqualO(r, Or(r1, r2)),
 					SimpleOrO(r1, r2, s),
 				),
-				comini.ConjPlus(
+				comini.Conjs(
 					comicro.EqualO(r, Concat(r1, r2)),
 					SimpleConcatO(r1, r2, s),
 				),
@@ -41,7 +41,7 @@ func simplO(r, s *ast.SExpr) comicro.Goal {
 
 func SimpleOrO(r1, r2, res *ast.SExpr) comicro.Goal {
 	r := comicro.EqualO(res, Or(r1, r2))
-	return comini.DisjPlus(
+	return comini.Disjs(
 		comicro.Conj(
 			IsEmptySet(r1),
 			comicro.EqualO(res, r2),
@@ -50,22 +50,22 @@ func SimpleOrO(r1, r2, res *ast.SExpr) comicro.Goal {
 			IsEmptySet(r2),
 			comicro.EqualO(res, r1),
 		),
-		comini.ConjPlus(IsEmptyStr(r1), IsNotEmptySet(r2), r),
-		comini.ConjPlus(IsEmptyStr(r2), IsNotEmptySet(r1), r),
-		comini.ConjPlus(IsChar(r1), IsNotEmptySet(r2), r),
-		comini.ConjPlus(IsChar(r2), IsNotEmptySet(r1), r),
-		comini.ConjPlus(IsOr(r1), IsNotEmptySet(r2), r),
-		comini.ConjPlus(IsOr(r2), IsNotEmptySet(r1), r),
-		comini.ConjPlus(IsConcat(r1), IsNotEmptySet(r2), r),
-		comini.ConjPlus(IsConcat(r2), IsNotEmptySet(r1), r),
-		comini.ConjPlus(IsStar(r1), IsNotEmptySet(r2), r),
-		comini.ConjPlus(IsStar(r2), IsNotEmptySet(r1), r),
+		comini.Conjs(IsEmptyStr(r1), IsNotEmptySet(r2), r),
+		comini.Conjs(IsEmptyStr(r2), IsNotEmptySet(r1), r),
+		comini.Conjs(IsChar(r1), IsNotEmptySet(r2), r),
+		comini.Conjs(IsChar(r2), IsNotEmptySet(r1), r),
+		comini.Conjs(IsOr(r1), IsNotEmptySet(r2), r),
+		comini.Conjs(IsOr(r2), IsNotEmptySet(r1), r),
+		comini.Conjs(IsConcat(r1), IsNotEmptySet(r2), r),
+		comini.Conjs(IsConcat(r2), IsNotEmptySet(r1), r),
+		comini.Conjs(IsStar(r1), IsNotEmptySet(r2), r),
+		comini.Conjs(IsStar(r2), IsNotEmptySet(r1), r),
 	)
 }
 
 func SimpleConcatO(r1, r2, res *ast.SExpr) comicro.Goal {
 	r := comicro.EqualO(res, Concat(r1, r2))
-	return comini.DisjPlus(
+	return comini.Disjs(
 		comicro.Conj(
 			IsEmptySet(r1),
 			comicro.EqualO(res, EmptySet()),
@@ -82,19 +82,19 @@ func SimpleConcatO(r1, r2, res *ast.SExpr) comicro.Goal {
 			IsEmptyStr(r2),
 			comicro.EqualO(res, r1),
 		),
-		comini.ConjPlus(IsChar(r1), IsNotEmpty(r2), r),
-		comini.ConjPlus(IsChar(r2), IsNotEmpty(r1), r),
-		comini.ConjPlus(IsOr(r1), IsNotEmpty(r2), r),
-		comini.ConjPlus(IsOr(r2), IsNotEmpty(r1), r),
-		comini.ConjPlus(IsConcat(r1), IsNotEmpty(r2), r),
-		comini.ConjPlus(IsConcat(r2), IsNotEmpty(r1), r),
-		comini.ConjPlus(IsStar(r1), IsNotEmpty(r2), r),
-		comini.ConjPlus(IsStar(r2), IsNotEmpty(r1), r),
+		comini.Conjs(IsChar(r1), IsNotEmpty(r2), r),
+		comini.Conjs(IsChar(r2), IsNotEmpty(r1), r),
+		comini.Conjs(IsOr(r1), IsNotEmpty(r2), r),
+		comini.Conjs(IsOr(r2), IsNotEmpty(r1), r),
+		comini.Conjs(IsConcat(r1), IsNotEmpty(r2), r),
+		comini.Conjs(IsConcat(r2), IsNotEmpty(r1), r),
+		comini.Conjs(IsStar(r1), IsNotEmpty(r2), r),
+		comini.Conjs(IsStar(r2), IsNotEmpty(r1), r),
 	)
 }
 
 func IsNotEmpty(r *ast.SExpr) comicro.Goal {
-	return comini.DisjPlus(
+	return comini.Disjs(
 		IsChar(r),
 		IsOr(r),
 		IsConcat(r),
@@ -103,7 +103,7 @@ func IsNotEmpty(r *ast.SExpr) comicro.Goal {
 }
 
 func IsNotEmptySet(r *ast.SExpr) comicro.Goal {
-	return comini.DisjPlus(
+	return comini.Disjs(
 		IsEmptyStr(r),
 		IsChar(r),
 		IsOr(r),

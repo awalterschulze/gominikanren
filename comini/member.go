@@ -74,7 +74,7 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x, y *ast.SExpr) comicro.
 		[]comicro.Goal{
 			comicro.Fresh(4, func(vars ...*ast.SExpr) comicro.Goal {
 				xa, xd, ya, yd := vars[0], vars[1], vars[2], vars[3]
-				return ConjPlus(
+				return Conjs(
 					comicro.EqualO(x, ast.Cons(xa, xd)),
 					comicro.EqualO(y, ast.Cons(ya, yd)),
 					f(xa, ya),
