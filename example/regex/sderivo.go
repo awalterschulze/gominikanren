@@ -16,16 +16,7 @@ func SDerivO(r, char, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(r, EmptyStr()),
 			comicro.EqualO(out, EmptySet()),
 		),
-		comicro.CallFresh(func(c *ast.SExpr) comicro.Goal {
-			return comicro.Conj(
-				comicro.EqualO(r, CharFromSExpr(c)),
-				comini.IfThenElseO(
-					comicro.EqualO(char, c),
-					comicro.EqualO(out, EmptyStr()),
-					comicro.EqualO(out, EmptySet()),
-				),
-			)
-		}),
+		DeriveCharO(r, char, out),
 		comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
 			return comicro.CallFresh(func(da *ast.SExpr) comicro.Goal {
 				return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
