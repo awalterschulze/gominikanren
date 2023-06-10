@@ -38,14 +38,7 @@ func RunStream(ctx context.Context, g func(*ast.SExpr) Goal) chan *ast.SExpr {
 	res := make(chan *ast.SExpr, 0)
 	go func() {
 		defer close(res)
-		s, ok := ss.Read(ctx)
-		if !ok {
-			return
-		}
-		r := MKReify(s)
-		if ok := Write(ctx, r, res); !ok {
-			return
-		}
+		MapNonNull(ctx, ss, MKReify, res)
 	}()
 	return res
 }

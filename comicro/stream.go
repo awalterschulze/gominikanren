@@ -33,7 +33,7 @@ func (ss StreamOfStates) ReadNonNull(ctx context.Context) (*State, bool) {
 	return ReadNonNull(ctx, ss)
 }
 
-func ReadNonNull[A comparable](ctx context.Context, c chan A) (A, bool) {
+func ReadNonNull[A comparable](ctx context.Context, c <-chan A) (A, bool) {
 	var zero A
 	for {
 		a, ok := Read(ctx, c)
@@ -67,12 +67,32 @@ func (ss StreamOfStates) Close() {
 }
 
 func WriteStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
+	Map(ctx, src, func(a A) A {
+		return a
+	}, dst)
+}
+
+func Map[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
 	for {
 		a, ok := Read(ctx, src)
 		if !ok {
 			return
 		}
-		if ok := Write(ctx, a, dst); !ok {
+		b := f(a)
+		if ok := Write(ctx, b, dst); !ok {
+			return
+		}
+	}
+}
+
+func MapNonNull[A comparable, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
+	for {
+		a, ok := ReadNonNull(ctx, src)
+		if !ok {
+			return
+		}
+		b := f(a)
+		if ok := Write(ctx, b, dst); !ok {
 			return
 		}
 	}
@@ -158,11 +178,9 @@ func Take[A comparable](ctx context.Context, n int, c chan A) []A {
 	if c == nil {
 		return nil
 	}
-	var res []A
-	if n < 0 {
-		res = make([]A, 0)
-	} else {
-		res = make([]A, 0, n)
+	var as []A
+	if n > 0 {
+		as = make([]A, 0, n)
 	}
 	i := 0
 	var nilA A
@@ -170,20 +188,15 @@ func Take[A comparable](ctx context.Context, n int, c chan A) []A {
 		if i == n {
 			break
 		}
-		var a A
-		var ok bool
-		select {
-		case a, ok = <-c:
-		case <-ctx.Done():
-		}
+		a, ok := ReadNonNull(ctx, c)
 		if !ok {
 			break
 		}
 		if a == nilA {
 			continue
 		}
-		res = append(res, a)
+		as = append(as, a)
 		i++
 	}
-	return res
+	return as
 }
