@@ -16,32 +16,32 @@ func (ss StreamOfStates) Read(ctx context.Context) (*State, bool) {
 	return Read(ctx, ss)
 }
 
-func Read[A any](ctx context.Context, ss <-chan A) (A, bool) {
-	var nilA A
-	if ss == nil {
-		return nilA, false
+func Read[A any](ctx context.Context, c <-chan A) (A, bool) {
+	var zero A
+	if c == nil {
+		return zero, false
 	}
 	select {
-	case s, ok := <-ss:
-		return s, ok
+	case a, ok := <-c:
+		return a, ok
 	case <-ctx.Done():
 	}
-	return nilA, false
+	return zero, false
 }
 
 func (ss StreamOfStates) ReadNonNull(ctx context.Context) (*State, bool) {
 	return ReadNonNull(ctx, ss)
 }
 
-func ReadNonNull[A comparable](ctx context.Context, ss chan A) (A, bool) {
-	var nilA A
+func ReadNonNull[A comparable](ctx context.Context, c chan A) (A, bool) {
+	var zero A
 	for {
-		s, ok := Read(ctx, ss)
+		a, ok := Read(ctx, c)
 		if !ok {
-			return nilA, false
+			return zero, false
 		}
-		if s != nilA {
-			return s, true
+		if a != zero {
+			return a, true
 		}
 	}
 }
@@ -50,14 +50,14 @@ func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
 	return Write(ctx, s, ss)
 }
 
-func Write[A any](ctx context.Context, s A, ss chan<- A) bool {
-	if ss == nil {
+func Write[A any](ctx context.Context, a A, c chan<- A) bool {
+	if c == nil {
 		return false
 	}
 	select {
 	case <-ctx.Done():
 		return false
-	case ss <- s:
+	case c <- a:
 		return true
 	}
 }
@@ -68,11 +68,11 @@ func (ss StreamOfStates) Close() {
 
 func WriteStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
 	for {
-		s, ok := Read(ctx, src)
+		a, ok := Read(ctx, src)
 		if !ok {
 			return
 		}
-		if ok := Write(ctx, s, dst); !ok {
+		if ok := Write(ctx, a, dst); !ok {
 			return
 		}
 	}
@@ -151,11 +151,11 @@ scheme code:
 
 If n == -1 results in the whole stream being returned.
 */
-func takeStream[A comparable](n int, s chan A) []A {
+func Take[A comparable](ctx context.Context, n int, c chan A) []A {
 	if n == 0 {
 		return nil
 	}
-	if s == nil {
+	if c == nil {
 		return nil
 	}
 	var res []A
@@ -170,7 +170,12 @@ func takeStream[A comparable](n int, s chan A) []A {
 		if i == n {
 			break
 		}
-		a, ok := <-s
+		var a A
+		var ok bool
+		select {
+		case a, ok = <-c:
+		case <-ctx.Done():
+		}
 		if !ok {
 			break
 		}
