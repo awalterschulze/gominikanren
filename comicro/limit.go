@@ -27,6 +27,22 @@ func SetMaxRoutines(ctx context.Context, max int) context.Context {
 	var count atomic.Int32
 	ctx = context.WithValue(ctx, "count", &count)
 	limitChan := make(chan struct{}, max)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(20 * time.Millisecond):
+				limitChan <- struct{}{}
+				count, ok := GetCount(ctx)
+				if ok {
+					if rand.Intn(100) == 0 {
+						fmt.Printf("Go Routines: %v\n", count.Load())
+					}
+				}
+			}
+		}
+	}()
 	for i := 0; i < max; i++ {
 		limitChan <- struct{}{}
 	}
@@ -41,12 +57,10 @@ func WaitForRoutine(ctx context.Context) bool {
 		return true
 	}
 	select {
-	case <-time.After(1 * time.Second):
 	case <-limitChan:
 	case <-ctx.Done():
 		return false
 	}
-	MaybePrintRoutineCount(ctx)
 	count, ok := ctx.Value("count").(*atomic.Int32)
 	if ok {
 		count.Add(1)
@@ -60,24 +74,18 @@ func ReleaseRoutine(ctx context.Context) bool {
 		return true
 	}
 	select {
-	case <-time.After(1 * time.Second):
 	case limitChan <- struct{}{}:
 	case <-ctx.Done():
 		return false
 	}
-	MaybePrintRoutineCount(ctx)
-	count, ok := ctx.Value("count").(*atomic.Int32)
+	count, ok := GetCount(ctx)
 	if ok {
 		count.Add(-1)
 	}
 	return true
 }
 
-func MaybePrintRoutineCount(ctx context.Context) {
-	if rand.Intn(100) == 0 {
-		count, ok := ctx.Value("count").(*atomic.Int32)
-		if ok {
-			fmt.Printf("Go Routines: %v\n", count.Load())
-		}
-	}
+func GetCount(ctx context.Context) (*atomic.Int32, bool) {
+	c, ok := ctx.Value("count").(*atomic.Int32)
+	return c, ok
 }
