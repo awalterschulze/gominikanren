@@ -45,9 +45,7 @@ func RunStream(ctx context.Context, g func(*ast.SExpr) Goal) chan *ast.SExpr {
 			return
 		}
 		r := MKReify(s)
-		select {
-		case res <- r:
-		case <-ctx.Done():
+		if ok := Write(ctx, r, res); !ok {
 			return
 		}
 	}()
