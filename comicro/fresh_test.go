@@ -20,10 +20,10 @@ scheme code:
 */
 func TestFreshKiwi(t *testing.T) {
 	ss := RunGoal(context.Background(), 1,
-		CallFresh(func(fruit *ast.SExpr) Goal {
+		CallFresh(func(fruit Var) Goal {
 			return EqualO(
 				ast.NewSymbol("plum"),
-				fruit,
+				fruit.SExpr(),
 			)
 		},
 		),
@@ -40,11 +40,11 @@ func TestFreshKiwi(t *testing.T) {
 
 func TestFresherKiwi(t *testing.T) {
 	ss := RunGoal(context.Background(), 1,
-		Fresh(1, func(vars ...*ast.SExpr) Goal {
+		Fresh(1, func(vars ...Var) Goal {
 			fruit := vars[0]
 			return EqualO(
 				ast.NewSymbol("plum"),
-				fruit,
+				fruit.SExpr(),
 			)
 		},
 		),

@@ -17,8 +17,8 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(out, EmptySet()),
 		),
 		DeriveCharO(r, char, out),
-		comicro.Fresh(4, func(vars ...*ast.SExpr) comicro.Goal {
-			a, da, b, db := vars[0], vars[1], vars[2], vars[3]
+		comicro.Fresh(4, func(vars ...comicro.Var) comicro.Goal {
+			a, da, b, db := vars[0].SExpr(), vars[1].SExpr(), vars[2].SExpr(), vars[3].SExpr()
 			return comini.Conjs(
 				comicro.EqualO(r, Or(a, b)),
 				DerivO(a, char, da),
@@ -26,31 +26,23 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 				comicro.EqualO(out, Or(da, db)),
 			)
 		}),
-		comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(func(da *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(func(na *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
-						return comicro.CallFresh(func(db *ast.SExpr) comicro.Goal {
-							return comini.Conjs(
-								comicro.EqualO(r, Concat(a, b)),
-								DerivO(a, char, da),
-								DerivO(b, char, db),
-								NullO(a, na),
-								comicro.EqualO(out, Or(Concat(da, b), Concat(na, db))),
-							)
-						})
-					})
-				})
-			})
+		comicro.Fresh(5, func(vars ...comicro.Var) comicro.Goal {
+			a, da, na, b, db := vars[0].SExpr(), vars[1].SExpr(), vars[2].SExpr(), vars[3].SExpr(), vars[4].SExpr()
+			return comini.Conjs(
+				comicro.EqualO(r, Concat(a, b)),
+				DerivO(a, char, da),
+				DerivO(b, char, db),
+				NullO(a, na),
+				comicro.EqualO(out, Or(Concat(da, b), Concat(na, db))),
+			)
 		}),
-		comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(func(da *ast.SExpr) comicro.Goal {
-				return comini.Conjs(
-					comicro.EqualO(r, Star(a)),
-					DerivO(a, char, da),
-					comicro.EqualO(out, Concat(da, Star(a))),
-				)
-			})
+		comicro.Fresh(2, func(vars ...comicro.Var) comicro.Goal {
+			a, da := vars[0].SExpr(), vars[1].SExpr()
+			return comini.Conjs(
+				comicro.EqualO(r, Star(a)),
+				DerivO(a, char, da),
+				comicro.EqualO(out, Concat(da, Star(a))),
+			)
 		}),
 	)
 }

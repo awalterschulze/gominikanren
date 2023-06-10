@@ -41,17 +41,17 @@ func TestAppendOAllCombinations(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	sexprs := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
-		return comicro.CallFresh(func(x *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(func(y *ast.SExpr) comicro.Goal {
+	sexprs := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
+		return comicro.CallFresh(func(x comicro.Var) comicro.Goal {
+			return comicro.CallFresh(func(y comicro.Var) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(
-						ast.Cons(x, ast.Cons(y, nil)),
-						q,
+						ast.Cons(x.SExpr(), ast.Cons(y.SExpr(), nil)),
+						q.SExpr(),
 					),
 					AppendO(
-						x,
-						y,
+						x.SExpr(),
+						y.SExpr(),
 						ast.NewList(
 							ast.NewSymbol("cake"),
 							ast.NewSymbol("&"),
@@ -74,11 +74,11 @@ func TestAppendOAllCombinations(t *testing.T) {
 func TestAppendOSingleList(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
+	ss := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.Cons(ast.NewSymbol("b"), nil),
-			q,
+			q.SExpr(),
 		)
 	})
 	got := ast.NewList(ss...).String()
@@ -91,11 +91,11 @@ func TestAppendOSingleList(t *testing.T) {
 func TestAppendOSingleAtom(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
+	ss := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.NewSymbol("b"),
-			q,
+			q.SExpr(),
 		)
 	})
 	got := ast.NewList(ss...).String()

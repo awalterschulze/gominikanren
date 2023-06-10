@@ -14,8 +14,8 @@ func AppendO(l, t, out *ast.SExpr) comicro.Goal {
 			NullO(l),
 			comicro.EqualO(t, out),
 		),
-		comicro.Fresh(3, func(vars ...*ast.SExpr) comicro.Goal {
-			a, d, res := vars[0], vars[1], vars[2]
+		comicro.Fresh(3, func(vars ...comicro.Var) comicro.Goal {
+			a, d, res := vars[0].SExpr(), vars[1].SExpr(), vars[2].SExpr()
 			return comicro.Conj(
 				ConsO(a, d, l),
 				comicro.Conj(
@@ -42,7 +42,7 @@ func ConsO(a, d, p *ast.SExpr) comicro.Goal {
 
 // CarO is a goal where the second parameter is the head of the list in the first parameter.
 func CarO(p, a *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
-		return comicro.EqualO(ast.Cons(a, d), p)
+	return comicro.CallFresh(func(d comicro.Var) comicro.Goal {
+		return comicro.EqualO(ast.Cons(a, d.SExpr()), p)
 	})
 }

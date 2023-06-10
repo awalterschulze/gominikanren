@@ -37,9 +37,9 @@ func TestFivesAndSixes(t *testing.T) {
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
 	states := RunGoal(ctx,
 		1,
-		CallFresh(func(q *ast.SExpr) Goal {
+		CallFresh(func(q Var) Goal {
 			return EqualO(
-				q,
+				q.SExpr(),
 				ast5,
 			)
 		}))
@@ -53,8 +53,8 @@ func TestFivesAndSixes(t *testing.T) {
 	// ((call/fresh fives) empty-state)
 	states = RunGoal(ctx,
 		2,
-		CallFresh(func(x *ast.SExpr) Goal {
-			return fives(x)
+		CallFresh(func(x Var) Goal {
+			return fives(x.SExpr())
 		}),
 	)
 	got = MKReifys(states)
@@ -64,10 +64,10 @@ func TestFivesAndSixes(t *testing.T) {
 	}
 
 	stream := RunStream(ctx,
-		func(x *ast.SExpr) Goal {
+		func(x Var) Goal {
 			return Disj(
-				fives(x),
-				sixes(x),
+				fives(x.SExpr()),
+				sixes(x.SExpr()),
 			)
 		},
 	)

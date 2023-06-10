@@ -8,7 +8,7 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func testo(t *testing.T, f func(q *ast.SExpr) comicro.Goal, want *ast.SExpr) {
+func testo(t *testing.T, f func(q comicro.Var) comicro.Goal, want *ast.SExpr) {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
