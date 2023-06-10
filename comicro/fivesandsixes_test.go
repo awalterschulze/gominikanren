@@ -63,23 +63,31 @@ func TestFivesAndSixes(t *testing.T) {
 		t.Fatalf("expected %#v but got %#v", want, got)
 	}
 
-	states = RunGoal(ctx,
-		10,
-		CallFresh(func(x *ast.SExpr) Goal {
+	stream := RunStream(ctx,
+		func(x *ast.SExpr) Goal {
 			return Disj(
 				fives(x),
 				sixes(x),
 			)
-		}),
+		},
 	)
-	got = MKReifys(states)
-	ss := fmap(func(s *ast.SExpr) string { return s.String() }, got)
-	s := strings.Join(ss, ",	")
-	if !strings.Contains(s, "5") {
-		t.Fatalf("expected %s to contain at least one 5", s)
+	has5 := false
+	has6 := false
+	for s := range stream {
+		if !has5 && strings.Contains(s.String(), "5") {
+			has5 = true
+		}
+		if !has6 && strings.Contains(s.String(), "6") {
+			has6 = true
+		}
+		if has5 && has6 {
+			break
+		}
 	}
-	if !strings.Contains(s, "6") {
-		t.Fatalf("expected %s to contain at least one 6", s)
+	if !has5 {
+		t.Fatalf("expected to find least one 5")
 	}
-
+	if !has6 {
+		t.Fatalf("expected to find least one 6")
+	}
 }

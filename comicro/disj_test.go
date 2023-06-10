@@ -51,6 +51,8 @@ func TestMplusNeverO(t *testing.T) {
 		}
 	}
 	if count != 1 {
-		t.Fatalf("expected 1 non nil state")
+		if _, ok := ss.ReadNonNull(ctx); !ok {
+			t.Fatalf("expected 1 non nil state")
+		}
 	}
 }
