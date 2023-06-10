@@ -112,12 +112,17 @@ func TestGenSDerivO(t *testing.T) {
 		return SDerivO(Char('a'), q, EmptyStr())
 	}
 	ss := comicro.RunStream(ctx, g)
+	count := 0
 	for {
 		s, ok := comicro.ReadNonNull(ctx, ss)
 		if !ok {
-			return
+			break
 		}
+		count++
 		fmt.Printf("%s\n", s.String())
+	}
+	if count < 1 {
+		t.Fatalf("expected at least 1 solution, got %d", count)
 	}
 }
 
@@ -131,12 +136,17 @@ func TestGenSDerivOB(t *testing.T) {
 		return SDerivO(Char('a'), q, EmptySet())
 	}
 	ss := comicro.RunStream(ctx, g)
+	count := 0
 	for {
 		s, ok := comicro.ReadNonNull(ctx, ss)
 		if !ok {
-			return
+			break
 		}
+		count++
 		fmt.Printf("%s\n", s.String())
+	}
+	if count < 2 {
+		t.Fatalf("expected at least 2 solutions, got %d", count)
 	}
 }
 
@@ -150,11 +160,16 @@ func TestGenSDerivOAOrB(t *testing.T) {
 		return SDerivO(Or(Char('a'), Char('b')), q, EmptyStr())
 	}
 	ss := comicro.RunStream(ctx, g)
+	count := 0
 	for {
 		s, ok := comicro.ReadNonNull(ctx, ss)
 		if !ok {
-			return
+			break
 		}
+		count++
 		fmt.Printf("%s\n", s.String())
+	}
+	if count < 2 {
+		t.Fatalf("expected at least 2 solutions, got %d", count)
 	}
 }

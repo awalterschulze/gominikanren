@@ -2,7 +2,10 @@ package comicro
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -21,7 +24,12 @@ func Go(ctx context.Context, w *sync.WaitGroup, f func()) {
 }
 
 func SetMaxRoutines(ctx context.Context, max int) context.Context {
+	var count atomic.Int32
+	ctx = context.WithValue(ctx, "count", &count)
 	limitChan := make(chan struct{}, max)
+	for i := 0; i < max; i++ {
+		limitChan <- struct{}{}
+	}
 	return context.WithValue(ctx, "limit", limitChan)
 }
 
@@ -34,12 +42,16 @@ func WaitForRoutine(ctx context.Context) bool {
 	}
 	select {
 	case <-time.After(1 * time.Second):
-		return true
-	case limitChan <- struct{}{}:
-		return true
+	case <-limitChan:
 	case <-ctx.Done():
 		return false
 	}
+	MaybePrintRoutineCount(ctx)
+	count, ok := ctx.Value("count").(*atomic.Int32)
+	if ok {
+		count.Add(1)
+	}
+	return true
 }
 
 func ReleaseRoutine(ctx context.Context) bool {
@@ -49,10 +61,23 @@ func ReleaseRoutine(ctx context.Context) bool {
 	}
 	select {
 	case <-time.After(1 * time.Second):
-		return true
-	case <-limitChan:
-		return true
+	case limitChan <- struct{}{}:
 	case <-ctx.Done():
 		return false
+	}
+	MaybePrintRoutineCount(ctx)
+	count, ok := ctx.Value("count").(*atomic.Int32)
+	if ok {
+		count.Add(-1)
+	}
+	return true
+}
+
+func MaybePrintRoutineCount(ctx context.Context) {
+	if rand.Intn(100) == 0 {
+		count, ok := ctx.Value("count").(*atomic.Int32)
+		if ok {
+			fmt.Printf("Go Routines: %v\n", count.Load())
+		}
 	}
 }
