@@ -7,8 +7,8 @@ import (
 )
 
 // helper func used in all tests that use Substitution of vars
-func indexOf(x *ast.SExpr) uint64 {
-	return x.Atom.Var.Index
+func indexOf(x *ast.SExpr) Var {
+	return NewVar(x.Atom.Var.Index)
 }
 
 func TestOccurs(t *testing.T) {
@@ -24,7 +24,7 @@ func TestOccurs(t *testing.T) {
 	for _, test := range tests {
 		v, w, s, want := test()
 		t.Run("(occurs "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
-			got := occurs(v.Atom.Var, w, s)
+			got := occurs(NewVar(v.Atom.Var.Index), w, s)
 			if want != got {
 				t.Fatalf("got %v want %v", got, want)
 			}
@@ -62,7 +62,7 @@ func TestExts(t *testing.T) {
 		v, w, s, want := test()
 		t.Run("(exts "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
 			got := ""
-			gots, gotok := exts(v.Atom.Var, w, s)
+			gots, gotok := exts(NewVar(v.Atom.Var.Index), w, s)
 			if gotok {
 				got = gots.String()
 			}

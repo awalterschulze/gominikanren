@@ -19,10 +19,10 @@ func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 		return s, true
 	}
 	if uu.IsVariable() {
-		return exts(uu.Atom.Var, vv, s)
+		return exts(NewVar(uu.Atom.Var.Index), vv, s)
 	}
 	if vv.IsVariable() {
-		return exts(vv.Atom.Var, uu, s)
+		return exts(NewVar(vv.Atom.Var.Index), uu, s)
 	}
 	if uu.IsPair() && vv.IsPair() {
 		scar, sok := unify(uu.Car(), vv.Car(), s)

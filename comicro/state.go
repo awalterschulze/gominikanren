@@ -40,14 +40,8 @@ func EmptyState() *State {
 	return &State{}
 }
 
-// SubPair is a substitution pair
-type SubPair struct {
-	Key   uint64
-	Value *ast.SExpr
-}
-
 // Substitutions is a list of substitutions represented by a sexprs pair.
-type Substitutions map[uint64]*ast.SExpr
+type Substitutions map[Var]*ast.SExpr
 
 func (s Substitutions) Copy() Substitutions {
 	m := make(Substitutions, len(s))
@@ -71,10 +65,10 @@ func (s Substitutions) String() string {
 	return l[1 : len(l)-1]
 }
 
-func (s Substitutions) AddPair(key uint64, value *ast.SExpr) Substitutions {
+func (s Substitutions) AddPair(key Var, value *ast.SExpr) Substitutions {
 	var ss Substitutions
 	if s == nil {
-		ss = map[uint64]*ast.SExpr{}
+		ss = map[Var]*ast.SExpr{}
 	} else {
 		ss = s.Copy()
 	}
@@ -82,7 +76,7 @@ func (s Substitutions) AddPair(key uint64, value *ast.SExpr) Substitutions {
 	return ss
 }
 
-func (s Substitutions) Get(key uint64) (*ast.SExpr, bool) {
+func (s Substitutions) Get(key Var) (*ast.SExpr, bool) {
 	v, ok := s[key]
 	return v, ok
 }
