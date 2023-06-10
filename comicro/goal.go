@@ -22,15 +22,13 @@ If n == -1 then all possible states are returned.
 */
 func RunGoal(ctx context.Context, n int, g Goal) []*State {
 	ss := NewStreamForGoal(ctx, g, EmptyState())
-	return takeStream(n, ss)
+	return Take(ctx, n, ss)
 }
 
 // Run behaves like the default miniKanren run command
 func Run(ctx context.Context, n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
-	v := Var(0)
-	ss := NewStreamForGoal(ctx, g(v), &State{nil, 1})
-	states := takeStream(n, ss)
-	return MKReifys(states)
+	ss := RunStream(ctx, g)
+	return Take(ctx, n, ss)
 }
 
 // RunStream behaves like the default miniKanren run command, but returns a stream of answers
