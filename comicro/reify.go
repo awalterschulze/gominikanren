@@ -22,7 +22,7 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	}
 	if vv.IsVariable() {
 		n := reifyName(len(s))
-		return s.AddPair(vv.Atom.Var.Index, n)
+		return s.AddPair(NewVar(vv.Atom.Var.Index), n)
 	}
 	if vv.IsPair() {
 		car := vv.Car()
@@ -34,9 +34,9 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 }
 
 // ReifyIntVarFromState is a curried function that reifies the input variable for the given input state.
-func ReifyIntVarFromState(v uint64) func(s *State) *ast.SExpr {
+func ReifyIntVarFromState(v Var) func(s *State) *ast.SExpr {
 	return func(s *State) *ast.SExpr {
-		vv := walkStar(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Index: v}}}, s.Substitutions)
+		vv := walkStar(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Index: uint64(v)}}}, s.Substitutions)
 		r := reifyS(vv)
 		return walkStar(vv, r)
 	}

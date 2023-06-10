@@ -22,7 +22,7 @@ func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
 	if ss == nil {
 		return nil, false
 	}
-	return ss.Get(v.Index)
+	return ss.Get(NewVar(v.Index))
 }
 
 func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {

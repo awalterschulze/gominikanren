@@ -264,7 +264,7 @@ func goStringVar(this *Variable) string {
 }
 
 func (v *Variable) Equal(vv *Variable) bool {
-	return reflect.DeepEqual(v, vv)
+	return v.Index == vv.Index
 }
 
 func NewList(ss ...*SExpr) *SExpr {
