@@ -18,9 +18,17 @@ scheme code:
 */
 func Disj(g1, g2 Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
-		g1s := NewStreamForGoal(ctx, g1, s)
-		g2s := NewStreamForGoal(ctx, g2, s)
-		Mplus(ctx, g1s, g2s, ss)
+		wait := sync.WaitGroup{}
+		wait.Add(2)
+		go func() {
+			defer wait.Done()
+			g1(ctx, s, ss)
+		}()
+		go func() {
+			defer wait.Done()
+			g2(ctx, s, ss)
+		}()
+		wait.Wait()
 	}
 }
 
