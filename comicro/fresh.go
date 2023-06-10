@@ -7,13 +7,19 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
+type Var uintptr
+
 // Var creates a new variable as the string vC
-func Var(c uint64) *ast.SExpr {
-	return ast.NewVar(fmt.Sprintf("v%d", c), c)
+func NewVar(c uint64) Var {
+	return Var(uintptr(c))
+}
+
+func (v Var) SExpr() *ast.SExpr {
+	return ast.NewVar(fmt.Sprintf("v%d", v), uint64(v))
 }
 
 // CallFresh expects a function that expects a variable and returns a Goal.
-func CallFresh(f func(*ast.SExpr) Goal) Goal {
+func CallFresh(f func(Var) Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		v := Var(s.Counter)
 		s1 := s.AddCounter()
@@ -24,10 +30,10 @@ func CallFresh(f func(*ast.SExpr) Goal) Goal {
 // calls n new fresh vars, it is up to the user to use them
 // (ie by assigning them to go vars in f)
 // not ideal, but better than 5 nested callfresh calls...
-func Fresh(n int, f func(...*ast.SExpr) Goal) Goal {
+func Fresh(n int, f func(...Var) Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		s1 := s
-		vars := make([]*ast.SExpr, n)
+		vars := make([]Var, n)
 		for i := 0; i < n; i++ {
 			v := Var(s1.Counter)
 			vars[i] = v

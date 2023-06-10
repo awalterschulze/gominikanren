@@ -30,13 +30,13 @@ but we can optimise if we detect y is bound
 	  )))
 */
 func MemberO(x, y *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
-		return comicro.CallFresh(func(d *ast.SExpr) comicro.Goal {
+	return comicro.CallFresh(func(a comicro.Var) comicro.Goal {
+		return comicro.CallFresh(func(d comicro.Var) comicro.Goal {
 			return comicro.Conj(
-				comicro.EqualO(y, ast.Cons(a, d)),
+				comicro.EqualO(y, ast.Cons(a.SExpr(), d.SExpr())),
 				comicro.Disj(
-					comicro.EqualO(x, a),
-					MemberO(x, d),
+					comicro.EqualO(x, a.SExpr()),
+					MemberO(x, d.SExpr()),
 				),
 			)
 		})
@@ -72,8 +72,8 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x, y *ast.SExpr) comicro.
 			comicro.EqualO(y, nil),
 		},
 		[]comicro.Goal{
-			comicro.Fresh(4, func(vars ...*ast.SExpr) comicro.Goal {
-				xa, xd, ya, yd := vars[0], vars[1], vars[2], vars[3]
+			comicro.Fresh(4, func(vars ...comicro.Var) comicro.Goal {
+				xa, xd, ya, yd := vars[0].SExpr(), vars[1].SExpr(), vars[2].SExpr(), vars[3].SExpr()
 				return Conjs(
 					comicro.EqualO(x, ast.Cons(xa, xd)),
 					comicro.EqualO(y, ast.Cons(ya, yd)),

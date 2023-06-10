@@ -13,9 +13,9 @@ func TestMemberO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := ast.Sort(comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
+	sexprs := ast.Sort(comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return MemberO(
-			q,
+			q.SExpr(),
 			list,
 		)
 	}))
@@ -33,10 +33,10 @@ func TestMapO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := comicro.Run(ctx, -1, func(q *ast.SExpr) comicro.Goal {
+	sexprs := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return MapO(
 			comicro.EqualO,
-			q,
+			q.SExpr(),
 			list,
 		)
 	})

@@ -64,7 +64,7 @@ func (s Substitutions) String() string {
 	for i, k := range ks {
 		v := s[k]
 		vv := Var(k)
-		vvv := ast.Cons(vv, v)
+		vvv := ast.Cons(vv.SExpr(), v)
 		sexprs[len(s)-1-i] = vvv
 	}
 	l := ast.NewList(sexprs...).String()
