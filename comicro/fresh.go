@@ -12,23 +12,7 @@ func Var(c uint64) *ast.SExpr {
 	return ast.NewVar(fmt.Sprintf("v%d", c), c)
 }
 
-/*
-CallFresh expects a function that expects a variable and returns a Goal.
-
-scheme code:
-
-	(define (call/fresh f)
-		(lambda_g (s/c)
-			(let (
-				(c (cdr s/c))
-			)
-			(
-				(f (var c))
-				`(,(car s/c) . ,(+ c 1)))
-			)
-		)
-	)
-*/
+// CallFresh expects a function that expects a variable and returns a Goal.
 func CallFresh(f func(*ast.SExpr) Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		v := Var(s.Counter)

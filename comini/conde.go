@@ -4,14 +4,7 @@ import (
 	"github.com/awalterschulze/gominikanren/comicro"
 )
 
-/*
-Conde is a disjunction of conjunctions
-
-(define- syntax conde
-(syntax- rules ()
-
-	((_ (g0 g . . . ) . . . ) (disj+ (conj+ g0 g . . . ) . . . ))))
-*/
+// Conde is a disjunction of conjunctions
 func Conde(gs ...[]comicro.Goal) comicro.Goal {
 	conj := make([]comicro.Goal, len(gs))
 	for i, v := range gs {

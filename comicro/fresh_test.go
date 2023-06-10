@@ -41,7 +41,7 @@ func TestFreshKiwi(t *testing.T) {
 func TestFresherKiwi(t *testing.T) {
 	ss := RunGoal(context.Background(), 1,
 		Fresh(1, func(vars ...*ast.SExpr) Goal {
-            fruit := vars[0]
+			fruit := vars[0]
 			return EqualO(
 				ast.NewSymbol("plum"),
 				fruit,

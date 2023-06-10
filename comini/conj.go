@@ -6,15 +6,7 @@ import (
 	"github.com/awalterschulze/gominikanren/comicro"
 )
 
-/*
-ConjPlus is a macro that extends conjunction to arbitrary arguments
-
-(define- syntax conj+
-(syntax- rules ()
-
-	((_ g) (Zzz g))
-	((_ g0 g . . . ) (conj (Zzz g0) (conj+ g . . . )))))
-*/
+// Conjs is a macro that extends conjunction to arbitrary arguments
 func Conjs(gs ...comicro.Goal) comicro.Goal {
 	if len(gs) == 0 {
 		return comicro.SuccessO
