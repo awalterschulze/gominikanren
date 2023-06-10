@@ -7,15 +7,7 @@ import (
 	"github.com/awalterschulze/gominikanren/comicro"
 )
 
-/*
-Disjs is a macro that extends disjunction to arbitrary arguments
-
-(define- syntax disj+
-(syntax-rules ()
-
-	((_ g) (Zzz g))
-	((_ g0 g . . . ) (disj (Zzz g0) (disj+ g . . . )))))
-*/
+// Disjs is a macro that extends disjunction to arbitrary arguments
 func Disjs(gs ...comicro.Goal) comicro.Goal {
 	return func(ctx context.Context, s *comicro.State, ss comicro.StreamOfStates) {
 		wait := sync.WaitGroup{}

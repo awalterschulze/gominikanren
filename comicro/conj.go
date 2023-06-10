@@ -5,17 +5,7 @@ import (
 	"sync"
 )
 
-/*
-Conj is a goal that returns a logical AND of the input goals.
-
-scheme code:
-
-	(define (conj g1 g2)
-		(lambda_g (s/c)
-			(bind (g1 s/c) g2)
-		)
-	)
-*/
+// Conj is a goal that returns a logical AND of the input goals.
 func Conj(g1, g2 Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		g1s := NewStreamForGoal(ctx, g1, s)
@@ -23,21 +13,7 @@ func Conj(g1, g2 Goal) Goal {
 	}
 }
 
-/*
-Bind is the monad bind function for state.
-
-scheme code:
-
-	(define (bind $ g)
-		(cond
-			((null? $) mzero)
-			((procedure? $) (lambda_$ () (bind ($) g)))
-			(else (mplus (g (car $)) (bind (cdr $) g)))
-		)
-	)
-
-not a suspension => procedure? == false
-*/
+// Bind is the monad bind function for state.
 func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates) {
 	wait := sync.WaitGroup{}
 	for {

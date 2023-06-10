@@ -9,17 +9,7 @@ import (
 // Goal is a function that takes a state and returns a stream of states.
 type Goal func(context.Context, *State, StreamOfStates)
 
-/*
-RunGoal calls a goal with an emptystate and n possible resulting states.
-
-scheme code:
-
-	(define (run-goal n g)
-		(takeInf n (g empty-s))
-	)
-
-If n == -1 then all possible states are returned.
-*/
+// RunGoal calls a goal with an emptystate and n possible resulting states.
 func RunGoal(ctx context.Context, n int, g Goal) []*State {
 	ss := NewStreamForGoal(ctx, g, EmptyState())
 	return Take(ctx, n, ss)
@@ -53,38 +43,14 @@ func FailureO(ctx context.Context, s *State, ss StreamOfStates) {
 	return
 }
 
-/*
-EqualO returns a Goal that unifies the input expressions in the output stream.
-
-scheme code:
-
-	(define (= u v)
-		(lambda_g (s/c)
-			(let ((s (unify u v (car s/c))))
-				(if s (unit `(,s . ,(cdr s/c))) mzero)
-			)
-		)
-	)
-*/
+// EqualO returns a Goal that unifies the input expressions in the output stream.
 func EqualO(u, v *ast.SExpr) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		ss.Write(ctx, Unify(s, u, v))
 	}
 }
 
-/*
-NeverO is a Goal that returns a never ending stream of suspensions.
-
-scheme code:
-
-	(define (nevero)
-		(lambda (s)
-			(lambda ()
-				((nevero) s)
-			)
-		)
-	)
-*/
+// NeverO is a Goal that returns a never ending stream of suspensions.
 func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
 	for {
 		if ok := ss.Write(ctx, nil); !ok {
@@ -93,25 +59,7 @@ func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
 	}
 }
 
-/*
-AlwaysO is a goal that returns a never ending stream of success.
-
-scheme code:
-
-	(define (alwayso)
-		(lambda (s)
-			(lambda ()
-				(
-					(disj
-						S
-						(alwayso)
-					)
-					s
-				)
-			)
-		)
-	)
-*/
+// AlwaysO is a goal that returns a never ending stream of success.
 func AlwaysO(ctx context.Context, s *State, ss StreamOfStates) {
 	for {
 		if ok := ss.Write(ctx, nil); !ok {

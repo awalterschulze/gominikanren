@@ -132,45 +132,6 @@ func NewStreamForGoal(ctx context.Context, g Goal, s *State) StreamOfStates {
 	return ss
 }
 
-/*
-Zzz is the macro to add inverse-eta-delay less tediously
-
-/*
-takeStream returns the first n states from the stream of states as a list.
-
-scheme code:
-
-	(define (takeInf n s)
-		(cond
-			(
-				(and
-					n
-					(zero? n)
-				)
-				()
-			)
-			(
-				(null? s)
-				()
-			)
-			(
-				(pair? s)
-				(cons
-					(car s)
-					(takeInf
-						(and n (sub1 n))
-						(cdr s)
-					)
-				)
-			)
-			(else
-				(takeInf n (s))
-			)
-		)
-	)
-
-If n == -1 results in the whole stream being returned.
-*/
 func Take[A comparable](ctx context.Context, n int, c chan A) []A {
 	if n == 0 {
 		return nil

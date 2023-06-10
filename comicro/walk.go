@@ -4,19 +4,7 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-/*
-walk has been modified to assume it is getting a variable, but here is the original scheme code:
-
-	(define (walk u s)
-		(let (
-			(pr (and
-					(var? u)
-					(assp (λ (v) (var=? u v)) s)
-			)))
-			(if pr (walk (cdr pr) s) u)
-		)
-	)
-*/
+// walk has been modified to assume it is getting a variable, but here is the original scheme code:
 func walk(v *ast.Variable, s Substitutions) *ast.SExpr {
 	value, ok := assv(v, s)
 	if !ok {
@@ -28,14 +16,8 @@ func walk(v *ast.Variable, s Substitutions) *ast.SExpr {
 	return walk(value.Atom.Var, s)
 }
 
-/*
-assv either produces the first association in s that has v as its car using eqv,
-or produces ok = false if l has no such association.
-
-for example:
-
-	assv v s <==> (assp (λ (v) (var=? u v)) s))
-*/
+// assv either produces the first association in s that has v as its car using eqv,
+// or produces ok = false if l has no such association.
 func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
 	if ss == nil {
 		return nil, false
@@ -43,31 +25,6 @@ func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
 	return ss.Get(v.Index)
 }
 
-/*
-scheme code:
-
-	(define (walkStar v s)
-		(let
-			(
-				(v (walk v s))
-			)
-			(cond
-				(
-					(var? v)
-					v
-				)
-				(
-					(pair? v)
-					(cons
-						(walkStar (car v) s)
-						(walkStar (cdr v) s)
-					)
-				)
-				(else v)
-			)
-		)
-	)
-*/
 func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	vv := v
 	if v.IsVariable() {
