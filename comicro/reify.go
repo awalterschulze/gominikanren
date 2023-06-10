@@ -89,8 +89,14 @@ func Reify(v string, ss []*State) []*ast.SExpr {
 	return fmap(ReifyVarFromState(v), ss)
 }
 
-// MKReify finds reifications for the first introduced var
+// MKReifys finds reifications for the first introduced var
 // NOTE: the way we've set this up now, vX is a reserved keyword
-func MKReify(ss []*State) []*ast.SExpr {
+func MKReifys(ss []*State) []*ast.SExpr {
 	return fmap(ReifyIntVarFromState(0), ss)
+}
+
+// MKReifys finds reifications for the first introduced var
+// NOTE: the way we've set this up now, vX is a reserved keyword
+func MKReify(s *State) *ast.SExpr {
+	return ReifyIntVarFromState(0)(s)
 }
