@@ -30,7 +30,28 @@ func Run(ctx context.Context, n int, g func(*ast.SExpr) Goal) []*ast.SExpr {
 	v := Var(0)
 	ss := NewStreamForGoal(ctx, g(v), &State{nil, 1})
 	states := takeStream(n, ss)
-	return MKReify(states)
+	return MKReifys(states)
+}
+
+// RunStream behaves like the default miniKanren run command, but returns a stream of answers
+func RunStream(ctx context.Context, g func(*ast.SExpr) Goal) chan *ast.SExpr {
+	v := Var(0)
+	ss := NewStreamForGoal(ctx, g(v), &State{nil, 1})
+	res := make(chan *ast.SExpr, 0)
+	go func() {
+		defer close(res)
+		s, ok := ss.Read(ctx)
+		if !ok {
+			return
+		}
+		r := MKReify(s)
+		select {
+		case res <- r:
+		case <-ctx.Done():
+			return
+		}
+	}()
+	return res
 }
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.

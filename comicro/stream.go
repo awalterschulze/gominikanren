@@ -13,30 +13,44 @@ func NewEmptyStream() StreamOfStates {
 }
 
 func (ss StreamOfStates) Read(ctx context.Context) (*State, bool) {
+	return Read(ctx, ss)
+}
+
+func Read[A any](ctx context.Context, ss <-chan A) (A, bool) {
+	var nilA A
 	if ss == nil {
-		return nil, false
+		return nilA, false
 	}
 	select {
 	case s, ok := <-ss:
 		return s, ok
 	case <-ctx.Done():
 	}
-	return nil, false
+	return nilA, false
 }
 
 func (ss StreamOfStates) ReadNonNull(ctx context.Context) (*State, bool) {
+	return ReadNonNull(ctx, ss)
+}
+
+func ReadNonNull[A comparable](ctx context.Context, ss chan A) (A, bool) {
+	var nilA A
 	for {
-		s, ok := ss.Read(ctx)
+		s, ok := Read(ctx, ss)
 		if !ok {
-			return nil, false
+			return nilA, false
 		}
-		if s != nil {
+		if s != nilA {
 			return s, true
 		}
 	}
 }
 
 func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
+	return Write(ctx, s, ss)
+}
+
+func Write[A any](ctx context.Context, s A, ss chan<- A) bool {
 	if ss == nil {
 		return false
 	}
@@ -52,13 +66,13 @@ func (ss StreamOfStates) Close() {
 	close(ss)
 }
 
-func WriteStreamTo(ctx context.Context, src StreamOfStates, dst StreamOfStates) {
+func WriteStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
 	for {
-		s, ok := src.Read(ctx)
+		s, ok := Read(ctx, src)
 		if !ok {
 			return
 		}
-		if ok := dst.Write(ctx, s); !ok {
+		if ok := Write(ctx, s, dst); !ok {
 			return
 		}
 	}
@@ -137,20 +151,21 @@ scheme code:
 
 If n == -1 results in the whole stream being returned.
 */
-func takeStream(n int, s StreamOfStates) []*State {
+func takeStream[A comparable](n int, s chan A) []A {
 	if n == 0 {
 		return nil
 	}
 	if s == nil {
 		return nil
 	}
-	var res []*State
+	var res []A
 	if n < 0 {
-		res = []*State{}
+		res = make([]A, 0)
 	} else {
-		res = make([]*State, 0, n)
+		res = make([]A, 0, n)
 	}
 	i := 0
+	var nilA A
 	for {
 		if i == n {
 			break
@@ -159,7 +174,7 @@ func takeStream(n int, s StreamOfStates) []*State {
 		if !ok {
 			break
 		}
-		if a == nil {
+		if a == nilA {
 			continue
 		}
 		res = append(res, a)
