@@ -18,6 +18,16 @@ func (v Var) SExpr() *ast.SExpr {
 	return ast.NewVar(fmt.Sprintf("v%d", v), uint64(v))
 }
 
+func GetVar(s any) (Var, bool) {
+	if isvar(s) {
+		return s.(Var), true
+	}
+	if isvarSExpr(s) {
+		return NewVar(s.(*ast.SExpr).Atom.Var.Index), true
+	}
+	return 0, false
+}
+
 func IsVar(s any) bool {
 	return isvar(s) || isvarSExpr(s)
 }

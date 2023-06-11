@@ -23,19 +23,18 @@ func assv(v Var, ss Substitutions) (*ast.SExpr, bool) {
 
 func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	vv := v
-	if IsVar(v) {
-		vv = walk(NewVar(v.Atom.Var.Index), s)
+	if vvar, ok := GetVar(v); ok {
+		vv = walk(vvar, s)
 	}
 	if IsVar(vv) {
 		return vv
 	}
 	if vv.IsPair() {
-		carv := vv.Pair.Car
-		cdrv := vv.Pair.Cdr
-		wcar := walkStar(carv, s)
-		wcdr := walkStar(cdrv, s)
-		w := ast.Cons(wcar, wcdr)
-		return w
+		vva := Apply(vv.Pair, func(a any) any {
+			sexpr := a.(*ast.SExpr)
+			return walkStar(sexpr, s)
+		})
+		return &ast.SExpr{Pair: vva.(*ast.Pair)}
 	}
 	return vv
 }

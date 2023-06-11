@@ -17,18 +17,18 @@ func reifyS(v *ast.SExpr) Substitutions {
 
 func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	vv := v
-	if IsVar(v) {
-		vv = walk(NewVar(v.Atom.Var.Index), s)
+	if vvar, ok := GetVar(v); ok {
+		vv = walk(vvar, s)
 	}
-	if IsVar(vv) {
+	if vvar, ok := GetVar(vv); ok {
 		n := reifyName(len(s))
-		return s.AddPair(NewVar(vv.Atom.Var.Index), n)
+		return s.AddPair(vvar, n)
 	}
 	if vv.IsPair() {
-		car := vv.Car()
-		cars := reifys(car, s)
-		cdr := vv.Cdr()
-		return reifys(cdr, cars)
+		return Fold(vv.Pair, s, func(subs Substitutions, a any) Substitutions {
+			sexpr := a.(*ast.SExpr)
+			return reifys(sexpr, subs)
+		})
 	}
 	return s
 }
@@ -36,7 +36,7 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 // ReifyIntVarFromState is a curried function that reifies the input variable for the given input state.
 func ReifyIntVarFromState(v Var) func(s *State) *ast.SExpr {
 	return func(s *State) *ast.SExpr {
-		vv := walkStar(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Index: uint64(v)}}}, s.Substitutions)
+		vv := walkStar(v.SExpr(), s.Substitutions)
 		r := reifyS(vv)
 		return walkStar(vv, r)
 	}
