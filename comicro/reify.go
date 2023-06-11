@@ -25,7 +25,7 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 		return s.AddPair(vvar, n)
 	}
 	if vv.IsPair() {
-		return Fold(vv.Pair, s, func(subs Substitutions, a any) Substitutions {
+		return Fold(vv, s, func(subs Substitutions, a any) Substitutions {
 			sexpr := a.(*ast.SExpr)
 			return reifys(sexpr, subs)
 		})
