@@ -23,10 +23,10 @@ func assv(v Var, ss Substitutions) (*ast.SExpr, bool) {
 
 func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	vv := v
-	if v.IsVariable() {
+	if IsVar(v) {
 		vv = walk(NewVar(v.Atom.Var.Index), s)
 	}
-	if vv.IsVariable() {
+	if IsVar(vv) {
 		return vv
 	}
 	if vv.IsPair() {
