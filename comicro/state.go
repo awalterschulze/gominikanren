@@ -77,6 +77,9 @@ func (s Substitutions) AddPair(key Var, value *ast.SExpr) Substitutions {
 }
 
 func (s Substitutions) Get(key Var) (*ast.SExpr, bool) {
+	if s == nil {
+		return nil, false
+	}
 	v, ok := s[key]
 	return v, ok
 }

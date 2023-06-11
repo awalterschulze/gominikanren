@@ -2,21 +2,7 @@ package comicro
 
 import (
 	"context"
-	"fmt"
-
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
-
-type Var uintptr
-
-// Var creates a new variable as the string vC
-func NewVar(c uint64) Var {
-	return Var(uintptr(c))
-}
-
-func (v Var) SExpr() *ast.SExpr {
-	return ast.NewVar(fmt.Sprintf("v%d", v), uint64(v))
-}
 
 // CallFresh expects a function that expects a variable and returns a Goal.
 func CallFresh(f func(Var) Goal) Goal {
