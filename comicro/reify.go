@@ -18,7 +18,7 @@ func reifyS(v *ast.SExpr) Substitutions {
 func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	vv := v
 	if v.IsVariable() {
-		vv = walk(v.Atom.Var, s)
+		vv = walk(NewVar(v.Atom.Var.Index), s)
 	}
 	if vv.IsVariable() {
 		n := reifyName(len(s))
