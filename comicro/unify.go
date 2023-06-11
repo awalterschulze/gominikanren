@@ -8,21 +8,23 @@ import (
 // where cycles in substitutions can lead to (ok = false)
 func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 	uu := u
-	if IsVar(u) {
-		uu = walk(NewVar(u.Atom.Var.Index), s)
+	if uvar, ok := GetVar(u); ok {
+		uu = walk(uvar, s)
 	}
 	vv := v
-	if IsVar(v) {
-		vv = walk(NewVar(v.Atom.Var.Index), s)
+	if vvar, ok := GetVar(v); ok {
+		vv = walk(vvar, s)
 	}
-	if IsVar(uu) && IsVar(vv) && uu.Atom.Var.Equal(uu.Atom.Var) {
+	uuvar, uok := GetVar(uu)
+	vvvar, vok := GetVar(vv)
+	if uok && vok && uuvar == vvvar {
 		return s, true
 	}
-	if IsVar(uu) {
-		return exts(NewVar(uu.Atom.Var.Index), vv, s)
+	if uuvar, ok := GetVar(uu); ok {
+		return exts(uuvar, vv, s)
 	}
-	if IsVar(vv) {
-		return exts(NewVar(vv.Atom.Var.Index), uu, s)
+	if vvar, ok := GetVar(vv); ok {
+		return exts(vvar, uu, s)
 	}
 	if uu.IsPair() && vv.IsPair() {
 		scar, sok := unify(uu.Car(), vv.Car(), s)

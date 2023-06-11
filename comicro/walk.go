@@ -9,10 +9,10 @@ func walk(v Var, s Substitutions) *ast.SExpr {
 	if !ok {
 		return v.SExpr()
 	}
-	if !IsVar(value) {
-		return value
+	if varvalue, ok := GetVar(value); ok {
+		return walk(varvalue, s)
 	}
-	return walk(NewVar(value.Atom.Var.Index), s)
+	return value
 }
 
 // assv either produces the first association in s that has v as its car using eqv,
@@ -26,8 +26,8 @@ func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	if vvar, ok := GetVar(v); ok {
 		vv = walk(vvar, s)
 	}
-	if IsVar(vv) {
-		return vv
+	if vvar, ok := GetVar(vv); ok {
+		return vvar.SExpr()
 	}
 	if vv.IsPair() {
 		vva := Apply(vv, func(a any) any {
