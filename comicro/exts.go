@@ -16,10 +16,10 @@ func exts(x Var, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 
 func occurs(x Var, v *ast.SExpr, s Substitutions) bool {
 	vv := v
-	if v.IsVariable() {
+	if IsVar(v) {
 		vv = walk(NewVar(v.Atom.Var.Index), s)
 	}
-	if vv.IsVariable() {
+	if IsVar(vv) {
 		return NewVar(vv.Atom.Var.Index) == x
 	}
 	if vv.IsPair() {
