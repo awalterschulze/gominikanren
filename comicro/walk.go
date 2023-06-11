@@ -4,27 +4,27 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func walk(v *ast.Variable, s Substitutions) *ast.SExpr {
+func walk(v Var, s Substitutions) *ast.SExpr {
 	value, ok := assv(v, s)
 	if !ok {
-		return &ast.SExpr{Atom: &ast.Atom{Var: v}}
+		return v.SExpr()
 	}
 	if !IsVar(value) {
 		return value
 	}
-	return walk(value.Atom.Var, s)
+	return walk(NewVar(value.Atom.Var.Index), s)
 }
 
 // assv either produces the first association in s that has v as its car using eqv,
 // or produces ok = false if l has no such association.
-func assv(v *ast.Variable, ss Substitutions) (*ast.SExpr, bool) {
-	return ss.Get(NewVar(v.Index))
+func assv(v Var, ss Substitutions) (*ast.SExpr, bool) {
+	return ss.Get(v)
 }
 
 func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	vv := v
 	if v.IsVariable() {
-		vv = walk(v.Atom.Var, s)
+		vv = walk(NewVar(v.Atom.Var.Index), s)
 	}
 	if vv.IsVariable() {
 		return vv

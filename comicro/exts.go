@@ -17,7 +17,7 @@ func exts(x Var, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 func occurs(x Var, v *ast.SExpr, s Substitutions) bool {
 	vv := v
 	if v.IsVariable() {
-		vv = walk(v.Atom.Var, s)
+		vv = walk(NewVar(v.Atom.Var.Index), s)
 	}
 	if vv.IsVariable() {
 		return NewVar(vv.Atom.Var.Index) == x

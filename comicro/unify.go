@@ -9,11 +9,11 @@ import (
 func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 	uu := u
 	if u.IsVariable() {
-		uu = walk(u.Atom.Var, s)
+		uu = walk(NewVar(u.Atom.Var.Index), s)
 	}
 	vv := v
 	if v.IsVariable() {
-		vv = walk(v.Atom.Var, s)
+		vv = walk(NewVar(v.Atom.Var.Index), s)
 	}
 	if uu.IsVariable() && vv.IsVariable() && uu.Atom.Var.Equal(uu.Atom.Var) {
 		return s, true
