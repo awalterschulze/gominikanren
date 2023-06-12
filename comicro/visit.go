@@ -61,26 +61,26 @@ func Fold[B any](i any, b B, f func(b B, a any) B) B {
 	return fold(i, b, f)
 }
 
-func fold[B any](i any, b B, f func(b B, a any) B) B {
-	v := reflect.ValueOf(i)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+func fold[B any](a any, b B, f func(b B, a any) B) B {
+	ra := reflect.ValueOf(a)
+	if ra.Kind() == reflect.Ptr && ra.IsNil() {
 		return b
 	}
-	switch v.Kind() {
+	switch ra.Kind() {
 	case reflect.Ptr:
-		if v.Elem().Kind() == reflect.Struct {
-			for i := 0; i < v.Elem().NumField(); i++ {
-				b = f(b, v.Elem().Field(i).Interface())
+		if ra.Elem().Kind() == reflect.Struct {
+			for i := 0; i < ra.Elem().NumField(); i++ {
+				b = f(b, ra.Elem().Field(i).Interface())
 			}
 			return b
 		}
 	case reflect.Slice:
-		for i := 0; i < v.Len(); i++ {
-			b = f(b, v.Index(i).Interface())
+		for i := 0; i < ra.Len(); i++ {
+			b = f(b, ra.Index(i).Interface())
 		}
 		return b
 	}
-	return f(b, i)
+	return f(b, a)
 }
 
 func GetUnionValue(a any) (any, int) {
