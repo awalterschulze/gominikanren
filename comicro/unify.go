@@ -1,12 +1,12 @@
 package comicro
 
 import (
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"reflect"
 )
 
 // unify returns either (ok = false) or the substitution s extended with zero or more associations,
 // where cycles in substitutions can lead to (ok = false)
-func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
+func unify(u, v any, s Substitutions) (Substitutions, bool) {
 	var uu any = u
 	var vv any = v
 	if uvar, ok := GetVar(u); ok {
@@ -23,30 +23,30 @@ func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
 				return s, true
 			}
 			return exts(uu, vv.SExpr(), s)
-		case *ast.SExpr:
+		default:
 			return exts(uu, vv, s)
 		}
-	case *ast.SExpr:
+	default:
 		switch vv := vv.(type) {
 		case Var:
 			return exts(vv, uu, s)
-		case *ast.SExpr:
-			if uu.IsPair() && vv.IsPair() {
-				scar, sok := unify(uu.Car(), vv.Car(), s)
+		default:
+			if IsContainer(uu) && IsContainer(vv) {
+				ss, sok := ZipFold(uu, vv, s, unify)
 				if !sok {
 					return nil, false
 				}
-				return unify(uu.Cdr(), vv.Cdr(), scar)
-			}
-			if uu.Equal(vv) {
-				return s, true
+				return ss, true
 			}
 		}
+	}
+	if reflect.DeepEqual(uu, vv) {
+		return s, true
 	}
 	return nil, false
 }
 
-func Unify(s *State, u, v *ast.SExpr) *State {
+func Unify(s *State, u, v any) *State {
 	substitutions, ok := unify(u, v, s.Substitutions)
 	if !ok {
 		return nil

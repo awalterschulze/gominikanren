@@ -37,6 +37,9 @@ func IsVar(s any) bool {
 }
 
 func isvar(a any) bool {
+	if a == nil {
+		return false
+	}
 	v := reflect.ValueOf(a)
 	if v.Type() != varType {
 		return false
