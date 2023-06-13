@@ -38,7 +38,7 @@ func TestMapO(t *testing.T) {
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
 	sexprs := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return MapO(
-			comicro.EqualO,
+			func(x, y *ast.SExpr) comicro.Goal { return comicro.EqualO(x, y) },
 			q.SExpr(),
 			list,
 		)
