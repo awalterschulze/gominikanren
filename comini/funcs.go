@@ -1,4 +1,4 @@
-package comicro
+package comini
 
 // Fmap returns a list where each element of the input list has been morphed by the input function.
 func fmap[A, B any](list []A, f func(A) B) []B {

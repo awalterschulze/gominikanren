@@ -57,14 +57,7 @@ func (s Substitutions) String() string {
 	sexprs := make([]*ast.SExpr, len(s))
 	for i, k := range ks {
 		v := s[k]
-		vv := Var(k)
-		switch vt := v.(type) {
-		case *ast.SExpr:
-			vvv := ast.Cons(vv.SExpr(), vt)
-			sexprs[len(s)-1-i] = vvv
-		default:
-			sexprs[len(s)-1-i] = ast.Cons(vv.SExpr(), ast.NewSymbol(v.(interface{ String() string }).String()))
-		}
+		sexprs[len(s)-1-i] = ast.Cons(k.SExpr(), ast.NewSymbol(v.(Stringer).String()))
 	}
 	l := ast.NewList(sexprs...).String()
 	return l[1 : len(l)-1]

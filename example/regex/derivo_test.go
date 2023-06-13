@@ -116,7 +116,7 @@ func TestGenDeriveOA(t *testing.T) {
 		if !ok {
 			return
 		}
-		fmt.Printf("%s\n", s.String())
+		fmt.Printf("%s\n", s.(Stringer).String())
 	}
 }
 
@@ -135,7 +135,7 @@ func TestGenDeriveOB(t *testing.T) {
 		if !ok {
 			return
 		}
-		fmt.Printf("%s\n", s.String())
+		fmt.Printf("%s\n", s.(Stringer).String())
 	}
 }
 
@@ -154,6 +154,6 @@ func TestGenDeriveOAOrB(t *testing.T) {
 		if !ok {
 			return
 		}
-		fmt.Printf("%s\n", s.String())
+		fmt.Printf("%s\n", s.(Stringer).String())
 	}
 }

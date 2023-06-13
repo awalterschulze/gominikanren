@@ -16,16 +16,16 @@ func RunGoal(ctx context.Context, n int, g Goal) []*State {
 }
 
 // Run behaves like the default miniKanren run command
-func Run(ctx context.Context, n int, g func(Var) Goal) []*ast.SExpr {
+func Run(ctx context.Context, n int, g func(Var) Goal) []any {
 	ss := RunStream(ctx, g)
 	return Take(ctx, n, ss)
 }
 
 // RunStream behaves like the default miniKanren run command, but returns a stream of answers
-func RunStream(ctx context.Context, g func(Var) Goal) chan *ast.SExpr {
+func RunStream(ctx context.Context, g func(Var) Goal) chan any {
 	v := Var(0)
 	ss := NewStreamForGoal(ctx, g(v), &State{nil, 1})
-	res := make(chan *ast.SExpr, 0)
+	res := make(chan any, 0)
 	go func() {
 		defer close(res)
 		MapOverNonNilStream(ctx, ss, Reify, res)

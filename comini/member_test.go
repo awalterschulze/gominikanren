@@ -13,11 +13,14 @@ func TestMemberO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := ast.Sort(comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
+	sanys := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return MemberO(
 			q.SExpr(),
 			list,
 		)
+	})
+	sexprs := ast.Sort(fmap(sanys, func(a any) *ast.SExpr {
+		return a.(*ast.SExpr)
 	}))
 	if len(sexprs) != 3 {
 		t.Fatalf("expected len %d, but got len %d instead", 3, len(sexprs))

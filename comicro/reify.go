@@ -20,14 +20,14 @@ func reifys(v any, s Substitutions) Substitutions {
 }
 
 // reifyFromState is a curried function that reifies the input variable for the given input state.
-func reifyFromState(v Var, s *State) *ast.SExpr {
+func reifyFromState(v Var, s *State) any {
 	vv := ReplaceAll(v, s.Substitutions)
 	r := reifys(vv, nil)
-	return ReplaceAll(vv, r).(*ast.SExpr)
+	return ReplaceAll(vv, r)
 }
 
 // Reify finds reifications for the first introduced var
 // NOTE: the way we've set this up now, vX is a reserved keyword
-func Reify(s *State) *ast.SExpr {
+func Reify(s *State) any {
 	return reifyFromState(0, s)
 }
