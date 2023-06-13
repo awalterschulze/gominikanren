@@ -10,11 +10,6 @@ func reifyName(n int) *ast.SExpr {
 	return ast.NewSymbol("_" + strconv.Itoa(n))
 }
 
-// reifys expects a value and initially an empty substitution.
-func reifyS(v *ast.SExpr) Substitutions {
-	return reifys(v, nil)
-}
-
 func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 	vv := v
 	if vvar, ok := GetVar(v); ok {
@@ -24,20 +19,20 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 		n := reifyName(len(s))
 		return s.AddPair(vvar, n)
 	}
-	if vv.IsPair() {
-		return Fold(vv, s, func(subs Substitutions, a any) Substitutions {
-			sexpr := a.(*ast.SExpr)
-			return reifys(sexpr, subs)
-		})
-	}
-	return s
+	return Fold(vv, s, func(subs Substitutions, a any) Substitutions {
+		sexpr, ok := a.(*ast.SExpr)
+		if !ok {
+			return s
+		}
+		return reifys(sexpr, subs)
+	})
 }
 
 // ReifyIntVarFromState is a curried function that reifies the input variable for the given input state.
 func ReifyIntVarFromState(v Var) func(s *State) *ast.SExpr {
 	return func(s *State) *ast.SExpr {
 		vv := walkStar(v.SExpr(), s.Substitutions)
-		r := reifyS(vv)
+		r := reifys(vv, nil)
 		return walkStar(vv, r)
 	}
 }
