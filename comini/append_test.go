@@ -41,7 +41,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	sexprs := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
+	sanys := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return comicro.CallFresh(func(x comicro.Var) comicro.Goal {
 			return comicro.CallFresh(func(y comicro.Var) comicro.Goal {
 				return comicro.Conj(
@@ -64,6 +64,9 @@ func TestAppendOAllCombinations(t *testing.T) {
 			})
 		})
 	})
+	sexprs := fmap(sanys, func(a any) *ast.SExpr {
+		return a.(*ast.SExpr)
+	})
 	got := ast.NewList(ast.Sort(sexprs)...).String()
 	want := "((() (cake & ice d t)) ((cake) (& ice d t)) ((cake &) (ice d t)) ((cake & ice) (d t)) ((cake & ice d) (t)) ((cake & ice d t) ()))"
 	if got != want {
@@ -74,14 +77,17 @@ func TestAppendOAllCombinations(t *testing.T) {
 func TestAppendOSingleList(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
+	sanys := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.Cons(ast.NewSymbol("b"), nil),
 			q.SExpr(),
 		)
 	})
-	got := ast.NewList(ss...).String()
+	sexprs := fmap(sanys, func(a any) *ast.SExpr {
+		return a.(*ast.SExpr)
+	})
+	got := ast.NewList(sexprs...).String()
 	want := "((a b))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -91,14 +97,17 @@ func TestAppendOSingleList(t *testing.T) {
 func TestAppendOSingleAtom(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
+	sanys := comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.NewSymbol("b"),
 			q.SExpr(),
 		)
 	})
-	got := ast.NewList(ss...).String()
+	sexprs := fmap(sanys, func(a any) *ast.SExpr {
+		return a.(*ast.SExpr)
+	})
+	got := ast.NewList(sexprs...).String()
 	want := "((a . b))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)

@@ -17,7 +17,7 @@ func testo(t *testing.T, f func(q comicro.Var) comicro.Goal, want *ast.SExpr) {
 		t.Fatalf("expected len %d result, but got %d instead", 1, len(sexprs))
 	}
 	got := sexprs[0]
-	if !got.Equal(want) {
+	if !got.(*ast.SExpr).Equal(want) {
 		t.Fatalf("expected %s, but got %s instead", want, got)
 	}
 }

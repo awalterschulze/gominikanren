@@ -2,6 +2,7 @@ package comicro
 
 import (
 	"context"
+	"reflect"
 	"sort"
 	"strings"
 )
@@ -33,14 +34,15 @@ func (ss StreamOfStates) ReadNonNil(ctx context.Context) (*State, bool) {
 	return ReadNonNilFromStream(ctx, ss)
 }
 
-func ReadNonNilFromStream[A comparable](ctx context.Context, c <-chan A) (A, bool) {
+func ReadNonNilFromStream[A any](ctx context.Context, c <-chan A) (A, bool) {
 	var zero A
 	for {
 		a, ok := ReadFromStream(ctx, c)
 		if !ok {
 			return zero, false
 		}
-		if a != zero {
+		r := reflect.ValueOf(a)
+		if r.Kind() != reflect.Ptr || !r.IsNil() {
 			return a, true
 		}
 	}
@@ -132,7 +134,7 @@ func NewStreamForGoal(ctx context.Context, g Goal, s *State) StreamOfStates {
 	return ss
 }
 
-func Take[A comparable](ctx context.Context, n int, c chan A) []A {
+func Take[A any](ctx context.Context, n int, c chan A) []A {
 	if n == 0 {
 		return nil
 	}
@@ -144,7 +146,6 @@ func Take[A comparable](ctx context.Context, n int, c chan A) []A {
 		as = make([]A, 0, n)
 	}
 	i := 0
-	var nilA A
 	for {
 		if i == n {
 			break
@@ -152,9 +153,6 @@ func Take[A comparable](ctx context.Context, n int, c chan A) []A {
 		a, ok := ReadNonNilFromStream(ctx, c)
 		if !ok {
 			break
-		}
-		if a == nilA {
-			continue
 		}
 		as = append(as, a)
 		i++

@@ -43,7 +43,9 @@ func TestFivesAndSixes(t *testing.T) {
 				ast5,
 			)
 		}))
-	got := fmap(states, Reify)
+	got := fmap(fmap(states, Reify), func(a any) *ast.SExpr {
+		return a.(*ast.SExpr)
+	})
 	want := []*ast.SExpr{ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", want, got)
@@ -57,7 +59,9 @@ func TestFivesAndSixes(t *testing.T) {
 			return fives(x.SExpr())
 		}),
 	)
-	got = fmap(states, Reify)
+	got = fmap(fmap(states, Reify), func(a any) *ast.SExpr {
+		return a.(*ast.SExpr)
+	})
 	want = []*ast.SExpr{ast5, ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", want, got)
@@ -74,10 +78,10 @@ func TestFivesAndSixes(t *testing.T) {
 	has5 := false
 	has6 := false
 	for s := range stream {
-		if !has5 && strings.Contains(s.String(), "5") {
+		if !has5 && strings.Contains(s.(Stringer).String(), "5") {
 			has5 = true
 		}
-		if !has6 && strings.Contains(s.String(), "6") {
+		if !has6 && strings.Contains(s.(Stringer).String(), "6") {
 			has6 = true
 		}
 		if has5 && has6 {

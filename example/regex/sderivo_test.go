@@ -118,7 +118,7 @@ func TestGenSDerivO(t *testing.T) {
 			break
 		}
 		count++
-		fmt.Printf("%s\n", s.String())
+		fmt.Printf("%s\n", s.(Stringer).String())
 	}
 	if count < 1 {
 		t.Fatalf("expected at least 1 solution, got %d", count)
@@ -142,7 +142,7 @@ func TestGenSDerivOB(t *testing.T) {
 			break
 		}
 		count++
-		fmt.Printf("%s\n", s.String())
+		fmt.Printf("%s\n", s.(Stringer).String())
 	}
 	if count < 2 {
 		t.Fatalf("expected at least 2 solutions, got %d", count)
@@ -166,7 +166,7 @@ func TestGenSDerivOAOrB(t *testing.T) {
 			break
 		}
 		count++
-		fmt.Printf("%s\n", s.String())
+		fmt.Printf("%s\n", s.(Stringer).String())
 	}
 	if count < 2 {
 		t.Fatalf("expected at least 2 solutions, got %d", count)
