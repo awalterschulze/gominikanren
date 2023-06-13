@@ -15,13 +15,13 @@ func Map(a any, f func(a any) any) any {
 	}
 	u, ui := GetUnionValue(a)
 	if ui != -1 {
-		fu := mapAny(u, f)
+		fu := mapOverAny(u, f)
 		return SetUnionValue(a, ui, fu)
 	}
-	return mapAny(a, f)
+	return mapOverAny(a, f)
 }
 
-func mapAny(a any, f func(a any) any) any {
+func mapOverAny(a any, f func(a any) any) any {
 	v := reflect.ValueOf(a)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
 		return a
@@ -56,8 +56,8 @@ func mapAny(a any, f func(a any) any) any {
 
 // Fold folds a function over the elements of a slice or the fields of a struct
 // For example:
-//   - Fold([]{1,2,3}, 0, func(x, sum int) { return sum + x }) = 6
-//   - Fold([]{1,2,3}, 0, func(x int, s string) { return s + fmt.Sprintf("%d", x) }) = "123"
+//   - Fold([]{1,2,3}, 0, func(x, sum int) int { return sum + x }) = 6
+//   - Fold([]{1,2,3}, 0, func(x int, s string) string { return s + fmt.Sprintf("%d", x) }) = "123"
 func Fold[B any](i any, b B, f func(b B, a any) B) B {
 	v := reflect.ValueOf(i)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
@@ -89,6 +89,47 @@ func fold[B any](a any, b B, f func(b B, a any) B) B {
 		return b
 	}
 	return f(b, a)
+}
+
+// Any returns true if the predicate is true for any of the elements in the slice of fields of a struct.
+// For example:
+//   - Any([]{1,2,3}, func(x int) bool { return x == 2 }) = true
+//   - Any([]{1,2,3}, func(x int) bool { return x == 4 }) = false
+func Any(i any, f func(a any) bool) bool {
+	v := reflect.ValueOf(i)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return false
+	}
+	if u, ui := GetUnionValue(i); ui != -1 {
+		return anyOf(u, f)
+	}
+	return anyOf(i, f)
+}
+
+func anyOf(a any, f func(a any) bool) bool {
+	ra := reflect.ValueOf(a)
+	if ra.Kind() == reflect.Ptr && ra.IsNil() {
+		return false
+	}
+	switch ra.Kind() {
+	case reflect.Ptr:
+		if ra.Elem().Kind() == reflect.Struct {
+			for i := 0; i < ra.Elem().NumField(); i++ {
+				if f(ra.Elem().Field(i).Interface()) {
+					return true
+				}
+			}
+			return false
+		}
+	case reflect.Slice:
+		for i := 0; i < ra.Len(); i++ {
+			if f(ra.Index(i).Interface()) {
+				return true
+			}
+		}
+		return false
+	}
+	return f(a)
 }
 
 func GetUnionValue(a any) (any, int) {
