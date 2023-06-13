@@ -88,7 +88,7 @@ func TestReplaceAll(t *testing.T) {
 	for _, test := range tests {
 		v, subs, want := test()
 		t.Run("(walk "+v.Atom.Var.Name+" "+subs.String()+")", func(t *testing.T) {
-			got := ReplaceAll(v, subs).String()
+			got := ReplaceAll(v, subs).(*ast.SExpr).String()
 			if want != got {
 				t.Fatalf("got %s want %s", got, want)
 			}

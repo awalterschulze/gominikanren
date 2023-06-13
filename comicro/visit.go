@@ -51,7 +51,7 @@ func mapOverAny(a any, f func(a any) any) any {
 		}
 		return r.Interface()
 	}
-	return f(a)
+	return a
 }
 
 // Fold folds a function over the elements of a slice or the fields of a struct
