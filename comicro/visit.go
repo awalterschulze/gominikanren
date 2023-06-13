@@ -4,20 +4,24 @@ import (
 	"reflect"
 )
 
-func Apply(a any, f func(a any) any) any {
+// MapAny maps a function over a the elements of a slice, the fields of a struct or the values of a map.
+// For example:
+//   - MapAny([]{1,2,3}, func(x int) int { return x + 1 }) = []{2,3,4}
+//   - MapAny([]{1,2,3}, func(x int) string { return fmt.Sprintf("%d", x) }) = []{"1","2","3"}
+func MapAny(a any, f func(a any) any) any {
 	v := reflect.ValueOf(a)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
 		return a
 	}
 	u, ui := GetUnionValue(a)
 	if ui != -1 {
-		fu := apply(u, f)
+		fu := mapAny(u, f)
 		return SetUnionValue(a, ui, fu)
 	}
-	return apply(a, f)
+	return mapAny(a, f)
 }
 
-func apply(a any, f func(a any) any) any {
+func mapAny(a any, f func(a any) any) any {
 	v := reflect.ValueOf(a)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
 		return a
