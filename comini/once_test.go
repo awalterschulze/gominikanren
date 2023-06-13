@@ -29,8 +29,8 @@ func TestOnce(t *testing.T) {
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)
 	got = strings.Replace(got, "v10002", "y", -1)
-	want1 := "(((,y . #f) (,x . #t) . 0))"
-	want2 := "(((,y . #f) (,x . #f) . 0))"
+	want1 := "(({,x: #t}, {,y: #f} . 0))"
+	want2 := "(({,x: #f}, {,y: #f} . 0))"
 	if got != want1 && got != want2 {
 		t.Fatalf("got %v != want %v or %v", got, want1, want2)
 	}

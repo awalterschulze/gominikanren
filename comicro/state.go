@@ -3,8 +3,7 @@ package comicro
 import (
 	"fmt"
 	"sort"
-
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"strings"
 )
 
 // State is a product of a list of substitutions and a variable counter.
@@ -54,13 +53,12 @@ func (s Substitutions) Copy() Substitutions {
 func (s Substitutions) String() string {
 	ks := keys(s)
 	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
-	sexprs := make([]*ast.SExpr, len(s))
+	ss := make([]string, len(s))
 	for i, k := range ks {
 		v := s[k]
-		sexprs[len(s)-1-i] = ast.Cons(k.SExpr(), ast.NewSymbol(v.(Stringer).String()))
+		ss[i] = fmt.Sprintf("{%v: %v}", k, v)
 	}
-	l := ast.NewList(sexprs...).String()
-	return l[1 : len(l)-1]
+	return strings.Join(ss, ", ")
 }
 
 func (s Substitutions) AddKeyValue(key Var, value any) Substitutions {
