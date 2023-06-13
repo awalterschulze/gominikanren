@@ -141,7 +141,7 @@ func TestGenNullO(t *testing.T) {
 	ss := comicro.RunStream(ctx, g)
 	count := 0
 	for {
-		s, ok := comicro.ReadNonNull(ctx, ss)
+		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}

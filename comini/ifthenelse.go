@@ -16,7 +16,7 @@ func IfThenElseO(cond, thn, els comicro.Goal) comicro.Goal {
 }
 
 func ifThenElseO(ctx context.Context, conds comicro.StreamOfStates, thn, els comicro.Goal, s *comicro.State, res comicro.StreamOfStates) {
-	headState, ok := conds.ReadNonNull(ctx)
+	headState, ok := conds.ReadNonNil(ctx)
 	if !ok {
 		els(ctx, s, res)
 		return

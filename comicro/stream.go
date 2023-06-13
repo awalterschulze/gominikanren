@@ -13,10 +13,10 @@ func NewEmptyStream() StreamOfStates {
 }
 
 func (ss StreamOfStates) Read(ctx context.Context) (*State, bool) {
-	return Read(ctx, ss)
+	return ReadFromStream(ctx, ss)
 }
 
-func Read[A any](ctx context.Context, c <-chan A) (A, bool) {
+func ReadFromStream[A any](ctx context.Context, c <-chan A) (A, bool) {
 	var zero A
 	if c == nil {
 		return zero, false
@@ -29,14 +29,14 @@ func Read[A any](ctx context.Context, c <-chan A) (A, bool) {
 	return zero, false
 }
 
-func (ss StreamOfStates) ReadNonNull(ctx context.Context) (*State, bool) {
-	return ReadNonNull(ctx, ss)
+func (ss StreamOfStates) ReadNonNil(ctx context.Context) (*State, bool) {
+	return ReadNonNilFromStream(ctx, ss)
 }
 
-func ReadNonNull[A comparable](ctx context.Context, c <-chan A) (A, bool) {
+func ReadNonNilFromStream[A comparable](ctx context.Context, c <-chan A) (A, bool) {
 	var zero A
 	for {
-		a, ok := Read(ctx, c)
+		a, ok := ReadFromStream(ctx, c)
 		if !ok {
 			return zero, false
 		}
@@ -47,10 +47,10 @@ func ReadNonNull[A comparable](ctx context.Context, c <-chan A) (A, bool) {
 }
 
 func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
-	return Write(ctx, s, ss)
+	return WriteToStream(ctx, s, ss)
 }
 
-func Write[A any](ctx context.Context, a A, c chan<- A) bool {
+func WriteToStream[A any](ctx context.Context, a A, c chan<- A) bool {
 	if c == nil {
 		return false
 	}
@@ -67,32 +67,32 @@ func (ss StreamOfStates) Close() {
 }
 
 func WriteStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
-	Map(ctx, src, func(a A) A {
+	MapStream(ctx, src, func(a A) A {
 		return a
 	}, dst)
 }
 
-func Map[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
+func MapStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
 	for {
-		a, ok := Read(ctx, src)
+		a, ok := ReadFromStream(ctx, src)
 		if !ok {
 			return
 		}
 		b := f(a)
-		if ok := Write(ctx, b, dst); !ok {
+		if ok := WriteToStream(ctx, b, dst); !ok {
 			return
 		}
 	}
 }
 
-func MapNonNull[A comparable, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
+func MapOverNonNilStream[A comparable, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
 	for {
-		a, ok := ReadNonNull(ctx, src)
+		a, ok := ReadNonNilFromStream(ctx, src)
 		if !ok {
 			return
 		}
 		b := f(a)
-		if ok := Write(ctx, b, dst); !ok {
+		if ok := WriteToStream(ctx, b, dst); !ok {
 			return
 		}
 	}
@@ -149,7 +149,7 @@ func Take[A comparable](ctx context.Context, n int, c chan A) []A {
 		if i == n {
 			break
 		}
-		a, ok := ReadNonNull(ctx, c)
+		a, ok := ReadNonNilFromStream(ctx, c)
 		if !ok {
 			break
 		}
