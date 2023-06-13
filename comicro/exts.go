@@ -22,8 +22,11 @@ func occurs(x Var, v *ast.SExpr, s Substitutions) bool {
 	if vvar, ok := GetVar(vv); ok {
 		return vvar == x
 	}
-	if vv.IsPair() {
-		return occurs(x, vv.Car(), s) || occurs(x, vv.Cdr(), s)
-	}
-	return false
+	return Any(vv, func(a any) bool {
+		sexpr, ok := a.(*ast.SExpr)
+		if !ok {
+			return false
+		}
+		return occurs(x, sexpr, s)
+	})
 }
