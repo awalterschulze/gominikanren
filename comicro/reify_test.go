@@ -43,7 +43,7 @@ func TestReify(t *testing.T) {
 		indexOf(y): e.Cdr().Car().Cdr(),
 		indexOf(w): e.Cdr().Cdr().Car().Cdr(),
 	}
-	gote := ReifyIntVarFromState(indexOf(x))(&State{Substitutions: ss})
+	gote := reifyFromState(indexOf(x), &State{Substitutions: ss})
 	got := gote.String()
 	want := "(_0 (_1 _0) corn _2 ((ice) _2))"
 	if got != want {
@@ -65,9 +65,9 @@ func TestNoReify(t *testing.T) {
 	states := RunGoal(context.Background(), 5, g)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
-	r := ReifyIntVarFromState(indexOf(x))
+	xv := indexOf(x)
 	for i, s := range states {
-		ss[i] = r(s)
+		ss[i] = reifyFromState(xv, s)
 		strs[i] = ss[i].String()
 	}
 	got := "(" + strings.Join(strs, " ") + ")"

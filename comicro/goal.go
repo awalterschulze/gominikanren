@@ -28,7 +28,7 @@ func RunStream(ctx context.Context, g func(Var) Goal) chan *ast.SExpr {
 	res := make(chan *ast.SExpr, 0)
 	go func() {
 		defer close(res)
-		MapOverNonNilStream(ctx, ss, MKReify, res)
+		MapOverNonNilStream(ctx, ss, Reify, res)
 	}()
 	return res
 }

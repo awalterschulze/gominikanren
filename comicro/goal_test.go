@@ -177,9 +177,9 @@ func TestRunGoalAlways3(t *testing.T) {
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}
-	sss := fmap(func(s *State) string {
+	sss := fmap(ss, func(s *State) string {
 		return s.String()
-	}, ss)
+	})
 	got := "(" + strings.Join(sss, " ") + ")"
 	want := "((() . 0) (() . 0) (() . 0))"
 	if got != want {
