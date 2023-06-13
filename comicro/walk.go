@@ -29,12 +29,12 @@ func walkStar(v *ast.SExpr, s Substitutions) *ast.SExpr {
 	if vvar, ok := GetVar(vv); ok {
 		return vvar.SExpr()
 	}
-	if vv.IsPair() {
-		vva := Map(vv, func(a any) any {
-			sexpr := a.(*ast.SExpr)
-			return walkStar(sexpr, s)
-		})
-		return vva.(*ast.SExpr)
-	}
-	return vv
+	vva := Map(vv, func(a any) any {
+		sexpr, ok := a.(*ast.SExpr)
+		if !ok {
+			return a
+		}
+		return walkStar(sexpr, s)
+	})
+	return vva.(*ast.SExpr)
 }

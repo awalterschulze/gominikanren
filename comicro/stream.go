@@ -67,12 +67,12 @@ func (ss StreamOfStates) Close() {
 }
 
 func WriteStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
-	MapStream(ctx, src, func(a A) A {
+	MapOverStream(ctx, src, func(a A) A {
 		return a
 	}, dst)
 }
 
-func MapStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
+func MapOverStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
 	for {
 		a, ok := ReadFromStream(ctx, src)
 		if !ok {
