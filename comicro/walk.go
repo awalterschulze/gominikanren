@@ -1,9 +1,5 @@
 package comicro
 
-import (
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
-)
-
 // Lookup returns the value of the variable,
 // if it has any substitutions it recurses,
 // otherwise it returns the variable with no association or the final value.
@@ -27,20 +23,14 @@ func assv(v Var, ss Substitutions) (any, bool) {
 }
 
 // Replace replaces all variables with their values, if it finds any in the substitutions.
-func ReplaceAll(v *ast.SExpr, s Substitutions) *ast.SExpr {
+func ReplaceAll(v any, s Substitutions) any {
 	if vvar, ok := GetVar(v); ok {
-		vvalue := Lookup(vvar, s)
-		if vvar, ok := vvalue.(Var); ok {
+		v = Lookup(vvar, s)
+		if vvar, ok := v.(Var); ok {
 			return vvar.SExpr()
 		}
-		v = vvalue.(*ast.SExpr)
 	}
-	vva := Map(v, func(a any) any {
-		sexpr, ok := a.(*ast.SExpr)
-		if !ok {
-			return a
-		}
-		return ReplaceAll(sexpr, s)
+	return Map(v, func(a any) any {
+		return ReplaceAll(a, s)
 	})
-	return vva.(*ast.SExpr)
 }

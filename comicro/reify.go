@@ -6,15 +6,11 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func reifyName(n int) *ast.SExpr {
-	return ast.NewSymbol("_" + strconv.Itoa(n))
-}
-
 func reifys(v any, s Substitutions) Substitutions {
 	if vvar, ok := GetVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			n := reifyName(len(s))
+			n := ast.NewSymbol("_" + strconv.Itoa(len(s)))
 			return s.AddKeyValue(vvar, n)
 		}
 	}
@@ -25,9 +21,9 @@ func reifys(v any, s Substitutions) Substitutions {
 
 // reifyFromState is a curried function that reifies the input variable for the given input state.
 func reifyFromState(v Var, s *State) *ast.SExpr {
-	vv := ReplaceAll(v.SExpr(), s.Substitutions)
+	vv := ReplaceAll(v, s.Substitutions)
 	r := reifys(vv, nil)
-	return ReplaceAll(vv, r)
+	return ReplaceAll(vv, r).(*ast.SExpr)
 }
 
 // Reify finds reifications for the first introduced var
