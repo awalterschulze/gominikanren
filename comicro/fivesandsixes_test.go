@@ -43,7 +43,7 @@ func TestFivesAndSixes(t *testing.T) {
 				ast5,
 			)
 		}))
-	got := MKReifys(states)
+	got := fmap(states, Reify)
 	want := []*ast.SExpr{ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", want, got)
@@ -57,7 +57,7 @@ func TestFivesAndSixes(t *testing.T) {
 			return fives(x.SExpr())
 		}),
 	)
-	got = MKReifys(states)
+	got = fmap(states, Reify)
 	want = []*ast.SExpr{ast5, ast5}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %#v but got %#v", want, got)

@@ -41,7 +41,7 @@ func EmptyState() *State {
 }
 
 // Substitutions is a list of substitutions represented by a sexprs pair.
-type Substitutions map[Var]*ast.SExpr
+type Substitutions map[Var]any
 
 func (s Substitutions) Copy() Substitutions {
 	m := make(Substitutions, len(s))
@@ -58,17 +58,22 @@ func (s Substitutions) String() string {
 	for i, k := range ks {
 		v := s[k]
 		vv := Var(k)
-		vvv := ast.Cons(vv.SExpr(), v)
-		sexprs[len(s)-1-i] = vvv
+		switch vt := v.(type) {
+		case *ast.SExpr:
+			vvv := ast.Cons(vv.SExpr(), vt)
+			sexprs[len(s)-1-i] = vvv
+		default:
+			sexprs[len(s)-1-i] = ast.Cons(vv.SExpr(), ast.NewSymbol(v.(interface{ String() string }).String()))
+		}
 	}
 	l := ast.NewList(sexprs...).String()
 	return l[1 : len(l)-1]
 }
 
-func (s Substitutions) AddPair(key Var, value *ast.SExpr) Substitutions {
+func (s Substitutions) AddKeyValue(key Var, value any) Substitutions {
 	var ss Substitutions
 	if s == nil {
-		ss = map[Var]*ast.SExpr{}
+		ss = map[Var]any{}
 	} else {
 		ss = s.Copy()
 	}
@@ -76,7 +81,7 @@ func (s Substitutions) AddPair(key Var, value *ast.SExpr) Substitutions {
 	return ss
 }
 
-func (s Substitutions) Get(key Var) (*ast.SExpr, bool) {
+func (s Substitutions) Get(key Var) (any, bool) {
 	if s == nil {
 		return nil, false
 	}

@@ -1,7 +1,7 @@
 package comicro
 
 // Fmap returns a list where each element of the input list has been morphed by the input function.
-func fmap[A, B any](f func(A) B, list []A) []B {
+func fmap[A, B any](list []A, f func(A) B) []B {
 	out := make([]B, len(list))
 	for i, elem := range list {
 		out[i] = f(elem)

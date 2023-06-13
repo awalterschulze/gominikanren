@@ -7,34 +7,41 @@ import (
 // unify returns either (ok = false) or the substitution s extended with zero or more associations,
 // where cycles in substitutions can lead to (ok = false)
 func unify(u, v *ast.SExpr, s Substitutions) (Substitutions, bool) {
-	uu := u
+	var uu any = u
+	var vv any = v
 	if uvar, ok := GetVar(u); ok {
-		uu = walk(uvar, s)
+		uu = Lookup(uvar, s)
 	}
-	vv := v
 	if vvar, ok := GetVar(v); ok {
-		vv = walk(vvar, s)
+		vv = Lookup(vvar, s)
 	}
-	uuvar, uok := GetVar(uu)
-	vvvar, vok := GetVar(vv)
-	if uok && vok && uuvar == vvvar {
-		return s, true
-	}
-	if uuvar, ok := GetVar(uu); ok {
-		return exts(uuvar, vv, s)
-	}
-	if vvar, ok := GetVar(vv); ok {
-		return exts(vvar, uu, s)
-	}
-	if uu.IsPair() && vv.IsPair() {
-		scar, sok := unify(uu.Car(), vv.Car(), s)
-		if !sok {
-			return nil, false
+	switch uu := uu.(type) {
+	case Var:
+		switch vv := vv.(type) {
+		case Var:
+			if uu == vv {
+				return s, true
+			}
+			return exts(uu, vv.SExpr(), s)
+		case *ast.SExpr:
+			return exts(uu, vv, s)
 		}
-		return unify(uu.Cdr(), vv.Cdr(), scar)
-	}
-	if uu.Equal(vv) {
-		return s, true
+	case *ast.SExpr:
+		switch vv := vv.(type) {
+		case Var:
+			return exts(vv, uu, s)
+		case *ast.SExpr:
+			if uu.IsPair() && vv.IsPair() {
+				scar, sok := unify(uu.Car(), vv.Car(), s)
+				if !sok {
+					return nil, false
+				}
+				return unify(uu.Cdr(), vv.Cdr(), scar)
+			}
+			if uu.Equal(vv) {
+				return s, true
+			}
+		}
 	}
 	return nil, false
 }

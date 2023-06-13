@@ -43,7 +43,7 @@ func TestWalk(t *testing.T) {
 	for _, test := range tests {
 		v, subs, want := test()
 		t.Run("(walk "+v.Atom.Var.Name+" "+subs.String()+")", func(t *testing.T) {
-			got := walk(NewVar(v.Atom.Var.Index), subs).String()
+			got := Lookup(NewVar(v.Atom.Var.Index), subs).(interface{ String() string }).String()
 			if want != got {
 				t.Fatalf("got %s want %s", got, want)
 			}
@@ -51,7 +51,7 @@ func TestWalk(t *testing.T) {
 	}
 }
 
-func TestWalkStar(t *testing.T) {
+func TestReplaceAll(t *testing.T) {
 	v := Var(1).SExpr()
 	w := Var(2).SExpr()
 	x := Var(3).SExpr()
@@ -88,7 +88,7 @@ func TestWalkStar(t *testing.T) {
 	for _, test := range tests {
 		v, subs, want := test()
 		t.Run("(walk "+v.Atom.Var.Name+" "+subs.String()+")", func(t *testing.T) {
-			got := walkStar(v, subs).String()
+			got := ReplaceAll(v, subs).String()
 			if want != got {
 				t.Fatalf("got %s want %s", got, want)
 			}
