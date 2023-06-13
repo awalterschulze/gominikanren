@@ -10,7 +10,7 @@ import (
 func OnceO(g comicro.Goal) comicro.Goal {
 	return func(ctx context.Context, s *comicro.State, ss comicro.StreamOfStates) {
 		gs := comicro.NewStreamForGoal(ctx, g, s)
-		state, ok := gs.ReadNonNull(ctx)
+		state, ok := gs.ReadNonNil(ctx)
 		if !ok {
 			return
 		}

@@ -17,7 +17,7 @@ func Conj(g1, g2 Goal) Goal {
 func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates) {
 	wait := sync.WaitGroup{}
 	for {
-		state, ok := stream.ReadNonNull(ctx)
+		state, ok := stream.ReadNonNil(ctx)
 		if !ok {
 			break
 		}

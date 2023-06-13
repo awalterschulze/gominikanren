@@ -112,7 +112,7 @@ func TestGenDeriveOA(t *testing.T) {
 	}
 	ss := comicro.RunStream(ctx, g)
 	for {
-		s, ok := comicro.ReadNonNull(ctx, ss)
+		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}
@@ -131,7 +131,7 @@ func TestGenDeriveOB(t *testing.T) {
 	}
 	ss := comicro.RunStream(ctx, g)
 	for {
-		s, ok := comicro.ReadNonNull(ctx, ss)
+		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}
@@ -150,7 +150,7 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	}
 	ss := comicro.RunStream(ctx, g)
 	for {
-		s, ok := comicro.ReadNonNull(ctx, ss)
+		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}
