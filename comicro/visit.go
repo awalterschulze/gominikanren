@@ -54,6 +54,10 @@ func mapAny(a any, f func(a any) any) any {
 	return f(a)
 }
 
+// Fold folds a function over the elements of a slice or the fields of a struct
+// For example:
+//   - Fold([]{1,2,3}, 0, func(x, sum int) { return sum + x }) = 6
+//   - Fold([]{1,2,3}, 0, func(x int, s string) { return s + fmt.Sprintf("%d", x) }) = "123"
 func Fold[B any](i any, b B, f func(b B, a any) B) B {
 	v := reflect.ValueOf(i)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
