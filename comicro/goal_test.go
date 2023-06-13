@@ -97,7 +97,7 @@ func TestDisj1(t *testing.T) {
 	got := s.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
-	want := "((,x . olive) . 0)"
+	want := "({,x: olive} . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -129,7 +129,7 @@ func TestDisj2(t *testing.T) {
 			got := s.String()
 			// reifying y; we assigned it a random uint64 and lost track of it
 			got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
-			want := "((,x . olive) . 0)"
+			want := "({,x: olive} . 0)"
 			if got != want {
 				t.Fatalf("got %s != want %s", got, want)
 			}
@@ -244,7 +244,7 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 	got := ss[0].String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
-	want := "((,x . olive) . 0)"
+	want := "({,x: olive} . 0)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}

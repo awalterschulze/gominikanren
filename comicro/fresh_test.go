@@ -31,7 +31,7 @@ func TestFreshKiwi(t *testing.T) {
 	if len(ss) != 1 {
 		t.Fatalf("expected %d, but got %d results", 1, len(ss))
 	}
-	want := "((,v0 . plum) . 1)"
+	want := "({,v0: plum} . 1)"
 	got := ss[0].String()
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
@@ -52,7 +52,7 @@ func TestFresherKiwi(t *testing.T) {
 	if len(ss) != 1 {
 		t.Fatalf("expected %d, but got %d results", 1, len(ss))
 	}
-	want := "((,v0 . plum) . 1)"
+	want := "({,v0: plum} . 1)"
 	got := ss[0].String()
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)

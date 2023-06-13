@@ -139,7 +139,7 @@ func TestCarO(t *testing.T) {
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)
-	want := "(((,y . #t) (,v0 c o r n) . 1))"
+	want := "(({,v0: (c o r n)}, {,y: #t} . 1))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}

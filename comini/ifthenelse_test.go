@@ -31,7 +31,7 @@ func TestIfThenElseSuccess(t *testing.T) {
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
-	want := "(((,y . #f) . 0))"
+	want := "(({,y: #f} . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -53,7 +53,7 @@ func TestIfThenElseFailure(t *testing.T) {
 	got := ss.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
 	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
-	want := "(((,y . #t) . 0))"
+	want := "(({,y: #t} . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -79,7 +79,7 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)
 	got = strings.Replace(got, "v10002", "y", -1)
-	want := "(((,y . #f) (,x . #t) . 0))"
+	want := "(({,x: #t}, {,y: #f} . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -108,7 +108,7 @@ func TestIfThenElseDisjoint(t *testing.T) {
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)
 	got = strings.Replace(got, "v10002", "y", -1)
-	want := "(((,y . #f) (,x . #f) . 0) ((,y . #f) (,x . #t) . 0))"
+	want := "(({,x: #f}, {,y: #f} . 0) ({,x: #t}, {,y: #f} . 0))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
