@@ -8,8 +8,8 @@ import (
 
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
-	Substitutions
-	Counter uint64
+	Substitutions Substitutions
+	Counter       uint64
 }
 
 // String returns a string representation of State.
