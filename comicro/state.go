@@ -20,11 +20,12 @@ func (s *State) String() string {
 	return fmt.Sprintf("(%s . %d)", s.Substitutions.String(), s.Counter)
 }
 
-func (s *State) AddCounter() *State {
+func (s *State) NewVar() (*State, Var) {
+	v := NewVar(s.Counter)
 	return &State{
 		Substitutions: s.Substitutions,
 		Counter:       s.Counter + 1,
-	}
+	}, v
 }
 
 func (s *State) Copy() *State {
