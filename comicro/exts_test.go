@@ -24,7 +24,7 @@ func TestOccurs(t *testing.T) {
 	for _, test := range tests {
 		v, w, s, want := test()
 		t.Run("(occurs "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
-			got := occurs(NewVar(v.Atom.Var.Index), w, s)
+			got := occurs(indexOf(v), w, s)
 			if want != got {
 				t.Fatalf("got %v want %v", got, want)
 			}

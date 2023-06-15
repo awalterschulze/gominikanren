@@ -9,7 +9,7 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func fives(x *ast.SExpr) Goal {
+func fives(x Var) Goal {
 	return Disj(
 		EqualO(
 			x,
@@ -19,7 +19,7 @@ func fives(x *ast.SExpr) Goal {
 	)
 }
 
-func sixes(x *ast.SExpr) Goal {
+func sixes(x Var) Goal {
 	return Disj(
 		EqualO(
 			x,
@@ -39,7 +39,7 @@ func TestFivesAndSixes(t *testing.T) {
 		1,
 		CallFresh(func(q Var) Goal {
 			return EqualO(
-				q.SExpr(),
+				q,
 				ast5,
 			)
 		}))
@@ -56,7 +56,7 @@ func TestFivesAndSixes(t *testing.T) {
 	states = RunGoal(ctx,
 		2,
 		CallFresh(func(x Var) Goal {
-			return fives(x.SExpr())
+			return fives(x)
 		}),
 	)
 	got = fmap(fmap(states, Reify), func(a any) *ast.SExpr {
@@ -70,8 +70,8 @@ func TestFivesAndSixes(t *testing.T) {
 	stream := RunStream(ctx,
 		func(x Var) Goal {
 			return Disj(
-				fives(x.SExpr()),
-				sixes(x.SExpr()),
+				fives(x),
+				sixes(x),
 			)
 		},
 	)

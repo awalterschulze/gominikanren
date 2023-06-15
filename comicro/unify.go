@@ -46,8 +46,12 @@ func unify(u, v any, s Substitutions) (Substitutions, bool) {
 	return nil, false
 }
 
-func Unify(s *State, u, v any) *State {
-	substitutions, ok := unify(u, v, s.Substitutions)
+func Unify(s *State, x, y any) *State {
+	// make sure untyped nil is converted to typed nil
+	if !reflect.ValueOf(y).IsValid() {
+		y = reflect.Zero(reflect.TypeOf(x)).Interface()
+	}
+	substitutions, ok := unify(x, y, s.Substitutions)
 	if !ok {
 		return nil
 	}

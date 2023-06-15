@@ -2,7 +2,6 @@ package comicro
 
 import (
 	"context"
-	"reflect"
 )
 
 // Goal is a function that takes a state and returns a stream of states.
@@ -43,13 +42,9 @@ func FailureO(ctx context.Context, s *State, ss StreamOfStates) {
 }
 
 // EqualO returns a Goal that unifies the input expressions in the output stream.
-func EqualO(u, v any) Goal {
-	// make sure untyped nils are converted to typed nils
-	if IsNil(v) {
-		v = reflect.Zero(reflect.TypeOf(u)).Interface()
-	}
+func EqualO(x, y any) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
-		ss.Write(ctx, Unify(s, u, v))
+		ss.Write(ctx, Unify(s, x, y))
 	}
 }
 
