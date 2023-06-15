@@ -33,7 +33,7 @@ func TestMplusNeverO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s1 := NewStreamForGoal(ctx, NeverO, EmptyState())
+	s1 := NewStreamForGoal(ctx, NeverO, NewEmptyState())
 	s2 := single(ctx, s_x1())
 	ss := NewEmptyStream()
 	go func() {

@@ -35,7 +35,7 @@ func s_x2() *State {
 }
 
 func empty() *State {
-	return EmptyState()
+	return NewEmptyState()
 }
 
 func single(ctx context.Context, s *State) StreamOfStates {
