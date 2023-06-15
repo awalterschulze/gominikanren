@@ -2,7 +2,6 @@ package comicro
 
 import (
 	"context"
-	"reflect"
 	"sort"
 	"strings"
 )
@@ -41,8 +40,7 @@ func ReadNonNilFromStream[A any](ctx context.Context, c <-chan A) (A, bool) {
 		if !ok {
 			return zero, false
 		}
-		r := reflect.ValueOf(a)
-		if r.Kind() != reflect.Ptr || !r.IsNil() {
+		if !IsNil(a) {
 			return a, true
 		}
 	}
@@ -105,10 +103,12 @@ func MapOverNonNilStream[A comparable, B any](ctx context.Context, src <-chan A,
 func (ss StreamOfStates) String() string {
 	buf := []string{}
 	if ss != nil {
-		for s := range ss {
-			if s != nil {
-				buf = append(buf, s.String())
+		for {
+			s, ok := ss.ReadNonNil(context.Background())
+			if !ok {
+				break
 			}
+			buf = append(buf, s.String())
 		}
 	}
 	sort.Strings(buf)
