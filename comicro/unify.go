@@ -15,35 +15,20 @@ func unify(u, v any, s Substitutions) (Substitutions, bool) {
 	if vvar, ok := GetVar(v); ok {
 		vv = Lookup(vvar, s)
 	}
-	switch uu := uu.(type) {
-	case Var:
-		switch vv := vv.(type) {
-		case Var:
-			if uu == vv {
-				return s, true
-			}
-			return exts(uu, vv.SExpr(), s)
-		default:
-			return exts(uu, vv, s)
-		}
-	default:
-		switch vv := vv.(type) {
-		case Var:
-			return exts(vv, uu, s)
-		default:
-			if IsContainer(uu) && IsContainer(vv) {
-				ss, sok := ZipFold(uu, vv, s, unify)
-				if !sok {
-					return nil, false
-				}
-				return ss, true
-			}
-		}
-	}
 	if reflect.DeepEqual(uu, vv) {
 		return s, true
 	}
-	return nil, false
+	if uvar, ok := uu.(Var); ok {
+		return exts(uvar, vv, s)
+	}
+	if vvar, ok := vv.(Var); ok {
+		return exts(vvar, uu, s)
+	}
+	ss, sok := ZipFold(uu, vv, s, unify)
+	if !sok {
+		return nil, false
+	}
+	return ss, true
 }
 
 func Unify(s *State, x, y any) *State {

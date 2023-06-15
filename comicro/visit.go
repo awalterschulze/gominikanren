@@ -98,21 +98,6 @@ func Any(a any, pred func(a any) bool) bool {
 	return false
 }
 
-func IsContainer(a any) bool {
-	if IsNil(a) {
-		return false
-	}
-	ra := reflect.ValueOf(a)
-	if ra.Kind() == reflect.Ptr {
-		ra = ra.Elem()
-	}
-	switch ra.Kind() {
-	case reflect.Slice, reflect.Struct:
-		return true
-	}
-	return false
-}
-
 // ZipFold folds a function over the elements of two slices or the fields of two structs together
 // It allows you to shortcircuit the fold by returning false from the function
 // For example:
@@ -165,7 +150,7 @@ func ZipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool
 		}
 		return b, true
 	}
-	return b, true
+	return b, false
 }
 
 func IsNil(a any) bool {
