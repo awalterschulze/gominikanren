@@ -37,7 +37,7 @@ func IsVar(s any) bool {
 }
 
 func isvar(a any) bool {
-	if a == nil {
+	if IsNil(a) {
 		return false
 	}
 	v := reflect.ValueOf(a)

@@ -21,7 +21,7 @@ func Fresh(n int, f func(...Var) Goal) Goal {
 		s1 := s
 		vars := make([]Var, n)
 		for i := 0; i < n; i++ {
-			v := Var(s1.Counter)
+			v := NewVar(s1.Counter)
 			vars[i] = v
 			s1 = s1.AddCounter()
 		}

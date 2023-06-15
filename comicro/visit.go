@@ -9,8 +9,7 @@ import (
 //   - Map([]{1,2,3}, func(x int) int { return x + 1 }) = []{2,3,4}
 //   - Map([]{1,2,3}, func(x int) string { return fmt.Sprintf("%d", x) }) = []{"1","2","3"}
 func Map(a any, f func(a any) any) any {
-	v := reflect.ValueOf(a)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+	if IsNil(a) {
 		return a
 	}
 	u, ui := GetUnionValue(a)
@@ -22,17 +21,18 @@ func Map(a any, f func(a any) any) any {
 }
 
 func mapOverAny(a any, f func(a any) any) any {
-	v := reflect.ValueOf(a)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+	if IsNil(a) {
 		return a
 	}
+	v := reflect.ValueOf(a)
 	switch v.Kind() {
 	case reflect.Ptr:
 		if v.Elem().Kind() == reflect.Struct {
 			r := reflect.New(v.Elem().Type())
 			for i := 0; i < v.Elem().NumField(); i++ {
-				fa := f(v.Elem().Field(i).Interface())
-				r.Elem().Field(i).Set(reflect.ValueOf(fa))
+				fv := v.Elem().Field(i).Interface()
+				b := f(fv)
+				r.Elem().Field(i).Set(reflect.ValueOf(b))
 			}
 			return r.Interface()
 		}
@@ -59,8 +59,7 @@ func mapOverAny(a any, f func(a any) any) any {
 //   - Fold([]{1,2,3}, 0, func(x, sum int) int { return sum + x }) = 6
 //   - Fold([]{1,2,3}, 0, func(x int, s string) string { return s + fmt.Sprintf("%d", x) }) = "123"
 func Fold[B any](a any, b B, f func(b B, a any) B) B {
-	ra := reflect.ValueOf(a)
-	if ra.Kind() == reflect.Ptr && ra.IsNil() {
+	if IsNil(a) {
 		return b
 	}
 	if u, ui := GetUnionValue(a); ui != -1 {
@@ -70,10 +69,10 @@ func Fold[B any](a any, b B, f func(b B, a any) B) B {
 }
 
 func fold[B any](a any, b B, f func(b B, a any) B) B {
-	ra := reflect.ValueOf(a)
-	if ra.Kind() == reflect.Ptr && ra.IsNil() {
+	if IsNil(a) {
 		return b
 	}
+	ra := reflect.ValueOf(a)
 	switch ra.Kind() {
 	case reflect.Ptr:
 		if ra.Elem().Kind() == reflect.Struct {
@@ -95,22 +94,21 @@ func fold[B any](a any, b B, f func(b B, a any) B) B {
 // For example:
 //   - Any([]{1,2,3}, func(x int) bool { return x == 2 }) = true
 //   - Any([]{1,2,3}, func(x int) bool { return x == 4 }) = false
-func Any(i any, pred func(a any) bool) bool {
-	v := reflect.ValueOf(i)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+func Any(a any, pred func(a any) bool) bool {
+	if IsNil(a) {
 		return false
 	}
-	if u, ui := GetUnionValue(i); ui != -1 {
+	if u, ui := GetUnionValue(a); ui != -1 {
 		return anyOf(u, pred)
 	}
-	return anyOf(i, pred)
+	return anyOf(a, pred)
 }
 
 func anyOf(a any, pred func(a any) bool) bool {
-	ra := reflect.ValueOf(a)
-	if ra.Kind() == reflect.Ptr && ra.IsNil() {
+	if IsNil(a) {
 		return false
 	}
+	ra := reflect.ValueOf(a)
 	switch ra.Kind() {
 	case reflect.Ptr:
 		if ra.Elem().Kind() == reflect.Struct {
@@ -133,10 +131,10 @@ func anyOf(a any, pred func(a any) bool) bool {
 }
 
 func GetUnionValue(a any) (any, int) {
-	v := reflect.ValueOf(a)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+	if IsNil(a) {
 		return a, -1
 	}
+	v := reflect.ValueOf(a)
 	typ := reflect.TypeOf(a)
 	if v.Kind() != reflect.Ptr {
 		return a, -1
@@ -154,7 +152,7 @@ func GetUnionValue(a any) (any, int) {
 		if typ.Field(i).Type.Kind() != reflect.Ptr {
 			return a, -1
 		}
-		if !v.Field(i).IsNil() {
+		if !IsNil(v.Field(i).Interface()) {
 			if nonnil != -1 {
 				return a, -1
 			}
@@ -172,6 +170,9 @@ func SetUnionValue(a any, i int, b any) any {
 }
 
 func IsContainer(a any) bool {
+	if IsNil(a) {
+		return false
+	}
 	ra := reflect.ValueOf(a)
 	if ra.Kind() == reflect.Ptr {
 		ra = ra.Elem()
@@ -183,14 +184,6 @@ func IsContainer(a any) bool {
 	return false
 }
 
-func IsNonNil(a any) bool {
-	ra := reflect.ValueOf(a)
-	if ra.Kind() == reflect.Ptr {
-		return !ra.IsNil()
-	}
-	return true
-}
-
 // ZipFold folds a function over the elements of two slices or the fields of two structs together
 // It allows you to shortcircuit the fold by returning false from the function
 // For example:
@@ -198,12 +191,13 @@ func IsNonNil(a any) bool {
 //   - ZipFold([]{1,2,3}, []{3,2,1}, 0, func(x1, x2, int, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
 //   - ZipFold([]{1,2,3}, []{3,2,1}, 0, func(x1, x2, sum int) (int, bool) { if x1 == 2 { return 0, false } else { return sum + x1 + x2, true }) = (0, false)
 func ZipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
-	ra1 := reflect.ValueOf(a1)
-	ra2 := reflect.ValueOf(a2)
-	if ra1.Kind() == reflect.Ptr && ra1.IsNil() {
-		if ra2.Kind() == reflect.Ptr && ra2.IsNil() {
+	if IsNil(a1) {
+		if IsNil(a2) {
 			return b, true
 		}
+		return b, false
+	}
+	if IsNil(a2) {
 		return b, false
 	}
 	if u1, ui1 := GetUnionValue(a1); ui1 != -1 {
@@ -216,14 +210,17 @@ func ZipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool
 }
 
 func zipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
-	ra1 := reflect.ValueOf(a1)
-	ra2 := reflect.ValueOf(a2)
-	if ra1.Kind() == reflect.Ptr && ra1.IsNil() {
-		if ra2.Kind() == reflect.Ptr && ra2.IsNil() {
+	if IsNil(a1) {
+		if IsNil(a2) {
 			return b, true
 		}
 		return b, false
 	}
+	if IsNil(a2) {
+		return b, false
+	}
+	ra1 := reflect.ValueOf(a1)
+	ra2 := reflect.ValueOf(a2)
 	if ra1.Kind() != ra2.Kind() {
 		return b, false
 	}
@@ -259,4 +256,15 @@ func zipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool
 		return b, true
 	}
 	return b, true
+}
+
+func IsNil(a any) bool {
+	if a == nil {
+		return true
+	}
+	v := reflect.ValueOf(a)
+	if !v.IsValid() {
+		return true
+	}
+	return v.Kind() == reflect.Ptr && v.IsNil()
 }
