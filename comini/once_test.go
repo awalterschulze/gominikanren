@@ -24,7 +24,7 @@ func TestOnce(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.EmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.NewEmptyState())
 	got := ss.String()
 	// reifying x and y; we assigned them a random uint64 and lost track of it
 	got = strings.Replace(got, "v10001", "x", -1)

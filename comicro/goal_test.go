@@ -28,7 +28,7 @@ func TestEqualO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			ss := NewStreamForGoal(ctx, EqualO(uexpr, vexpr), EmptyState())
+			ss := NewStreamForGoal(ctx, EqualO(uexpr, vexpr), NewEmptyState())
 			got := ss.String()
 			if got != want {
 				t.Fatalf("got %s want %s", got, want)
@@ -40,7 +40,7 @@ func TestEqualO(t *testing.T) {
 func TestFailureO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, FailureO, EmptyState())
+	ss := NewStreamForGoal(ctx, FailureO, NewEmptyState())
 	if got, want := ss.String(), "()"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -49,7 +49,7 @@ func TestFailureO(t *testing.T) {
 func TestSuccessO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, SuccessO, EmptyState())
+	ss := NewStreamForGoal(ctx, SuccessO, NewEmptyState())
 	if got, want := ss.String(), "((() . 0))"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -61,7 +61,7 @@ func TestNeverO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, NeverO, EmptyState())
+	ss := NewStreamForGoal(ctx, NeverO, NewEmptyState())
 	s, ok := <-ss
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -86,7 +86,7 @@ func TestDisj1(t *testing.T) {
 			),
 			NeverO,
 		),
-		EmptyState(),
+		NewEmptyState(),
 	)
 	var s *State
 	for s = range ss {
@@ -122,7 +122,7 @@ func TestDisj2(t *testing.T) {
 				x,
 			),
 		),
-		EmptyState(),
+		NewEmptyState(),
 	)
 	for s := range ss {
 		if s != nil {
@@ -149,7 +149,7 @@ func TestAlwaysO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, AlwaysO, EmptyState())
+	ss := NewStreamForGoal(ctx, AlwaysO, NewEmptyState())
 	var s *State
 	for s = range ss {
 		if s != nil {

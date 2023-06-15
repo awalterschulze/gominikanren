@@ -9,6 +9,7 @@ import (
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	Substitutions Substitutions
+	Names         map[Var]string
 	Counter       uint64
 }
 
@@ -48,7 +49,7 @@ func (s *State) LenSubstitutions() int {
 
 func (s *State) AddKeyValue(key Var, value any) *State {
 	if s == nil {
-		s = EmptyState()
+		s = NewEmptyState()
 	}
 	if s.Substitutions == nil {
 		s.Substitutions = map[Var]any{}
@@ -63,8 +64,8 @@ func (s *State) Copy() *State {
 	}
 }
 
-// EmptyState returns an empty state.
-func EmptyState() *State {
+// NewEmptyState returns an empty state.
+func NewEmptyState() *State {
 	return &State{}
 }
 

@@ -9,7 +9,7 @@ type Goal func(context.Context, *State, StreamOfStates)
 
 // RunGoal calls a goal with an emptystate and n possible resulting states.
 func RunGoal(ctx context.Context, n int, g Goal) []*State {
-	ss := NewStreamForGoal(ctx, g, EmptyState())
+	ss := NewStreamForGoal(ctx, g, NewEmptyState())
 	return Take(ctx, n, ss)
 }
 
@@ -21,8 +21,10 @@ func Run(ctx context.Context, n int, g func(Var) Goal) []any {
 
 // RunStream behaves like the default miniKanren run command, but returns a stream of answers
 func RunStream(ctx context.Context, g func(Var) Goal) chan any {
+	s := NewEmptyState()
 	v := Var(0)
-	ss := NewStreamForGoal(ctx, g(v), &State{nil, 1})
+	s, v = s.NewVar()
+	ss := NewStreamForGoal(ctx, g(v), s)
 	res := make(chan any, 0)
 	go func() {
 		defer close(res)
