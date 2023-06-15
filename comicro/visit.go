@@ -12,18 +12,6 @@ func Map(a any, f func(a any) any) any {
 	if IsNil(a) {
 		return a
 	}
-	u, ui := GetUnionValue(a)
-	if ui != -1 {
-		fu := mapOverAny(u, f)
-		return SetUnionValue(a, ui, fu)
-	}
-	return mapOverAny(a, f)
-}
-
-func mapOverAny(a any, f func(a any) any) any {
-	if IsNil(a) {
-		return a
-	}
 	v := reflect.ValueOf(a)
 	switch v.Kind() {
 	case reflect.Ptr:
@@ -62,16 +50,6 @@ func Fold[B any](a any, b B, f func(b B, a any) B) B {
 	if IsNil(a) {
 		return b
 	}
-	if u, ui := GetUnionValue(a); ui != -1 {
-		return fold(u, b, f)
-	}
-	return fold(a, b, f)
-}
-
-func fold[B any](a any, b B, f func(b B, a any) B) B {
-	if IsNil(a) {
-		return b
-	}
 	ra := reflect.ValueOf(a)
 	switch ra.Kind() {
 	case reflect.Ptr:
@@ -98,16 +76,6 @@ func Any(a any, pred func(a any) bool) bool {
 	if IsNil(a) {
 		return false
 	}
-	if u, ui := GetUnionValue(a); ui != -1 {
-		return anyOf(u, pred)
-	}
-	return anyOf(a, pred)
-}
-
-func anyOf(a any, pred func(a any) bool) bool {
-	if IsNil(a) {
-		return false
-	}
 	ra := reflect.ValueOf(a)
 	switch ra.Kind() {
 	case reflect.Ptr:
@@ -128,45 +96,6 @@ func anyOf(a any, pred func(a any) bool) bool {
 		return false
 	}
 	return false
-}
-
-func GetUnionValue(a any) (any, int) {
-	if IsNil(a) {
-		return a, -1
-	}
-	v := reflect.ValueOf(a)
-	typ := reflect.TypeOf(a)
-	if v.Kind() != reflect.Ptr {
-		return a, -1
-	}
-	v = v.Elem()
-	typ = typ.Elem()
-	if v.Kind() != reflect.Struct {
-		return a, -1
-	}
-	if v.NumField() < 2 {
-		return a, -1
-	}
-	nonnil := -1
-	for i := 0; i < v.NumField(); i++ {
-		if typ.Field(i).Type.Kind() != reflect.Ptr {
-			return a, -1
-		}
-		if !IsNil(v.Field(i).Interface()) {
-			if nonnil != -1 {
-				return a, -1
-			}
-			nonnil = i
-		}
-	}
-	return v.Field(nonnil).Interface(), nonnil
-}
-
-func SetUnionValue(a any, i int, b any) any {
-	v := reflect.ValueOf(a)
-	r := reflect.New(v.Type().Elem())
-	r.Elem().Field(i).Set(reflect.ValueOf(b))
-	return r.Interface()
 }
 
 func IsContainer(a any) bool {
@@ -191,25 +120,6 @@ func IsContainer(a any) bool {
 //   - ZipFold([]{1,2,3}, []{3,2,1}, 0, func(x1, x2, int, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
 //   - ZipFold([]{1,2,3}, []{3,2,1}, 0, func(x1, x2, sum int) (int, bool) { if x1 == 2 { return 0, false } else { return sum + x1 + x2, true }) = (0, false)
 func ZipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
-	if IsNil(a1) {
-		if IsNil(a2) {
-			return b, true
-		}
-		return b, false
-	}
-	if IsNil(a2) {
-		return b, false
-	}
-	if u1, ui1 := GetUnionValue(a1); ui1 != -1 {
-		if u2, ui2 := GetUnionValue(a2); ui2 != -1 {
-			return zipFold(u1, u2, b, f)
-		}
-		return b, false
-	}
-	return zipFold(a1, a2, b, f)
-}
-
-func zipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
 	if IsNil(a1) {
 		if IsNil(a2) {
 			return b, true
