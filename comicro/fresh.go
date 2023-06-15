@@ -7,7 +7,7 @@ import (
 // CallFresh expects a function that expects a variable and returns a Goal.
 func CallFresh(f func(Var) Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
-		v := Var(s.Counter)
+		v := NewVar(s.Counter)
 		s1 := s.AddCounter()
 		f(v)(ctx, s1, ss)
 	}
