@@ -6,7 +6,7 @@ import (
 
 // unify returns either (ok = false) or the substitution s extended with zero or more associations,
 // where cycles in substitutions can lead to (ok = false)
-func unify(u, v any, s Substitutions) (Substitutions, bool) {
+func unify(u, v any, s *State) (*State, bool) {
 	var uu any = u
 	var vv any = v
 	if uvar, ok := GetVar(u); ok {
@@ -36,9 +36,9 @@ func Unify(s *State, x, y any) *State {
 	if !reflect.ValueOf(y).IsValid() {
 		y = reflect.Zero(reflect.TypeOf(x)).Interface()
 	}
-	substitutions, ok := unify(x, y, s.Substitutions)
+	s1, ok := unify(x, y, s)
 	if !ok {
 		return nil
 	}
-	return &State{Substitutions: substitutions, Counter: s.Counter}
+	return s1
 }

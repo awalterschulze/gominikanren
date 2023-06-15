@@ -22,7 +22,8 @@ func TestOccurs(t *testing.T) {
 		}, true),
 	}
 	for _, test := range tests {
-		v, w, s, want := test()
+		v, w, subs, want := test()
+		s := &State{Substitutions: subs, Counter: uint64(len(subs))}
 		t.Run("(occurs "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
 			got := occurs(indexOf(v), w, s)
 			if want != got {
@@ -59,12 +60,13 @@ func TestExts(t *testing.T) {
 		),
 	}
 	for _, test := range tests {
-		v, w, s, want := test()
+		v, w, subs, want := test()
+		s := &State{Substitutions: subs, Counter: uint64(len(subs))}
 		t.Run("(exts "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
 			got := ""
 			gots, gotok := exts(NewVar(v.Atom.Var.Index), w, s)
 			if gotok {
-				got = gots.String()
+				got = gots.Substitutions.String()
 			}
 			if want.String() != got {
 				t.Fatalf("got %v <%#v> want %v", got, gots, want.String())

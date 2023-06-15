@@ -6,22 +6,22 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func reifys(v any, s Substitutions) Substitutions {
+func reifys(v any, s *State) *State {
 	if vvar, ok := GetVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			n := ast.NewSymbol("_" + strconv.Itoa(len(s)))
+			n := ast.NewSymbol("_" + strconv.Itoa(s.LenSubstitutions()))
 			return s.AddKeyValue(vvar, n)
 		}
 	}
-	return Fold(v, s, func(subs Substitutions, a any) Substitutions {
-		return reifys(a, subs)
+	return Fold(v, s, func(state *State, a any) *State {
+		return reifys(a, state)
 	})
 }
 
 // reifyFromState is a curried function that reifies the input variable for the given input state.
 func reifyFromState(v Var, s *State) any {
-	vv := ReplaceAll(v, s.Substitutions)
+	vv := ReplaceAll(v, s)
 	r := reifys(vv, nil)
 	return ReplaceAll(vv, r)
 }
