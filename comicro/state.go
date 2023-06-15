@@ -28,6 +28,34 @@ func (s *State) NewVar() (*State, Var) {
 	}, v
 }
 
+func (s *State) Get(v Var) (any, bool) {
+	if s == nil {
+		return nil, false
+	}
+	if s.Substitutions == nil {
+		return nil, false
+	}
+	a, ok := s.Substitutions[v]
+	return a, ok
+}
+
+func (s *State) LenSubstitutions() int {
+	if s == nil {
+		return 0
+	}
+	return len(s.Substitutions)
+}
+
+func (s *State) AddKeyValue(key Var, value any) *State {
+	if s == nil {
+		s = EmptyState()
+	}
+	if s.Substitutions == nil {
+		s.Substitutions = map[Var]any{}
+	}
+	return &State{Substitutions: s.Substitutions.AddKeyValue(key, value), Counter: s.Counter}
+}
+
 func (s *State) Copy() *State {
 	return &State{
 		Substitutions: s.Substitutions.Copy(),
@@ -71,12 +99,4 @@ func (s Substitutions) AddKeyValue(key Var, value any) Substitutions {
 	}
 	ss[key] = value
 	return ss
-}
-
-func (s Substitutions) Get(key Var) (any, bool) {
-	if s == nil {
-		return nil, false
-	}
-	v, ok := s[key]
-	return v, ok
 }
