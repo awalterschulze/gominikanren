@@ -1,7 +1,7 @@
 package comicro
 
 func reifys(v any, s *State) *State {
-	if vvar, ok := GetVar(v); ok {
+	if vvar, ok := s.GetVar(v); ok {
 		v = Lookup(vvar, s)
 		if _, ok := v.(Var); ok {
 			// terminate when a var has no mapping

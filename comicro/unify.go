@@ -9,10 +9,10 @@ import (
 func unify(u, v any, s *State) (*State, bool) {
 	var uu any = u
 	var vv any = v
-	if uvar, ok := GetVar(u); ok {
+	if uvar, ok := s.GetVar(u); ok {
 		uu = Lookup(uvar, s)
 	}
-	if vvar, ok := GetVar(v); ok {
+	if vvar, ok := s.GetVar(v); ok {
 		vv = Lookup(vvar, s)
 	}
 	if reflect.DeepEqual(uu, vv) {
