@@ -7,44 +7,48 @@ import (
 )
 
 func TestWalk(t *testing.T) {
-	v := Var(1).SExpr()
-	w := Var(2).SExpr()
-	x := Var(3).SExpr()
-	y := Var(4).SExpr()
-	z := Var(5).SExpr()
-	zaxwyz := Substitutions{
-		indexOf(z): ast.NewSymbol("a"),
-		indexOf(x): w,
-		indexOf(y): z,
-	}
-	xyvxwx := Substitutions{
-		indexOf(x): y,
-		indexOf(v): x,
-		indexOf(w): x,
-	}
-	tests := []func() (*ast.SExpr, Substitutions, string){
+	defaultState := NewEmptyState()
+	var a, v, w, x, y, z Var
+	defaultState, v = defaultState.NewVarWithName("v")
+	defaultState, w = defaultState.NewVarWithName("w")
+	defaultState, x = defaultState.NewVarWithName("x")
+	defaultState, y = defaultState.NewVarWithName("y")
+	defaultState, z = defaultState.NewVarWithName("z")
+	zaxwyz := defaultState.Copy()
+	zaxwyz, a = zaxwyz.NewVarWithName("a")
+	zaxwyz = zaxwyz.AddKeyValue(z, a)
+	zaxwyz = zaxwyz.AddKeyValue(x, w)
+	zaxwyz = zaxwyz.AddKeyValue(y, z)
+	xyvxwx := defaultState.Copy()
+	xyvxwx = xyvxwx.AddKeyValue(x, y)
+	xyvxwx = xyvxwx.AddKeyValue(v, x)
+	xyvxwx = xyvxwx.AddKeyValue(w, x)
+	xbxywxe := defaultState.Copy()
+	xbxywxe = xbxywxe.AddKeyValue(x, ast.NewSymbol("b"))
+	xbxywxe = xbxywxe.AddKeyValue(z, y)
+	xbxywxe = xbxywxe.AddKeyValue(w, ast.NewList(x.SExpr(), ast.NewSymbol("e"), z.SExpr()))
+	xezxyz := defaultState.Copy()
+	xezxyz = xezxyz.AddKeyValue(x, ast.NewSymbol("e"))
+	xezxyz = xezxyz.AddKeyValue(z, x)
+	xezxyz = xezxyz.AddKeyValue(y, z)
+	tests := []func() (Var, *State, string){
 		tuple3(z, zaxwyz, "a"),
 		tuple3(y, zaxwyz, "a"),
-		tuple3(x, zaxwyz, w.String()),
-		tuple3(x, xyvxwx, y.String()),
-		tuple3(v, xyvxwx, y.String()),
-		tuple3(w, xyvxwx, y.String()),
-		tuple3(w, Substitutions{
-			indexOf(x): ast.NewSymbol("b"),
-			indexOf(z): y,
-			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
-		}, "("+x.String()+" e "+z.String()+")"),
-		tuple3(y, Substitutions{
-			indexOf(x): ast.NewSymbol("e"),
-			indexOf(z): x,
-			indexOf(y): z,
-		}, "e"),
+		tuple3(x, zaxwyz, "w"),
+		tuple3(x, xyvxwx, "y"),
+		tuple3(v, xyvxwx, "y"),
+		tuple3(w, xyvxwx, "y"),
+		tuple3(w, xbxywxe, "("+x.String()+" e "+z.String()+")"),
+		tuple3(y, xezxyz, "e"),
 	}
 	for _, test := range tests {
-		v, subs, want := test()
-		s := &State{Substitutions: subs, Counter: uint64(len(subs))}
-		t.Run("(walk "+v.Atom.Var.Name+" "+subs.String()+")", func(t *testing.T) {
-			got := Lookup(NewVar(v.Atom.Var.Index), s).(interface{ String() string }).String()
+		v, s, want := test()
+		t.Run("(walk "+v.String()+" "+s.String()+")", func(t *testing.T) {
+			gotany := Lookup(v, s)
+			got := Lookup(v, s).(interface{ String() string }).String()
+			if vgot, ok := gotany.(Var); ok {
+				got = s.GetName(vgot)
+			}
 			if want != got {
 				t.Fatalf("got %s want %s", got, want)
 			}
@@ -53,46 +57,51 @@ func TestWalk(t *testing.T) {
 }
 
 func TestReplaceAll(t *testing.T) {
-	v := Var(1).SExpr()
-	w := Var(2).SExpr()
-	x := Var(3).SExpr()
-	y := Var(4).SExpr()
-	z := Var(5).SExpr()
-	zaxwyz := Substitutions{
-		indexOf(z): ast.NewSymbol("a"),
-		indexOf(x): w,
-		indexOf(y): z,
-	}
-	xyvxwx := Substitutions{
-		indexOf(x): y,
-		indexOf(v): x,
-		indexOf(w): x,
-	}
-	tests := []func() (*ast.SExpr, Substitutions, string){
+	s := NewEmptyState()
+	var a, v, w, x, y, z Var
+	s, v = s.NewVarWithName("v")
+	s, w = s.NewVarWithName("w")
+	s, x = s.NewVarWithName("x")
+	s, y = s.NewVarWithName("y")
+	s, z = s.NewVarWithName("z")
+	zaxwyz := s.Copy()
+	zaxwyz, a = zaxwyz.NewVarWithName("a")
+	zaxwyz = zaxwyz.AddKeyValue(z, a)
+	zaxwyz = zaxwyz.AddKeyValue(x, w)
+	zaxwyz = zaxwyz.AddKeyValue(y, z)
+	xyvxwx := s.Copy()
+	xyvxwx = xyvxwx.AddKeyValue(x, y)
+	xyvxwx = xyvxwx.AddKeyValue(v, x)
+	xyvxwx = xyvxwx.AddKeyValue(w, x)
+	xbxywxe := s.Copy()
+	xbxywxe = xbxywxe.AddKeyValue(x, ast.NewSymbol("b"))
+	xbxywxe = xbxywxe.AddKeyValue(z, y)
+	xbxywxe = xbxywxe.AddKeyValue(w, ast.NewList(x.SExpr(), ast.NewSymbol("e"), z.SExpr()))
+	xezxyz := s.Copy()
+	xezxyz = xezxyz.AddKeyValue(x, ast.NewSymbol("e"))
+	xezxyz = xezxyz.AddKeyValue(z, x)
+	xezxyz = xezxyz.AddKeyValue(y, z)
+	tests := []func() (Var, *State, string){
 		tuple3(z, zaxwyz, "a"),
 		tuple3(y, zaxwyz, "a"),
-		tuple3(x, zaxwyz, w.String()),
-		tuple3(x, xyvxwx, y.String()),
-		tuple3(v, xyvxwx, y.String()),
-		tuple3(w, xyvxwx, y.String()),
-		tuple3(w, Substitutions{
-			indexOf(x): ast.NewSymbol("b"),
-			indexOf(z): y,
-			indexOf(w): ast.NewList(x, ast.NewSymbol("e"), z),
-		}, "(b e "+y.String()+")"),
-		tuple3(y, Substitutions{
-			indexOf(x): ast.NewSymbol("e"),
-			indexOf(z): x,
-			indexOf(y): z,
-		}, "e"),
+		tuple3(x, zaxwyz, "w"),
+		tuple3(x, xyvxwx, "y"),
+		tuple3(v, xyvxwx, "y"),
+		tuple3(w, xyvxwx, "y"),
+		tuple3(w, xbxywxe, "(b e "+y.String()+")"),
+		tuple3(y, xezxyz, "e"),
 	}
 	for _, test := range tests {
-		v, subs, want := test()
-		s := &State{Substitutions: subs, Counter: uint64(len(subs))}
-		t.Run("(walk "+v.Atom.Var.Name+" "+subs.String()+")", func(t *testing.T) {
-			got := ReplaceAll(v, s).(*ast.SExpr).String()
+		start, state, want := test()
+		t.Run("(walk "+start.String()+" "+state.String()+")", func(t *testing.T) {
+			got := ReplaceAll(start, state)
+			if vgot, ok := GetVar(got); ok {
+				got = state.GetName(vgot)
+			} else {
+				got = got.(interface{ String() string }).String()
+			}
 			if want != got {
-				t.Fatalf("got %s want %s", got, want)
+				t.Fatalf("got %T:%s want %T:%s", got, got, want, want)
 			}
 		})
 	}

@@ -2,7 +2,6 @@ package comicro
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -77,7 +76,9 @@ func TestDisj1(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	x := ast.NewVariable("x")
+	initial := NewEmptyState()
+	var x Var
+	initial, x = initial.NewVarWithName("x")
 	ss := NewStreamForGoal(ctx,
 		Disj(
 			EqualO(
@@ -86,7 +87,7 @@ func TestDisj1(t *testing.T) {
 			),
 			NeverO,
 		),
-		NewEmptyState(),
+		initial,
 	)
 	var s *State
 	for s = range ss {
@@ -96,8 +97,7 @@ func TestDisj1(t *testing.T) {
 	}
 	got := s.String()
 	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
-	want := "({,x: olive} . 0)"
+	want := "({,x: olive} . 1)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -113,7 +113,9 @@ func TestDisj2(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	x := ast.NewVariable("x")
+	initial := NewEmptyState()
+	var x Var
+	initial, x = initial.NewVarWithName("x")
 	ss := NewStreamForGoal(ctx,
 		Disj(
 			NeverO,
@@ -122,14 +124,13 @@ func TestDisj2(t *testing.T) {
 				x,
 			),
 		),
-		NewEmptyState(),
+		initial,
 	)
 	for s := range ss {
 		if s != nil {
 			got := s.String()
 			// reifying y; we assigned it a random uint64 and lost track of it
-			got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
-			want := "({,x: olive} . 0)"
+			want := "({,x: olive} . 1)"
 			if got != want {
 				t.Fatalf("got %s != want %s", got, want)
 			}
@@ -227,7 +228,9 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 func TestRunGoalConj2OneResults(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	x := ast.NewVariable("x")
+	initial := NewEmptyState()
+	var x Var
+	initial, x = initial.NewVarWithName("x")
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
@@ -237,14 +240,14 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 		x,
 	)
 	g := Conj(e1, e2)
-	ss := RunGoal(ctx, 5, g)
+	stream := NewStreamForGoal(ctx, g, initial)
+	ss := Take(ctx, 5, stream)
 	if len(ss) != 1 {
 		t.Fatalf("expected 1, got %d: %v", len(ss), ss)
 	}
 	got := ss[0].String()
 	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(x)), "x", -1)
-	want := "({,x: olive} . 0)"
+	want := "({,x: olive} . 1)"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}

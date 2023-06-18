@@ -6,26 +6,22 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-// helper func used in all tests that use Substitution of vars
-func indexOf(x *ast.SExpr) Var {
-	return NewVar(x.Atom.Var.Index)
-}
-
 func TestOccurs(t *testing.T) {
-	x := ast.NewVar("x", 0)
-	y := ast.NewVar("y", 1)
-	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, bool){
-		tuple4(x, x, Substitutions(nil), true),
-		tuple4(x, y, Substitutions(nil), false),
-		tuple4(x, ast.NewList(y), Substitutions{
-			indexOf(y): x,
-		}, true),
+	s := NewEmptyState()
+	var x, y Var
+	s, x = s.NewVarWithName("x")
+	s, y = s.NewVarWithName("y")
+	sxy := s.Copy()
+	sxy = sxy.AddKeyValue(y, x)
+	tests := []func() (Var, *ast.SExpr, *State, bool){
+		tuple4(x, x.SExpr(), s, true),
+		tuple4(x, y.SExpr(), s, false),
+		tuple4(x, ast.NewList(y.SExpr()), sxy, true),
 	}
 	for _, test := range tests {
-		v, w, subs, want := test()
-		s := &State{Substitutions: subs, Counter: uint64(len(subs))}
+		v, w, s, want := test()
 		t.Run("(occurs "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
-			got := occurs(indexOf(v), w, s)
+			got := occurs(v, w, s)
 			if want != got {
 				t.Fatalf("got %v want %v", got, want)
 			}
@@ -33,44 +29,66 @@ func TestOccurs(t *testing.T) {
 	}
 }
 
-func TestExts(t *testing.T) {
-	x := ast.NewVar("x", 0)
-	y := ast.NewVar("y", 1)
-	z := ast.NewVar("z", 2)
-	tests := []func() (*ast.SExpr, *ast.SExpr, Substitutions, Substitutions){
-		tuple4(x, ast.NewSymbol("a"), Substitutions(nil), Substitutions{
-			indexOf(x): ast.NewSymbol("a"),
-		}),
-		tuple4(x, ast.NewList(x), Substitutions(nil), Substitutions(nil)),
-		tuple4(x, ast.NewList(y),
-			Substitutions{
-				indexOf(y): x,
-			},
-			Substitutions(nil)),
-		tuple4(x, ast.NewSymbol("e"),
-			Substitutions{
-				indexOf(z): x,
-				indexOf(y): z,
-			},
-			Substitutions{
-				indexOf(x): ast.NewSymbol("e"),
-				indexOf(z): x,
-				indexOf(y): z,
-			},
-		),
+func TestExtsXA(t *testing.T) {
+	got := NewEmptyState()
+	var xvar Var
+	got, xvar = got.NewVarWithName("x")
+	want := got.Copy()
+	var gotok bool
+	got, gotok = exts(xvar, ast.NewSymbol("a"), got)
+	if !gotok {
+		t.Fatalf("expected ok")
 	}
-	for _, test := range tests {
-		v, w, subs, want := test()
-		s := &State{Substitutions: subs, Counter: uint64(len(subs))}
-		t.Run("(exts "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
-			got := ""
-			gots, gotok := exts(NewVar(v.Atom.Var.Index), w, s)
-			if gotok {
-				got = gots.Substitutions.String()
-			}
-			if want.String() != got {
-				t.Fatalf("got %v <%#v> want %v", got, gots, want.String())
-			}
-		})
+	want = want.AddKeyValue(xvar, ast.NewSymbol("a"))
+	if !got.Equal(want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
+func TestExtsXX(t *testing.T) {
+	got := NewEmptyState()
+	var xvar Var
+	got, xvar = got.NewVarWithName("x")
+	var gotok bool
+	_, gotok = exts(xvar, xvar, got)
+	if gotok {
+		t.Fatalf("expected !ok")
+	}
+}
+
+func TestExtsXY(t *testing.T) {
+	got := NewEmptyState()
+	var xvar, yvar Var
+	got, xvar = got.NewVarWithName("x")
+	got, yvar = got.NewVarWithName("y")
+	want := got.Copy()
+	var gotok bool
+	got, gotok = exts(xvar, yvar, got)
+	if !gotok {
+		t.Fatalf("expected ok")
+	}
+	want = want.AddKeyValue(xvar, yvar)
+	if !got.Equal(want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
+func TestExtsXYZ(t *testing.T) {
+	got := NewEmptyState()
+	var xvar, yvar, zvar Var
+	got, xvar = got.NewVarWithName("x")
+	got, yvar = got.NewVarWithName("y")
+	got, zvar = got.NewVarWithName("z")
+	got = got.AddKeyValue(zvar, xvar)
+	got = got.AddKeyValue(yvar, zvar)
+	want := got.Copy()
+	var gotok bool
+	got, gotok = exts(xvar, ast.NewSymbol("e"), got)
+	if !gotok {
+		t.Fatalf("expected ok")
+	}
+	want = want.AddKeyValue(xvar, ast.NewSymbol("e"))
+	if !got.Equal(want) {
+		t.Fatalf("got %v want %v", got, want)
 	}
 }

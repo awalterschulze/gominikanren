@@ -28,22 +28,22 @@ scheme code:
 	)
 */
 func TestReify(t *testing.T) {
-	u := ast.NewVar("u", 0)
-	v := ast.NewVar("v", 1)
-	w := ast.NewVar("w", 2)
-	x := ast.NewVar("x", 3)
-	y := ast.NewVar("y", 4)
-	z := ast.NewVar("z", 5)
-	a1 := ast.NewList(x, u, w, y, z, ast.NewList(ast.NewList(ast.NewSymbol("ice")), z))
-	a2 := ast.Cons(y, ast.NewSymbol("corn"))
-	a3 := ast.NewList(w, v, u)
+	s := NewEmptyState()
+	var x, u, v, w, y, z Var
+	s, u = s.NewVarWithName("u")
+	s, v = s.NewVarWithName("v")
+	s, w = s.NewVarWithName("w")
+	s, x = s.NewVarWithName("x")
+	s, y = s.NewVarWithName("y")
+	s, z = s.NewVarWithName("z")
+	a1 := ast.NewList(x.SExpr(), u.SExpr(), w.SExpr(), y.SExpr(), z.SExpr(), ast.NewList(ast.NewList(ast.NewSymbol("ice")), z.SExpr()))
+	a2 := ast.Cons(y.SExpr(), ast.NewSymbol("corn"))
+	a3 := ast.NewList(w.SExpr(), v.SExpr(), u.SExpr())
 	e := ast.NewList(a1, a2, a3)
-	ss := Substitutions{
-		indexOf(x): e.Car().Cdr(),
-		indexOf(y): e.Cdr().Car().Cdr(),
-		indexOf(w): e.Cdr().Cdr().Car().Cdr(),
-	}
-	gote := reifyFromState(indexOf(x), &State{Substitutions: ss}).(*ast.SExpr)
+	s = s.AddKeyValue(x, e.Car().Cdr())
+	s = s.AddKeyValue(y, e.Cdr().Car().Cdr())
+	s = s.AddKeyValue(w, e.Cdr().Cdr().Car().Cdr())
+	gote := reifyFromState(x, s).(*ast.SExpr)
 	got := gote.String()
 	want := "(_0 (_1 _0) corn _2 ((ice) _2))"
 	if got != want {
@@ -52,7 +52,9 @@ func TestReify(t *testing.T) {
 }
 
 func TestNoReify(t *testing.T) {
-	x := ast.NewVariable("x")
+	initial := NewEmptyState()
+	var x Var
+	initial, x = initial.NewVarWithName("x")
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
@@ -65,9 +67,8 @@ func TestNoReify(t *testing.T) {
 	states := RunGoal(context.Background(), 5, g)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
-	xv := indexOf(x)
 	for i, s := range states {
-		ss[i] = reifyFromState(xv, s).(*ast.SExpr)
+		ss[i] = reifyFromState(x, s).(*ast.SExpr)
 		strs[i] = ss[i].String()
 	}
 	got := "(" + strings.Join(strs, " ") + ")"

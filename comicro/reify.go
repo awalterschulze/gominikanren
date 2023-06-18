@@ -1,8 +1,6 @@
 package comicro
 
 import (
-	"strconv"
-
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
@@ -10,7 +8,7 @@ func reifys(v any, s *State) *State {
 	if vvar, ok := GetVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			n := ast.NewSymbol("_" + strconv.Itoa(s.LenSubstitutions()))
+			n := ast.NewSymbol(s.GetName(vvar))
 			return s.AddKeyValue(vvar, n)
 		}
 	}
