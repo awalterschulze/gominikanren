@@ -3,10 +3,9 @@ package regex
 import (
 	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/comini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func SimplO(r, s *ast.SExpr) comicro.Goal {
+func SimplO(r, s *Regex) comicro.Goal {
 	return ShortCircuitDisj(
 		simplO(r, s),
 		comicro.EqualO(r, s),
@@ -21,9 +20,9 @@ func ShortCircuitDisj(a, b comicro.Goal) comicro.Goal {
 	)
 }
 
-func simplO(r, s *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(&ast.SExpr{}, func(r1 *ast.SExpr) comicro.Goal {
-		return comicro.CallFresh(&ast.SExpr{}, func(r2 *ast.SExpr) comicro.Goal {
+func simplO(r, s *Regex) comicro.Goal {
+	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
+		return comicro.CallFresh(&Regex{}, func(r2 *Regex) comicro.Goal {
 			return comini.Conjs(
 				comini.Disjs(
 					comini.Conjs(
@@ -40,7 +39,7 @@ func simplO(r, s *ast.SExpr) comicro.Goal {
 	})
 }
 
-func SimpleOrO(r1, r2, res *ast.SExpr) comicro.Goal {
+func SimpleOrO(r1, r2, res *Regex) comicro.Goal {
 	r := comicro.EqualO(res, Or(r1, r2))
 	return comini.Disjs(
 		comicro.Conj(
@@ -64,7 +63,7 @@ func SimpleOrO(r1, r2, res *ast.SExpr) comicro.Goal {
 	)
 }
 
-func SimpleConcatO(r1, r2, res *ast.SExpr) comicro.Goal {
+func SimpleConcatO(r1, r2, res *Regex) comicro.Goal {
 	r := comicro.EqualO(res, Concat(r1, r2))
 	return comini.Disjs(
 		comicro.Conj(
@@ -94,7 +93,7 @@ func SimpleConcatO(r1, r2, res *ast.SExpr) comicro.Goal {
 	)
 }
 
-func IsNotEmpty(r *ast.SExpr) comicro.Goal {
+func IsNotEmpty(r *Regex) comicro.Goal {
 	return comini.Disjs(
 		IsChar(r),
 		IsOr(r),
@@ -103,7 +102,7 @@ func IsNotEmpty(r *ast.SExpr) comicro.Goal {
 	)
 }
 
-func IsNotEmptySet(r *ast.SExpr) comicro.Goal {
+func IsNotEmptySet(r *Regex) comicro.Goal {
 	return comini.Disjs(
 		IsEmptyStr(r),
 		IsChar(r),
@@ -113,38 +112,39 @@ func IsNotEmptySet(r *ast.SExpr) comicro.Goal {
 	)
 }
 
-func IsEmptySet(r *ast.SExpr) comicro.Goal {
+func IsEmptySet(r *Regex) comicro.Goal {
 	return comicro.EqualO(r, EmptySet())
 }
 
-func IsEmptyStr(r *ast.SExpr) comicro.Goal {
+func IsEmptyStr(r *Regex) comicro.Goal {
 	return comicro.EqualO(r, EmptyStr())
 }
 
-func IsChar(r *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(&ast.SExpr{}, func(c *ast.SExpr) comicro.Goal {
-		return comicro.EqualO(r, CharFromSExpr(c))
+func IsChar(r *Regex) comicro.Goal {
+	runeType := rune(0)
+	return comicro.CallFresh(&runeType, func(c *rune) comicro.Goal {
+		return comicro.EqualO(r, CharPtr(c))
 	})
 }
 
-func IsOr(r *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(&ast.SExpr{}, func(r1 *ast.SExpr) comicro.Goal {
-		return comicro.CallFresh(&ast.SExpr{}, func(r2 *ast.SExpr) comicro.Goal {
+func IsOr(r *Regex) comicro.Goal {
+	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
+		return comicro.CallFresh(&Regex{}, func(r2 *Regex) comicro.Goal {
 			return comicro.EqualO(r, Or(r1, r2))
 		})
 	})
 }
 
-func IsConcat(r *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(&ast.SExpr{}, func(r1 *ast.SExpr) comicro.Goal {
-		return comicro.CallFresh(&ast.SExpr{}, func(r2 *ast.SExpr) comicro.Goal {
+func IsConcat(r *Regex) comicro.Goal {
+	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
+		return comicro.CallFresh(&Regex{}, func(r2 *Regex) comicro.Goal {
 			return comicro.EqualO(r, Concat(r1, r2))
 		})
 	})
 }
 
-func IsStar(r *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(&ast.SExpr{}, func(r1 *ast.SExpr) comicro.Goal {
+func IsStar(r *Regex) comicro.Goal {
+	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
 		return comicro.EqualO(r, Star(r1))
 	})
 }

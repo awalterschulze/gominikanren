@@ -3,10 +3,9 @@ package regex
 import (
 	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/comini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func DerivO(r, char, out *ast.SExpr) comicro.Goal {
+func DerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
 	return comini.Disjs(
 		comicro.Conj(
 			comicro.EqualO(r, EmptySet()),
@@ -17,10 +16,10 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(out, EmptySet()),
 		),
 		DeriveCharO(r, char, out),
-		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(&ast.SExpr{}, func(da *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(&ast.SExpr{}, func(db *ast.SExpr) comicro.Goal {
+		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(&Regex{}, func(da *Regex) comicro.Goal {
+				return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
+					return comicro.CallFresh(&Regex{}, func(db *Regex) comicro.Goal {
 						return comini.Conjs(
 							comicro.EqualO(r, Or(a, b)),
 							DerivO(a, char, da),
@@ -31,11 +30,11 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 				})
 			})
 		}),
-		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(&ast.SExpr{}, func(da *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(&ast.SExpr{}, func(na *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
-						return comicro.CallFresh(&ast.SExpr{}, func(db *ast.SExpr) comicro.Goal {
+		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(&Regex{}, func(da *Regex) comicro.Goal {
+				return comicro.CallFresh(&Regex{}, func(na *Regex) comicro.Goal {
+					return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
+						return comicro.CallFresh(&Regex{}, func(db *Regex) comicro.Goal {
 							return comini.Conjs(
 								comicro.EqualO(r, Concat(a, b)),
 								DerivO(a, char, da),
@@ -48,8 +47,8 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 				})
 			})
 		}),
-		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(&ast.SExpr{}, func(da *ast.SExpr) comicro.Goal {
+		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(&Regex{}, func(da *Regex) comicro.Goal {
 				return comini.Conjs(
 					comicro.EqualO(r, Star(a)),
 					DerivO(a, char, da),
@@ -60,51 +59,54 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 	)
 }
 
-func DeriveCharO(r, char, out *ast.SExpr) comicro.Goal {
+func DeriveCharO(r *Regex, char *rune, out *Regex) comicro.Goal {
+	a := rune('a')
+	b := rune('b')
+	c := rune('c')
 	return comini.Disjs(
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('a')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('a'))),
+			comicro.EqualO(char, &a),
+			comicro.EqualO(r, Char('a')),
 			comicro.EqualO(out, EmptyStr()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('a')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('b'))),
+			comicro.EqualO(char, &a),
+			comicro.EqualO(r, Char('b')),
 			comicro.EqualO(out, EmptySet()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('a')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('c'))),
+			comicro.EqualO(char, &a),
+			comicro.EqualO(r, Char('c')),
 			comicro.EqualO(out, EmptySet()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('b')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('a'))),
+			comicro.EqualO(char, &b),
+			comicro.EqualO(r, Char('a')),
 			comicro.EqualO(out, EmptySet()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('b')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('b'))),
+			comicro.EqualO(char, &b),
+			comicro.EqualO(r, Char('b')),
 			comicro.EqualO(out, EmptyStr()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('b')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('c'))),
+			comicro.EqualO(char, &b),
+			comicro.EqualO(r, Char('c')),
 			comicro.EqualO(out, EmptySet()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('c')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('a'))),
+			comicro.EqualO(char, &c),
+			comicro.EqualO(r, Char('a')),
 			comicro.EqualO(out, EmptySet()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('c')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('b'))),
+			comicro.EqualO(char, &c),
+			comicro.EqualO(r, Char('b')),
 			comicro.EqualO(out, EmptySet()),
 		),
 		comini.Conjs(
-			comicro.EqualO(char, CharSymbol('c')),
-			comicro.EqualO(r, CharFromSExpr(CharSymbol('c'))),
+			comicro.EqualO(char, &c),
+			comicro.EqualO(r, Char('c')),
 			comicro.EqualO(out, EmptyStr()),
 		),
 	)

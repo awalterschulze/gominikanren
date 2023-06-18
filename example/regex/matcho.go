@@ -2,32 +2,35 @@ package regex
 
 import (
 	"github.com/awalterschulze/gominikanren/comicro"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func MatchO(r, s, res *ast.SExpr) comicro.Goal {
+func MatchO(r *Regex, s *string, res *Regex) comicro.Goal {
 	if s == nil {
 		return NullO(r, res)
 	}
-	return comicro.CallFresh(&ast.SExpr{}, func(dr *ast.SExpr) comicro.Goal {
+	return comicro.CallFresh(&Regex{}, func(dr *Regex) comicro.Goal {
 		return comicro.Conj(
-			SDerivOs(r, s, dr),
+			SDerivOs(r, *s, dr),
 			NullO(dr, res),
 		)
 	})
 }
 
-func SDerivOs(r, s, res *ast.SExpr) comicro.Goal {
-	if s == nil {
+func SDerivOs(r *Regex, s string, res *Regex) comicro.Goal {
+	ss := []rune(s)
+	if len(ss) == 0 {
 		return comicro.EqualO(res, r)
 	}
-	if !s.IsPair() {
-		return SDerivO(r, s, res)
+	if len(ss) == 1 {
+		c := ss[0]
+		return SDerivO(r, &c, res)
 	}
-	return comicro.CallFresh(&ast.SExpr{}, func(dr *ast.SExpr) comicro.Goal {
+	head := ss[0]
+	tail := string(ss[1:])
+	return comicro.CallFresh(&Regex{}, func(dr *Regex) comicro.Goal {
 		return comicro.Conj(
-			SDerivO(r, s.Car(), dr),
-			SDerivOs(dr, s.Cdr(), res),
+			SDerivO(r, &head, dr),
+			SDerivOs(dr, tail, res),
 		)
 	})
 }

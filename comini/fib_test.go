@@ -102,7 +102,7 @@ func fib(conj func(...comicro.Goal) comicro.Goal, x, y *ast.SExpr) comicro.Goal 
 func runFib(n int, f func(...comicro.Goal) comicro.Goal) []*ast.SExpr {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	return fmap(comicro.Run(ctx, -1, &ast.SExpr{}, func(q *ast.SExpr) comicro.Goal {
+	return fmap(comicro.Run(ctx, -1, &ast.SExpr{}, ast.VarCreator, func(q *ast.SExpr) comicro.Goal {
 		return fib(f, makenat(n), q)
 	}), func(x any) *ast.SExpr {
 		return x.(*ast.SExpr)
