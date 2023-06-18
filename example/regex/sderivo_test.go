@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
+	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 func TestSDerivOEmptySet(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(EmptySet(), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(EmptySet(), CharSymbol('a'), q)
 		},
 		EmptySet(),
 	)
@@ -21,8 +22,8 @@ func TestSDerivOEmptySet(t *testing.T) {
 func TestSDerivOEmptyStr(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(EmptyStr(), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(EmptyStr(), CharSymbol('a'), q)
 		},
 		EmptySet(),
 	)
@@ -31,8 +32,8 @@ func TestSDerivOEmptyStr(t *testing.T) {
 func TestSDerivOCharA(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(Char('a'), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(Char('a'), CharSymbol('a'), q)
 		},
 		EmptyStr(),
 	)
@@ -41,8 +42,8 @@ func TestSDerivOCharA(t *testing.T) {
 func TestSDerivOCharB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(Char('a'), CharSymbol('b'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(Char('a'), CharSymbol('b'), q)
 		},
 		EmptySet(),
 	)
@@ -51,8 +52,8 @@ func TestSDerivOCharB(t *testing.T) {
 func TestSDerivOOrAB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(Or(Char('a'), Char('b')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(Or(Char('a'), Char('b')), CharSymbol('a'), q)
 		},
 		EmptyStr(),
 	)
@@ -61,8 +62,8 @@ func TestSDerivOOrAB(t *testing.T) {
 func TestSDerivOOrNilA(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(Or(EmptyStr(), Char('a')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(Or(EmptyStr(), Char('a')), CharSymbol('a'), q)
 		},
 		EmptyStr(),
 	)
@@ -71,8 +72,8 @@ func TestSDerivOOrNilA(t *testing.T) {
 func TestSDerivOConcatAB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(Concat(Char('a'), Char('b')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(Concat(Char('a'), Char('b')), CharSymbol('a'), q)
 		},
 		Char('b'),
 	)
@@ -81,8 +82,8 @@ func TestSDerivOConcatAB(t *testing.T) {
 func TestSDerivOStarA(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(Star(Char('a')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(Star(Char('a')), CharSymbol('a'), q)
 		},
 		Star(Char('a')),
 	)
@@ -91,8 +92,8 @@ func TestSDerivOStarA(t *testing.T) {
 func TestSDerivOStarAB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return SDerivO(Star(Concat(Char('a'), Char('b'))), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return SDerivO(Star(Concat(Char('a'), Char('b'))), CharSymbol('a'), q)
 		},
 		Concat(
 			Char('b'),
@@ -107,10 +108,10 @@ func TestGenSDerivO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	g := func(q comicro.Var) comicro.Goal {
-		return SDerivO(Char('a'), q.SExpr(), EmptyStr())
+	g := func(q *ast.SExpr) comicro.Goal {
+		return SDerivO(Char('a'), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, g)
+	ss := comicro.RunStream(ctx, &ast.SExpr{}, g)
 	count := 0
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
@@ -131,10 +132,10 @@ func TestGenSDerivOB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	g := func(q comicro.Var) comicro.Goal {
-		return SDerivO(Char('a'), q.SExpr(), EmptySet())
+	g := func(q *ast.SExpr) comicro.Goal {
+		return SDerivO(Char('a'), q, EmptySet())
 	}
-	ss := comicro.RunStream(ctx, g)
+	ss := comicro.RunStream(ctx, &ast.SExpr{}, g)
 	count := 0
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
@@ -155,10 +156,10 @@ func TestGenSDerivOAOrB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	g := func(q comicro.Var) comicro.Goal {
-		return SDerivO(Or(Char('a'), Char('b')), q.SExpr(), EmptyStr())
+	g := func(q *ast.SExpr) comicro.Goal {
+		return SDerivO(Or(Char('a'), Char('b')), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, g)
+	ss := comicro.RunStream(ctx, &ast.SExpr{}, g)
 	count := 0
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)

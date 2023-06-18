@@ -6,14 +6,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	Substitutions map[Var]any
 	Names         map[Var]string
+	Pointers      map[Var]reflect.Value
+	FirstVar      *Var
 	Counter       uint64
 }
 
@@ -49,87 +49,60 @@ func (s *State) Equal(other *State) bool {
 
 type Var uintptr
 
-func (v Var) SExpr() *ast.SExpr {
-	return ast.NewVar(fmt.Sprintf("v%d", v), uint64(v))
+func NewVar[A any](s *State, typ A) (*State, A) {
+	return NewVarWithName(s, "v"+strconv.Itoa(int(s.Counter)), typ)
 }
 
-func (v Var) String() string {
-	return v.SExpr().String()
-}
-
-func isvar(a any) bool {
-	if IsNil(a) {
-		return false
-	}
-	v := reflect.ValueOf(a)
-	if v.Type() != varType {
-		return false
-	}
-	return true
-}
-
-var varType = reflect.TypeOf(Var(0))
-
-var sexprType = reflect.TypeOf(ast.SExpr{})
-var atomType = reflect.TypeOf(ast.Atom{})
-
-func isvarSExpr(s any) bool {
-	v := reflect.ValueOf(s)
-	if v.Kind() != reflect.Ptr {
-		return false
-	}
-	if v.IsNil() {
-		return false
-	}
-	v = v.Elem()
-	k := v.Kind()
-	switch k {
-	case reflect.Struct:
-		if v.Type() != sexprType {
-			return false
-		}
-		atomValue := v.Field(1)
-		if atomValue.IsNil() {
-			return false
-		}
-		if atomValue.Elem().Type() != atomType {
-			return false
-		}
-		varValue := atomValue.Elem().FieldByName("Var")
-		if varValue.IsNil() {
-			return false
-		}
-		return true
-	}
-	return false
-}
-
-func (s *State) NewVar() (*State, Var) {
-	return s.NewVarWithName("v" + strconv.Itoa(int(s.Counter)))
-}
-
-func (s *State) NewVarWithName(name string) (*State, Var) {
+func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	if s == nil {
 		s = NewEmptyState()
 	}
-	v := Var(s.Counter)
+	v := reflect.New(reflect.TypeOf(typ).Elem())
+	key := Var(v.Pointer())
 	names := copyMap(s.Names)
-	names[v] = name
-	return &State{
+	names[key] = name
+	pointers := copyMap(s.Pointers)
+	pointers[key] = v
+	res := &State{
 		Substitutions: s.Substitutions,
 		Counter:       s.Counter + 1,
+		Pointers:      pointers,
 		Names:         names,
-	}, v
+		FirstVar:      s.FirstVar,
+	}
+	if s.FirstVar == nil {
+		res.FirstVar = &key
+	}
+	return res, v.Interface().(A)
+}
+
+func (s *State) GetFirstVar() *Var {
+	return s.FirstVar
 }
 
 func (s *State) GetVar(a any) (Var, bool) {
-	if isvar(a) {
-		return a.(Var), true
+	if s == nil {
+		return 0, false
 	}
-	if isvarSExpr(a) {
-		return Var(a.(*ast.SExpr).Atom.Var.Index), true
+	if avar, ok := a.(Var); ok {
+		return avar, true
 	}
-	return 0, false
+	v := reflect.ValueOf(a)
+	key := Var(v.Pointer())
+	_, ok := s.Pointers[key]
+	return key, ok
+}
+
+func (s *State) LookupValue(key Var) any {
+	placeholder, ok := s.Pointers[key]
+	if !ok {
+		panic(fmt.Sprintf("Var %v not found", key))
+	}
+	return placeholder.Interface()
+}
+
+func (s *State) SameVar(a, b Var) bool {
+	return s.Pointers[a].Pointer() == s.Pointers[b].Pointer()
 }
 
 func (s *State) GetName(v Var) string {
@@ -174,9 +147,12 @@ func (s *State) Copy() *State {
 	}
 	names := copyMap(s.Names)
 	substitutions := copyMap(s.Substitutions)
+	pointers := copyMap(s.Pointers)
 	return &State{
 		Substitutions: substitutions,
 		Counter:       s.Counter,
+		Pointers:      pointers,
+		FirstVar:      s.FirstVar,
 		Names:         names,
 	}
 }

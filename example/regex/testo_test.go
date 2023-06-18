@@ -8,11 +8,11 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func testo(t *testing.T, f func(q comicro.Var) comicro.Goal, want *ast.SExpr) {
+func testo(t *testing.T, f func(q *ast.SExpr) comicro.Goal, want *ast.SExpr) {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	sexprs := comicro.Run(ctx, 1, f)
+	sexprs := comicro.Run(ctx, 1, &ast.SExpr{}, f)
 	if len(sexprs) != 1 {
 		t.Fatalf("expected len %d result, but got %d instead", 1, len(sexprs))
 	}

@@ -17,58 +17,58 @@ func NullO(r, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(out, EmptyStr()),
 		),
 		comicro.Conj(
-			comicro.CallFresh(func(char comicro.Var) comicro.Goal {
-				return comicro.EqualO(r, CharFromSExpr(char.SExpr()))
+			comicro.CallFresh(&ast.SExpr{}, func(char *ast.SExpr) comicro.Goal {
+				return comicro.EqualO(r, CharFromSExpr(char))
 			}),
 			comicro.EqualO(out, EmptySet()),
 		),
-		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-			return comicro.CallFresh(func(b comicro.Var) comicro.Goal {
+		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
 				return comicro.Conj(
-					comicro.EqualO(r, Or(a.SExpr(), b.SExpr())),
+					comicro.EqualO(r, Or(a, b)),
 					comini.Disjs(
 						comini.Conjs(
-							NullO(a.SExpr(), EmptyStr()),
+							NullO(a, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
 						),
 						comini.Conjs(
-							NullO(b.SExpr(), EmptyStr()),
+							NullO(b, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
 						),
 						comini.Conjs(
-							NullO(a.SExpr(), EmptySet()),
-							NullO(b.SExpr(), EmptySet()),
+							NullO(a, EmptySet()),
+							NullO(b, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
 						),
 					),
 				)
 			})
 		}),
-		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-			return comicro.CallFresh(func(b comicro.Var) comicro.Goal {
+		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
 				return comicro.Conj(
-					comicro.EqualO(r, Concat(a.SExpr(), b.SExpr())),
+					comicro.EqualO(r, Concat(a, b)),
 					comini.Disjs(
 						comini.Conjs(
-							NullO(a.SExpr(), EmptySet()),
+							NullO(a, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
 						),
 						comini.Conjs(
-							NullO(b.SExpr(), EmptySet()),
+							NullO(b, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
 						),
 						comini.Conjs(
-							NullO(a.SExpr(), EmptyStr()),
-							NullO(b.SExpr(), EmptyStr()),
+							NullO(a, EmptyStr()),
+							NullO(b, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
 						),
 					),
 				)
 			})
 		}),
-		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
+		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
 			return comicro.Conj(
-				comicro.EqualO(r, Star(a.SExpr())),
+				comicro.EqualO(r, Star(a)),
 				comicro.EqualO(out, EmptyStr()),
 			)
 		}),

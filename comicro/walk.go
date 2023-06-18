@@ -21,7 +21,7 @@ func ReplaceAll(v any, s *State) any {
 	if vvar, ok := s.GetVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			return vvar.SExpr()
+			return s.LookupValue(vvar)
 		}
 	}
 	return Map(v, func(a any) any {

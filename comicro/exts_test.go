@@ -8,19 +8,22 @@ import (
 
 func TestOccurs(t *testing.T) {
 	s := NewEmptyState()
-	var x, y Var
-	s, x = s.NewVarWithName("x")
-	s, y = s.NewVarWithName("y")
+	var x, y *ast.SExpr
+	s, x = NewVarWithName(s, "x", &ast.SExpr{})
+	s, y = NewVarWithName(s, "y", &ast.SExpr{})
+	xvar, _ := s.GetVar(x)
+	yvar, _ := s.GetVar(y)
 	sxy := s.Copy()
-	sxy = sxy.AddKeyValue(y, x)
+	sxy = sxy.AddKeyValue(yvar, x)
 	tests := []func() (Var, *ast.SExpr, *State, bool){
-		tuple4(x, x.SExpr(), s, true),
-		tuple4(x, y.SExpr(), s, false),
-		tuple4(x, ast.NewList(y.SExpr()), sxy, true),
+		tuple4(xvar, x, s, true),
+		tuple4(xvar, y, s, false),
+		tuple4(xvar, ast.NewList(y), sxy, true),
 	}
 	for _, test := range tests {
 		v, w, s, want := test()
-		t.Run("(occurs "+v.String()+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
+		vname := s.GetName(v)
+		t.Run("(occurs "+vname+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
 			got := occurs(v, w, s)
 			if want != got {
 				t.Fatalf("got %v want %v", got, want)
@@ -31,8 +34,9 @@ func TestOccurs(t *testing.T) {
 
 func TestExtsXA(t *testing.T) {
 	got := NewEmptyState()
-	var xvar Var
-	got, xvar = got.NewVarWithName("x")
+	var x *ast.SExpr
+	got, x = NewVarWithName(got, "x", &ast.SExpr{})
+	xvar, _ := got.GetVar(x)
 	want := got.Copy()
 	var gotok bool
 	got, gotok = exts(xvar, ast.NewSymbol("a"), got)
@@ -47,10 +51,11 @@ func TestExtsXA(t *testing.T) {
 
 func TestExtsXX(t *testing.T) {
 	got := NewEmptyState()
-	var xvar Var
-	got, xvar = got.NewVarWithName("x")
+	var x *ast.SExpr
+	got, x = NewVarWithName(got, "x", &ast.SExpr{})
+	xvar, _ := got.GetVar(x)
 	var gotok bool
-	_, gotok = exts(xvar, xvar, got)
+	_, gotok = exts(xvar, x, got)
 	if gotok {
 		t.Fatalf("expected !ok")
 	}
@@ -58,16 +63,17 @@ func TestExtsXX(t *testing.T) {
 
 func TestExtsXY(t *testing.T) {
 	got := NewEmptyState()
-	var xvar, yvar Var
-	got, xvar = got.NewVarWithName("x")
-	got, yvar = got.NewVarWithName("y")
+	var x, y *ast.SExpr
+	got, x = NewVarWithName(got, "x", &ast.SExpr{})
+	got, y = NewVarWithName(got, "y", &ast.SExpr{})
+	xvar, _ := got.GetVar(x)
 	want := got.Copy()
 	var gotok bool
-	got, gotok = exts(xvar, yvar, got)
+	got, gotok = exts(xvar, y, got)
 	if !gotok {
 		t.Fatalf("expected ok")
 	}
-	want = want.AddKeyValue(xvar, yvar)
+	want = want.AddKeyValue(xvar, y)
 	if !got.Equal(want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
@@ -75,12 +81,16 @@ func TestExtsXY(t *testing.T) {
 
 func TestExtsXYZ(t *testing.T) {
 	got := NewEmptyState()
-	var xvar, yvar, zvar Var
-	got, xvar = got.NewVarWithName("x")
-	got, yvar = got.NewVarWithName("y")
-	got, zvar = got.NewVarWithName("z")
-	got = got.AddKeyValue(zvar, xvar)
-	got = got.AddKeyValue(yvar, zvar)
+	var x, y, z *ast.SExpr
+	got, x = NewVarWithName(got, "x", &ast.SExpr{})
+	got, y = NewVarWithName(got, "y", &ast.SExpr{})
+	got, z = NewVarWithName(got, "z", &ast.SExpr{})
+	xvar, _ := got.GetVar(x)
+	yvar, _ := got.GetVar(y)
+	zvar, _ := got.GetVar(z)
+	got = got.AddKeyValue(zvar, x)
+	got = got.AddKeyValue(yvar, z)
+
 	want := got.Copy()
 	var gotok bool
 	got, gotok = exts(xvar, ast.NewSymbol("e"), got)

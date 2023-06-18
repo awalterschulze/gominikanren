@@ -14,14 +14,14 @@ func AppendO(l, t, out *ast.SExpr) comicro.Goal {
 			NullO(l),
 			comicro.EqualO(t, out),
 		),
-		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-			return comicro.CallFresh(func(d comicro.Var) comicro.Goal {
-				return comicro.CallFresh(func(res comicro.Var) comicro.Goal {
+		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(&ast.SExpr{}, func(d *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(&ast.SExpr{}, func(res *ast.SExpr) comicro.Goal {
 					return comicro.Conj(
-						ConsO(a.SExpr(), d.SExpr(), l),
+						ConsO(a, d, l),
 						comicro.Conj(
-							ConsO(a.SExpr(), res.SExpr(), out),
-							AppendO(d.SExpr(), t, res.SExpr()),
+							ConsO(a, res, out),
+							AppendO(d, t, res),
 						),
 					)
 				})
@@ -45,7 +45,7 @@ func ConsO(a, d, p *ast.SExpr) comicro.Goal {
 
 // CarO is a goal where the second parameter is the head of the list in the first parameter.
 func CarO(p, a *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(func(d comicro.Var) comicro.Goal {
-		return comicro.EqualO(ast.Cons(a, d.SExpr()), p)
+	return comicro.CallFresh(&ast.SExpr{}, func(d *ast.SExpr) comicro.Goal {
+		return comicro.EqualO(ast.Cons(a, d), p)
 	})
 }

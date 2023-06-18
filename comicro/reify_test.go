@@ -29,21 +29,24 @@ scheme code:
 */
 func TestReify(t *testing.T) {
 	s := NewEmptyState()
-	var x, u, v, w, y, z Var
-	s, u = s.NewVarWithName("u")
-	s, v = s.NewVarWithName("v")
-	s, w = s.NewVarWithName("w")
-	s, x = s.NewVarWithName("x")
-	s, y = s.NewVarWithName("y")
-	s, z = s.NewVarWithName("z")
-	a1 := ast.NewList(x.SExpr(), u.SExpr(), w.SExpr(), y.SExpr(), z.SExpr(), ast.NewList(ast.NewList(ast.NewSymbol("ice")), z.SExpr()))
-	a2 := ast.Cons(y.SExpr(), ast.NewSymbol("corn"))
-	a3 := ast.NewList(w.SExpr(), v.SExpr(), u.SExpr())
+	var x, u, v, w, y, z *ast.SExpr
+	s, u = NewVar(s, &ast.SExpr{})
+	s, v = NewVar(s, &ast.SExpr{})
+	s, w = NewVar(s, &ast.SExpr{})
+	s, x = NewVar(s, &ast.SExpr{})
+	s, y = NewVar(s, &ast.SExpr{})
+	s, z = NewVar(s, &ast.SExpr{})
+	xvar, _ := s.GetVar(x)
+	yvar, _ := s.GetVar(y)
+	wvar, _ := s.GetVar(w)
+	a1 := ast.NewList(x, u, w, y, z, ast.NewList(ast.NewList(ast.NewSymbol("ice")), z))
+	a2 := ast.Cons(y, ast.NewSymbol("corn"))
+	a3 := ast.NewList(w, v, u)
 	e := ast.NewList(a1, a2, a3)
-	s = s.AddKeyValue(x, e.Car().Cdr())
-	s = s.AddKeyValue(y, e.Cdr().Car().Cdr())
-	s = s.AddKeyValue(w, e.Cdr().Cdr().Car().Cdr())
-	gote := reifyFromState(x, s).(*ast.SExpr)
+	s = s.AddKeyValue(xvar, e.Car().Cdr())
+	s = s.AddKeyValue(yvar, e.Cdr().Car().Cdr())
+	s = s.AddKeyValue(wvar, e.Cdr().Cdr().Car().Cdr())
+	gote := reifyFromState(xvar, s).(*ast.SExpr)
 	got := gote.String()
 	want := "(,v0 (,v1 ,v0) corn ,v5 ((ice) ,v5))"
 	if got != want {
@@ -52,9 +55,12 @@ func TestReify(t *testing.T) {
 }
 
 func TestNoReify(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	initial := NewEmptyState()
-	var x Var
-	initial, x = initial.NewVarWithName("x")
+	var x *ast.SExpr
+	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
+	xvar, _ := initial.GetVar(x)
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
@@ -64,11 +70,12 @@ func TestNoReify(t *testing.T) {
 		x,
 	)
 	g := Disj(e1, e2)
-	states := RunGoal(context.Background(), 5, g)
+	stream := NewStreamForGoal(ctx, g, initial)
+	states := Take(ctx, 5, stream)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
 	for i, s := range states {
-		ss[i] = reifyFromState(x, s).(*ast.SExpr)
+		ss[i] = reifyFromState(xvar, s).(*ast.SExpr)
 		strs[i] = ss[i].String()
 	}
 	got := "(" + strings.Join(strs, " ") + ")"
