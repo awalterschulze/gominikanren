@@ -14,21 +14,21 @@ func RunGoal(ctx context.Context, n int, g Goal) []*State {
 }
 
 // Run behaves like the default miniKanren run command
-func Run(ctx context.Context, n int, g func(Var) Goal) []any {
-	ss := RunStream(ctx, g)
+func Run[A any](ctx context.Context, n int, varTyp A, g func(A) Goal) []any {
+	ss := RunStream(ctx, varTyp, g)
 	return Take(ctx, n, ss)
 }
 
 // RunStream behaves like the default miniKanren run command, but returns a stream of answers
-func RunStream(ctx context.Context, g func(Var) Goal) chan any {
+func RunStream[A any](ctx context.Context, varTyp A, g func(A) Goal) chan any {
 	s := NewEmptyState()
-	v := Var(0)
-	s, v = s.NewVar()
+	var v A
+	s, v = NewVar(s, varTyp)
 	ss := NewStreamForGoal(ctx, g(v), s)
 	res := make(chan any, 0)
 	go func() {
 		defer close(res)
-		MapOverNonNilStream(ctx, ss, Reify, res)
+		MapOverNonNilStream(ctx, ss, func(state *State) any { return Reify(state, varTyp) }, res)
 	}()
 	return res
 }
@@ -44,7 +44,7 @@ func FailureO(ctx context.Context, s *State, ss StreamOfStates) {
 }
 
 // EqualO returns a Goal that unifies the input expressions in the output stream.
-func EqualO(x, y any) Goal {
+func EqualO[A any](x, y A) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		ss.Write(ctx, Unify(s, x, y))
 	}

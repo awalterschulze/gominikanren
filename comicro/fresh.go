@@ -5,9 +5,9 @@ import (
 )
 
 // CallFresh expects a function that expects a variable and returns a Goal.
-func CallFresh(f func(Var) Goal) Goal {
+func CallFresh[A any](typ A, f func(A) Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
-		s1, v := s.NewVar()
+		s1, v := NewVar(s, typ)
 		f(v)(ctx, s1, ss)
 	}
 }

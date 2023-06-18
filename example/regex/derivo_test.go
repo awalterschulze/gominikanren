@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
+	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 func TestDerivOEmptySet(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(EmptySet(), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(EmptySet(), CharSymbol('a'), q)
 		},
 		EmptySet(),
 	)
@@ -21,8 +22,8 @@ func TestDerivOEmptySet(t *testing.T) {
 func TestDerivOEmptyStr(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(EmptyStr(), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(EmptyStr(), CharSymbol('a'), q)
 		},
 		EmptySet(),
 	)
@@ -31,8 +32,8 @@ func TestDerivOEmptyStr(t *testing.T) {
 func TestDerivOCharA(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(Char('a'), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(Char('a'), CharSymbol('a'), q)
 		},
 		EmptyStr(),
 	)
@@ -41,8 +42,8 @@ func TestDerivOCharA(t *testing.T) {
 func TestDerivOCharB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(Char('a'), CharSymbol('b'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(Char('a'), CharSymbol('b'), q)
 		},
 		EmptySet(),
 	)
@@ -51,8 +52,8 @@ func TestDerivOCharB(t *testing.T) {
 func TestDerivOOrAB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(Or(Char('a'), Char('b')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(Or(Char('a'), Char('b')), CharSymbol('a'), q)
 		},
 		Or(EmptyStr(), EmptySet()),
 	)
@@ -61,8 +62,8 @@ func TestDerivOOrAB(t *testing.T) {
 func TestDerivOOrNilA(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(Or(EmptyStr(), Char('a')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(Or(EmptyStr(), Char('a')), CharSymbol('a'), q)
 		},
 		Or(EmptySet(), EmptyStr()),
 	)
@@ -71,8 +72,8 @@ func TestDerivOOrNilA(t *testing.T) {
 func TestDerivOConcatAB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(Concat(Char('a'), Char('b')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(Concat(Char('a'), Char('b')), CharSymbol('a'), q)
 		},
 		Or(Concat(EmptyStr(), Char('b')), Concat(EmptySet(), EmptySet())),
 	)
@@ -81,8 +82,8 @@ func TestDerivOConcatAB(t *testing.T) {
 func TestDerivOStarA(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(Star(Char('a')), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(Star(Char('a')), CharSymbol('a'), q)
 		},
 		Concat(EmptyStr(), Star(Char('a'))),
 	)
@@ -91,8 +92,8 @@ func TestDerivOStarA(t *testing.T) {
 func TestDerivOStarAB(t *testing.T) {
 	testo(
 		t,
-		func(q comicro.Var) comicro.Goal {
-			return DerivO(Star(Concat(Char('a'), Char('b'))), CharSymbol('a'), q.SExpr())
+		func(q *ast.SExpr) comicro.Goal {
+			return DerivO(Star(Concat(Char('a'), Char('b'))), CharSymbol('a'), q)
 		},
 		Concat(
 			Or(Concat(EmptyStr(), Char('b')), Concat(EmptySet(), EmptySet())),
@@ -107,10 +108,10 @@ func TestGenDeriveOA(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	g := func(q comicro.Var) comicro.Goal {
-		return DerivO(Char('a'), q.SExpr(), EmptyStr())
+	g := func(q *ast.SExpr) comicro.Goal {
+		return DerivO(Char('a'), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, g)
+	ss := comicro.RunStream(ctx, &ast.SExpr{}, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
@@ -126,10 +127,10 @@ func TestGenDeriveOB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	g := func(q comicro.Var) comicro.Goal {
-		return DerivO(Char('a'), q.SExpr(), EmptySet())
+	g := func(q *ast.SExpr) comicro.Goal {
+		return DerivO(Char('a'), q, EmptySet())
 	}
-	ss := comicro.RunStream(ctx, g)
+	ss := comicro.RunStream(ctx, &ast.SExpr{}, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
@@ -145,10 +146,10 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	g := func(q comicro.Var) comicro.Goal {
-		return DerivO(Or(Char('a'), Char('b')), q.SExpr(), Or(EmptySet(), EmptyStr()))
+	g := func(q *ast.SExpr) comicro.Goal {
+		return DerivO(Or(Char('a'), Char('b')), q, Or(EmptySet(), EmptyStr()))
 	}
-	ss := comicro.RunStream(ctx, g)
+	ss := comicro.RunStream(ctx, &ast.SExpr{}, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {

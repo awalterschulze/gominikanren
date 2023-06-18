@@ -17,35 +17,35 @@ func SDerivO(r, char, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(out, EmptySet()),
 		),
 		DeriveCharO(r, char, out),
-		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-			return comicro.CallFresh(func(da comicro.Var) comicro.Goal {
-				return comicro.CallFresh(func(b comicro.Var) comicro.Goal {
-					return comicro.CallFresh(func(db comicro.Var) comicro.Goal {
+		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(&ast.SExpr{}, func(da *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
+					return comicro.CallFresh(&ast.SExpr{}, func(db *ast.SExpr) comicro.Goal {
 						return comini.Conjs(
-							comicro.EqualO(r, Or(a.SExpr(), b.SExpr())),
-							SDerivO(a.SExpr(), char, da.SExpr()),
-							SDerivO(b.SExpr(), char, db.SExpr()),
-							SimpleOrO(da.SExpr(), db.SExpr(), out),
+							comicro.EqualO(r, Or(a, b)),
+							SDerivO(a, char, da),
+							SDerivO(b, char, db),
+							SimpleOrO(da, db, out),
 						)
 					})
 				})
 			})
 		}),
-		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-			return comicro.CallFresh(func(da comicro.Var) comicro.Goal {
-				return comicro.CallFresh(func(na comicro.Var) comicro.Goal {
-					return comicro.CallFresh(func(b comicro.Var) comicro.Goal {
-						return comicro.CallFresh(func(db comicro.Var) comicro.Goal {
-							return comicro.CallFresh(func(ca comicro.Var) comicro.Goal {
-								return comicro.CallFresh(func(cb comicro.Var) comicro.Goal {
+		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(&ast.SExpr{}, func(da *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(&ast.SExpr{}, func(na *ast.SExpr) comicro.Goal {
+					return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
+						return comicro.CallFresh(&ast.SExpr{}, func(db *ast.SExpr) comicro.Goal {
+							return comicro.CallFresh(&ast.SExpr{}, func(ca *ast.SExpr) comicro.Goal {
+								return comicro.CallFresh(&ast.SExpr{}, func(cb *ast.SExpr) comicro.Goal {
 									return comini.Conjs(
-										comicro.EqualO(r, Concat(a.SExpr(), b.SExpr())),
-										SDerivO(a.SExpr(), char, da.SExpr()),
-										SDerivO(b.SExpr(), char, db.SExpr()),
-										NullO(a.SExpr(), na.SExpr()),
-										SimpleConcatO(da.SExpr(), b.SExpr(), ca.SExpr()),
-										SimpleConcatO(na.SExpr(), db.SExpr(), cb.SExpr()),
-										SimpleOrO(ca.SExpr(), cb.SExpr(), out),
+										comicro.EqualO(r, Concat(a, b)),
+										SDerivO(a, char, da),
+										SDerivO(b, char, db),
+										NullO(a, na),
+										SimpleConcatO(da, b, ca),
+										SimpleConcatO(na, db, cb),
+										SimpleOrO(ca, cb, out),
 									)
 								})
 							})
@@ -54,12 +54,12 @@ func SDerivO(r, char, out *ast.SExpr) comicro.Goal {
 				})
 			})
 		}),
-		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-			return comicro.CallFresh(func(da comicro.Var) comicro.Goal {
+		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+			return comicro.CallFresh(&ast.SExpr{}, func(da *ast.SExpr) comicro.Goal {
 				return comini.Conjs(
-					comicro.EqualO(r, Star(a.SExpr())),
-					SDerivO(a.SExpr(), char, da.SExpr()),
-					SimpleConcatO(da.SExpr(), r, out),
+					comicro.EqualO(r, Star(a)),
+					SDerivO(a, char, da),
+					SimpleConcatO(da, r, out),
 				)
 			})
 		}),

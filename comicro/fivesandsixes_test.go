@@ -9,7 +9,7 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func fives(x Var) Goal {
+func fives(x *ast.SExpr) Goal {
 	return Disj(
 		EqualO(
 			x,
@@ -19,7 +19,7 @@ func fives(x Var) Goal {
 	)
 }
 
-func sixes(x Var) Goal {
+func sixes(x *ast.SExpr) Goal {
 	return Disj(
 		EqualO(
 			x,
@@ -35,31 +35,33 @@ func TestFivesAndSixes(t *testing.T) {
 	ast5 := ast.NewInt(5)
 
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
-	states := RunGoal(ctx,
+	gots := Run(ctx,
 		1,
-		CallFresh(func(q Var) Goal {
+		&ast.SExpr{},
+		func(q *ast.SExpr) Goal {
 			return EqualO(
 				q,
 				ast5,
 			)
-		}))
-	got := fmap(fmap(states, Reify), func(a any) *ast.SExpr {
+		})
+	got := fmap(gots, func(a any) *ast.SExpr {
 		return a.(*ast.SExpr)
 	})
 	want := []*ast.SExpr{ast5}
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("expected %#v but got %#v", want, got)
+		t.Fatalf("expected %v but got %v", want, got)
 	}
 
 	// (define (fives x) (disj (≡ x 5) (fives x)))
 	// ((call/fresh fives) empty-state)
-	states = RunGoal(ctx,
+	gots = Run(ctx,
 		2,
-		CallFresh(func(x Var) Goal {
+		&ast.SExpr{},
+		func(x *ast.SExpr) Goal {
 			return fives(x)
-		}),
+		},
 	)
-	got = fmap(fmap(states, Reify), func(a any) *ast.SExpr {
+	got = fmap(gots, func(a any) *ast.SExpr {
 		return a.(*ast.SExpr)
 	})
 	want = []*ast.SExpr{ast5, ast5}
@@ -68,7 +70,8 @@ func TestFivesAndSixes(t *testing.T) {
 	}
 
 	stream := RunStream(ctx,
-		func(x Var) Goal {
+		&ast.SExpr{},
+		func(x *ast.SExpr) Goal {
 			return Disj(
 				fives(x),
 				sixes(x),

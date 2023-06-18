@@ -62,12 +62,12 @@ func natplus(x, y, z *ast.SExpr) comicro.Goal {
 	return comini.Conde(
 		[]comicro.Goal{comicro.EqualO(x, zero), comicro.EqualO(y, z)},
 		[]comicro.Goal{
-			comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-				return comicro.CallFresh(func(b comicro.Var) comicro.Goal {
+			comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
 					return comini.Conjs(
-						succ(a.SExpr(), x),
-						succ(b.SExpr(), z),
-						natplus(a.SExpr(), y, b.SExpr()),
+						succ(a, x),
+						succ(b, z),
+						natplus(a, y, b),
 					)
 				})
 			}),
@@ -80,16 +80,16 @@ func fib(conj func(...comicro.Goal) comicro.Goal, x, y *ast.SExpr) comicro.Goal 
 		[]comicro.Goal{comicro.EqualO(x, zero), comicro.EqualO(y, zero)},
 		[]comicro.Goal{comicro.EqualO(x, one), comicro.EqualO(y, one)},
 		[]comicro.Goal{
-			comicro.CallFresh(func(n1 comicro.Var) comicro.Goal {
-				return comicro.CallFresh(func(n2 comicro.Var) comicro.Goal {
-					return comicro.CallFresh(func(f1 comicro.Var) comicro.Goal {
-						return comicro.CallFresh(func(f2 comicro.Var) comicro.Goal {
+			comicro.CallFresh(&ast.SExpr{}, func(n1 *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(&ast.SExpr{}, func(n2 *ast.SExpr) comicro.Goal {
+					return comicro.CallFresh(&ast.SExpr{}, func(f1 *ast.SExpr) comicro.Goal {
+						return comicro.CallFresh(&ast.SExpr{}, func(f2 *ast.SExpr) comicro.Goal {
 							return conj(
-								succ(n1.SExpr(), x),
-								succ(n2.SExpr(), n1.SExpr()),
-								fib(conj, n1.SExpr(), f1.SExpr()),
-								fib(conj, n2.SExpr(), f2.SExpr()),
-								natplus(f1.SExpr(), f2.SExpr(), y),
+								succ(n1, x),
+								succ(n2, n1),
+								fib(conj, n1, f1),
+								fib(conj, n2, f2),
+								natplus(f1, f2, y),
 							)
 						})
 					})
@@ -102,8 +102,8 @@ func fib(conj func(...comicro.Goal) comicro.Goal, x, y *ast.SExpr) comicro.Goal 
 func runFib(n int, f func(...comicro.Goal) comicro.Goal) []*ast.SExpr {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	return fmap(comicro.Run(ctx, -1, func(q comicro.Var) comicro.Goal {
-		return fib(f, makenat(n), q.SExpr())
+	return fmap(comicro.Run(ctx, -1, &ast.SExpr{}, func(q *ast.SExpr) comicro.Goal {
+		return fib(f, makenat(n), q)
 	}), func(x any) *ast.SExpr {
 		return x.(*ast.SExpr)
 	})

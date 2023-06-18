@@ -14,7 +14,7 @@ func occurs(x Var, v any, s *State) bool {
 	if vvar, ok := s.GetVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			return vvar == x
+			return s.SameVar(vvar, x)
 		}
 	}
 	return Any(v, func(a any) bool {

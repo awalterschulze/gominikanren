@@ -6,9 +6,10 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func TestVarIsVar(t *testing.T) {
+func TestIntIsVar(t *testing.T) {
+	varTyp := int(0)
 	s := NewEmptyState()
-	s, v := s.NewVar()
+	s, v := NewVar(s, &varTyp)
 	if _, ok := s.GetVar(v); !ok {
 		t.Fatalf("expected %v to be a var", v)
 	}
@@ -16,8 +17,8 @@ func TestVarIsVar(t *testing.T) {
 
 func TestSExprIsVar(t *testing.T) {
 	s := NewEmptyState()
-	s, v := s.NewVar()
-	if _, ok := s.GetVar(v.SExpr()); !ok {
+	s, v := NewVar(s, &ast.SExpr{})
+	if _, ok := s.GetVar(v); !ok {
 		t.Fatalf("expected %v to be a var", v)
 	}
 }

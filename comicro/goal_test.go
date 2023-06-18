@@ -77,8 +77,8 @@ func TestDisj1(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	initial := NewEmptyState()
-	var x Var
-	initial, x = initial.NewVarWithName("x")
+	var x *ast.SExpr
+	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
 		Disj(
 			EqualO(
@@ -114,8 +114,8 @@ func TestDisj2(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	initial := NewEmptyState()
-	var x Var
-	initial, x = initial.NewVarWithName("x")
+	var x *ast.SExpr
+	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
 		Disj(
 			NeverO,
@@ -191,16 +191,20 @@ func TestRunGoalAlways3(t *testing.T) {
 func TestRunGoalDisj2(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	s := NewEmptyState()
+	var x *ast.SExpr
+	s, x = NewVarWithName(s, "x", &ast.SExpr{})
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
-		ast.NewVariable("x"),
+		x,
 	)
 	e2 := EqualO(
 		ast.NewSymbol("oil"),
-		ast.NewVariable("x"),
+		x,
 	)
 	g := Disj(e1, e2)
-	ss := RunGoal(ctx, 5, g)
+	stream := NewStreamForGoal(ctx, g, s)
+	ss := Take(ctx, 5, stream)
 	if len(ss) != 2 {
 		t.Fatalf("expected 2, got %d: %v", len(ss), ss)
 	}
@@ -209,7 +213,9 @@ func TestRunGoalDisj2(t *testing.T) {
 func TestRunGoalConj2NoResults(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	x := ast.NewVariable("x")
+	s := NewEmptyState()
+	var x *ast.SExpr
+	s, x = NewVarWithName(s, "x", &ast.SExpr{})
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
@@ -219,7 +225,8 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 		x,
 	)
 	g := Conj(e1, e2)
-	ss := RunGoal(ctx, 5, g)
+	stream := NewStreamForGoal(ctx, g, s)
+	ss := Take(ctx, 5, stream)
 	if len(ss) != 0 {
 		t.Fatalf("expected 0, got %d: %v", len(ss), ss)
 	}
@@ -229,8 +236,8 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	initial := NewEmptyState()
-	var x Var
-	initial, x = initial.NewVarWithName("x")
+	var x *ast.SExpr
+	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,

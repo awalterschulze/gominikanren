@@ -30,13 +30,13 @@ but we can optimise if we detect y is bound
 	  )))
 */
 func MemberO(x, y *ast.SExpr) comicro.Goal {
-	return comicro.CallFresh(func(a comicro.Var) comicro.Goal {
-		return comicro.CallFresh(func(d comicro.Var) comicro.Goal {
+	return comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+		return comicro.CallFresh(&ast.SExpr{}, func(d *ast.SExpr) comicro.Goal {
 			return comicro.Conj(
-				comicro.EqualO(y, ast.Cons(a.SExpr(), d.SExpr())),
+				comicro.EqualO(y, ast.Cons(a, d)),
 				comicro.Disj(
-					comicro.EqualO(x, a.SExpr()),
-					MemberO(x, d.SExpr()),
+					comicro.EqualO(x, a),
+					MemberO(x, d),
 				),
 			)
 		})
@@ -72,15 +72,15 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x, y *ast.SExpr) comicro.
 			comicro.EqualO(y, nil),
 		},
 		[]comicro.Goal{
-			comicro.CallFresh(func(xa comicro.Var) comicro.Goal {
-				return comicro.CallFresh(func(xd comicro.Var) comicro.Goal {
-					return comicro.CallFresh(func(ya comicro.Var) comicro.Goal {
-						return comicro.CallFresh(func(yd comicro.Var) comicro.Goal {
+			comicro.CallFresh(&ast.SExpr{}, func(xa *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(&ast.SExpr{}, func(xd *ast.SExpr) comicro.Goal {
+					return comicro.CallFresh(&ast.SExpr{}, func(ya *ast.SExpr) comicro.Goal {
+						return comicro.CallFresh(&ast.SExpr{}, func(yd *ast.SExpr) comicro.Goal {
 							return Conjs(
-								comicro.EqualO(x, ast.Cons(xa.SExpr(), xd.SExpr())),
-								comicro.EqualO(y, ast.Cons(ya.SExpr(), yd.SExpr())),
-								f(xa.SExpr(), ya.SExpr()),
-								MapO(f, xd.SExpr(), yd.SExpr()),
+								comicro.EqualO(x, ast.Cons(xa, xd)),
+								comicro.EqualO(y, ast.Cons(ya, yd)),
+								f(xa, ya),
+								MapO(f, xd, yd),
 							)
 						})
 					})

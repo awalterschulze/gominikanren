@@ -11,10 +11,10 @@ import (
 func TestOnce(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	var x, y comicro.Var
+	var x, y *ast.SExpr
 	state := comicro.NewEmptyState()
-	state, x = state.NewVarWithName("x")
-	state, y = state.NewVarWithName("y")
+	state, x = comicro.NewVarWithName(state, "x", &ast.SExpr{})
+	state, y = comicro.NewVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		OnceO(comicro.Disj(
 			comicro.EqualO(ast.NewSymbol("#t"), x),

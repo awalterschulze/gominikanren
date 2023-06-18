@@ -19,9 +19,9 @@ func TestIfThenElseSuccess(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	var y comicro.Var
+	var y *ast.SExpr
 	state := comicro.NewEmptyState()
-	state, y = state.NewVarWithName("y")
+	state, y = comicro.NewVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		comicro.SuccessO,
 		comicro.EqualO(ast.NewSymbol("#f"), y),
@@ -41,9 +41,9 @@ func TestIfThenElseFailure(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	var y comicro.Var
+	var y *ast.SExpr
 	state := comicro.NewEmptyState()
-	state, y = state.NewVarWithName("y")
+	state, y = comicro.NewVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		comicro.FailureO,
 		comicro.EqualO(ast.NewSymbol("#f"), y),
@@ -63,10 +63,10 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	var x, y comicro.Var
+	var x, y *ast.SExpr
 	state := comicro.NewEmptyState()
-	state, x = state.NewVarWithName("x")
-	state, y = state.NewVarWithName("y")
+	state, x = comicro.NewVarWithName(state, "x", &ast.SExpr{})
+	state, y = comicro.NewVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		comicro.EqualO(ast.NewSymbol("#t"), x),
 		comicro.EqualO(ast.NewSymbol("#f"), y),
@@ -86,10 +86,10 @@ func TestIfThenElseDisjoint(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	var x, y comicro.Var
+	var x, y *ast.SExpr
 	state := comicro.NewEmptyState()
-	state, x = state.NewVarWithName("x")
-	state, y = state.NewVarWithName("y")
+	state, x = comicro.NewVarWithName(state, "x", &ast.SExpr{})
+	state, y = comicro.NewVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		comicro.Disj(
 			comicro.EqualO(ast.NewSymbol("#t"), x),
