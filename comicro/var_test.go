@@ -7,22 +7,25 @@ import (
 )
 
 func TestVarIsVar(t *testing.T) {
-	v := NewVar(0)
-	if !IsVar(v) {
+	s := NewEmptyState()
+	s, v := s.NewVar()
+	if _, ok := s.GetVar(v); !ok {
 		t.Fatalf("expected %v to be a var", v)
 	}
 }
 
 func TestSExprIsVar(t *testing.T) {
-	v := NewVar(0).SExpr()
-	if !IsVar(v) {
+	s := NewEmptyState()
+	s, v := s.NewVar()
+	if _, ok := s.GetVar(v.SExpr()); !ok {
 		t.Fatalf("expected %v to be a var", v)
 	}
 }
 
 func TestSExprIsNotVar(t *testing.T) {
-	s := ast.NewSymbol("x")
-	if IsVar(s) {
-		t.Fatalf("expected %v is not a var", s)
+	s := NewEmptyState()
+	x := ast.NewSymbol("x")
+	if _, ok := s.GetVar(x); ok {
+		t.Fatalf("expected %v is not a var", x)
 	}
 }
