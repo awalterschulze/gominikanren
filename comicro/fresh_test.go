@@ -37,24 +37,3 @@ func TestFreshKiwi(t *testing.T) {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
-
-func TestFresherKiwi(t *testing.T) {
-	ss := RunGoal(context.Background(), 1,
-		Fresh(1, func(vars ...Var) Goal {
-			fruit := vars[0]
-			return EqualO(
-				ast.NewSymbol("plum"),
-				fruit.SExpr(),
-			)
-		},
-		),
-	)
-	if len(ss) != 1 {
-		t.Fatalf("expected %d, but got %d results", 1, len(ss))
-	}
-	want := "({,v0: plum} . 1)"
-	got := ss[0].String()
-	if got != want {
-		t.Fatalf("got %s != want %s", got, want)
-	}
-}

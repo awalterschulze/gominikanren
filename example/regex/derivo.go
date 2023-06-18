@@ -17,32 +17,45 @@ func DerivO(r, char, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(out, EmptySet()),
 		),
 		DeriveCharO(r, char, out),
-		comicro.Fresh(4, func(vars ...comicro.Var) comicro.Goal {
-			a, da, b, db := vars[0].SExpr(), vars[1].SExpr(), vars[2].SExpr(), vars[3].SExpr()
-			return comini.Conjs(
-				comicro.EqualO(r, Or(a, b)),
-				DerivO(a, char, da),
-				DerivO(b, char, db),
-				comicro.EqualO(out, Or(da, db)),
-			)
+		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
+			return comicro.CallFresh(func(da comicro.Var) comicro.Goal {
+				return comicro.CallFresh(func(b comicro.Var) comicro.Goal {
+					return comicro.CallFresh(func(db comicro.Var) comicro.Goal {
+						return comini.Conjs(
+							comicro.EqualO(r, Or(a.SExpr(), b.SExpr())),
+							DerivO(a.SExpr(), char, da.SExpr()),
+							DerivO(b.SExpr(), char, db.SExpr()),
+							comicro.EqualO(out, Or(da.SExpr(), db.SExpr())),
+						)
+					})
+				})
+			})
 		}),
-		comicro.Fresh(5, func(vars ...comicro.Var) comicro.Goal {
-			a, da, na, b, db := vars[0].SExpr(), vars[1].SExpr(), vars[2].SExpr(), vars[3].SExpr(), vars[4].SExpr()
-			return comini.Conjs(
-				comicro.EqualO(r, Concat(a, b)),
-				DerivO(a, char, da),
-				DerivO(b, char, db),
-				NullO(a, na),
-				comicro.EqualO(out, Or(Concat(da, b), Concat(na, db))),
-			)
+		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
+			return comicro.CallFresh(func(da comicro.Var) comicro.Goal {
+				return comicro.CallFresh(func(na comicro.Var) comicro.Goal {
+					return comicro.CallFresh(func(b comicro.Var) comicro.Goal {
+						return comicro.CallFresh(func(db comicro.Var) comicro.Goal {
+							return comini.Conjs(
+								comicro.EqualO(r, Concat(a.SExpr(), b.SExpr())),
+								DerivO(a.SExpr(), char, da.SExpr()),
+								DerivO(b.SExpr(), char, db.SExpr()),
+								NullO(a.SExpr(), na.SExpr()),
+								comicro.EqualO(out, Or(Concat(da.SExpr(), b.SExpr()), Concat(na.SExpr(), db.SExpr()))),
+							)
+						})
+					})
+				})
+			})
 		}),
-		comicro.Fresh(2, func(vars ...comicro.Var) comicro.Goal {
-			a, da := vars[0].SExpr(), vars[1].SExpr()
-			return comini.Conjs(
-				comicro.EqualO(r, Star(a)),
-				DerivO(a, char, da),
-				comicro.EqualO(out, Concat(da, Star(a))),
-			)
+		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
+			return comicro.CallFresh(func(da comicro.Var) comicro.Goal {
+				return comini.Conjs(
+					comicro.EqualO(r, Star(a.SExpr())),
+					DerivO(a.SExpr(), char, da.SExpr()),
+					comicro.EqualO(out, Concat(da.SExpr(), Star(a.SExpr()))),
+				)
+			})
 		}),
 	)
 }

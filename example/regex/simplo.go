@@ -22,20 +22,21 @@ func ShortCircuitDisj(a, b comicro.Goal) comicro.Goal {
 }
 
 func simplO(r, s *ast.SExpr) comicro.Goal {
-	return comicro.Fresh(2, func(vars ...comicro.Var) comicro.Goal {
-		r1, r2 := vars[0], vars[1]
-		return comini.Conjs(
-			comini.Disjs(
-				comini.Conjs(
-					comicro.EqualO(r, Or(r1.SExpr(), r2.SExpr())),
-					SimpleOrO(r1.SExpr(), r2.SExpr(), s),
+	return comicro.CallFresh(func(r1 comicro.Var) comicro.Goal {
+		return comicro.CallFresh(func(r2 comicro.Var) comicro.Goal {
+			return comini.Conjs(
+				comini.Disjs(
+					comini.Conjs(
+						comicro.EqualO(r, Or(r1.SExpr(), r2.SExpr())),
+						SimpleOrO(r1.SExpr(), r2.SExpr(), s),
+					),
+					comini.Conjs(
+						comicro.EqualO(r, Concat(r1.SExpr(), r2.SExpr())),
+						SimpleConcatO(r1.SExpr(), r2.SExpr(), s),
+					),
 				),
-				comini.Conjs(
-					comicro.EqualO(r, Concat(r1.SExpr(), r2.SExpr())),
-					SimpleConcatO(r1.SExpr(), r2.SExpr(), s),
-				),
-			),
-		)
+			)
+		})
 	})
 }
 
@@ -127,16 +128,18 @@ func IsChar(r *ast.SExpr) comicro.Goal {
 }
 
 func IsOr(r *ast.SExpr) comicro.Goal {
-	return comicro.Fresh(2, func(vars ...comicro.Var) comicro.Goal {
-		r1, r2 := vars[0].SExpr(), vars[1].SExpr()
-		return comicro.EqualO(r, Or(r1, r2))
+	return comicro.CallFresh(func(r1 comicro.Var) comicro.Goal {
+		return comicro.CallFresh(func(r2 comicro.Var) comicro.Goal {
+			return comicro.EqualO(r, Or(r1.SExpr(), r2.SExpr()))
+		})
 	})
 }
 
 func IsConcat(r *ast.SExpr) comicro.Goal {
-	return comicro.Fresh(2, func(vars ...comicro.Var) comicro.Goal {
-		r1, r2 := vars[0].SExpr(), vars[1].SExpr()
-		return comicro.EqualO(r, Concat(r1, r2))
+	return comicro.CallFresh(func(r1 comicro.Var) comicro.Goal {
+		return comicro.CallFresh(func(r2 comicro.Var) comicro.Goal {
+			return comicro.EqualO(r, Concat(r1.SExpr(), r2.SExpr()))
+		})
 	})
 }
 

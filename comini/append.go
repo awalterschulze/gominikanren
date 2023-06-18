@@ -14,15 +14,18 @@ func AppendO(l, t, out *ast.SExpr) comicro.Goal {
 			NullO(l),
 			comicro.EqualO(t, out),
 		),
-		comicro.Fresh(3, func(vars ...comicro.Var) comicro.Goal {
-			a, d, res := vars[0].SExpr(), vars[1].SExpr(), vars[2].SExpr()
-			return comicro.Conj(
-				ConsO(a, d, l),
-				comicro.Conj(
-					ConsO(a, res, out),
-					AppendO(d, t, res),
-				),
-			)
+		comicro.CallFresh(func(a comicro.Var) comicro.Goal {
+			return comicro.CallFresh(func(d comicro.Var) comicro.Goal {
+				return comicro.CallFresh(func(res comicro.Var) comicro.Goal {
+					return comicro.Conj(
+						ConsO(a.SExpr(), d.SExpr(), l),
+						comicro.Conj(
+							ConsO(a.SExpr(), res.SExpr(), out),
+							AppendO(d.SExpr(), t, res.SExpr()),
+						),
+					)
+				})
+			})
 		}),
 	)
 }
