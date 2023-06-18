@@ -45,7 +45,7 @@ func TestReify(t *testing.T) {
 	s = s.AddKeyValue(w, e.Cdr().Cdr().Car().Cdr())
 	gote := reifyFromState(x, s).(*ast.SExpr)
 	got := gote.String()
-	want := "(_0 (_1 _0) corn _2 ((ice) _2))"
+	want := "(,v0 (,v1 ,v0) corn ,v5 ((ice) ,v5))"
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}

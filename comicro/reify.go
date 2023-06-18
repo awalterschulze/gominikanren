@@ -1,15 +1,11 @@
 package comicro
 
-import (
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
-)
-
 func reifys(v any, s *State) *State {
 	if vvar, ok := GetVar(v); ok {
 		v = Lookup(vvar, s)
-		if vvar, ok := v.(Var); ok {
-			n := ast.NewSymbol(s.GetName(vvar))
-			return s.AddKeyValue(vvar, n)
+		if _, ok := v.(Var); ok {
+			// terminate when a var has no mapping
+			return s
 		}
 	}
 	return Fold(v, s, func(state *State, a any) *State {
