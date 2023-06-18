@@ -4,13 +4,12 @@ import (
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 func TestMatchOEmptySetNil(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return MatchO(EmptySet(), nil, q)
 		},
 		EmptySet(),
@@ -18,10 +17,11 @@ func TestMatchOEmptySetNil(t *testing.T) {
 }
 
 func TestMatchOEmptySetChar(t *testing.T) {
+	a := "a"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(EmptySet(), ast.Cons(CharSymbol('a'), nil), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(EmptySet(), &a, q)
 		},
 		EmptySet(),
 	)
@@ -30,7 +30,7 @@ func TestMatchOEmptySetChar(t *testing.T) {
 func TestMatchOEmptyStrNil(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return MatchO(EmptyStr(), nil, q)
 		},
 		EmptyStr(),
@@ -38,10 +38,11 @@ func TestMatchOEmptyStrNil(t *testing.T) {
 }
 
 func TestMatchOEmptyStrChar(t *testing.T) {
+	a := "a"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(EmptyStr(), ast.Cons(CharSymbol('a'), nil), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(EmptyStr(), &a, q)
 		},
 		EmptySet(),
 	)
@@ -50,7 +51,7 @@ func TestMatchOEmptyStrChar(t *testing.T) {
 func TestMatchOCharNil(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return MatchO(Char('a'), nil, q)
 		},
 		EmptySet(),
@@ -58,30 +59,33 @@ func TestMatchOCharNil(t *testing.T) {
 }
 
 func TestMatchOCharAChar(t *testing.T) {
+	a := "a"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Char('a'), ast.Cons(CharSymbol('a'), nil), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Char('a'), &a, q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOCharBChar(t *testing.T) {
+	b := "b"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Char('a'), ast.Cons(CharSymbol('b'), nil), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Char('a'), &b, q)
 		},
 		EmptySet(),
 	)
 }
 
 func TestMatchOCharStr(t *testing.T) {
+	aa := "aa"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Char('a'), ast.Cons(CharSymbol('a'), ast.Cons(CharSymbol('a'), nil)), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Char('a'), &aa, q)
 		},
 		EmptySet(),
 	)
@@ -90,7 +94,7 @@ func TestMatchOCharStr(t *testing.T) {
 func TestMatchOOrNil(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return MatchO(Or(Char('a'), Char('b')), nil, q)
 		},
 		EmptySet(),
@@ -98,30 +102,33 @@ func TestMatchOOrNil(t *testing.T) {
 }
 
 func TestMatchOOrCharA(t *testing.T) {
+	a := "a"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Or(Char('a'), Char('b')), CharSymbol('a'), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Or(Char('a'), Char('b')), &a, q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOOrCharB(t *testing.T) {
+	b := "b"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Or(Char('a'), Char('b')), CharSymbol('b'), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Or(Char('a'), Char('b')), &b, q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOOrCharC(t *testing.T) {
+	c := "c"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Or(Char('a'), Char('b')), CharSymbol('c'), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Or(Char('a'), Char('b')), &c, q)
 		},
 		EmptySet(),
 	)
@@ -130,7 +137,7 @@ func TestMatchOOrCharC(t *testing.T) {
 func TestMatchOConcatNil(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return MatchO(Concat(Char('a'), Char('b')), nil, q)
 		},
 		EmptySet(),
@@ -138,41 +145,44 @@ func TestMatchOConcatNil(t *testing.T) {
 }
 
 func TestMatchOConcatCharA(t *testing.T) {
+	a := "a"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Concat(Char('a'), Char('b')), CharSymbol('a'), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Concat(Char('a'), Char('b')), &a, q)
 		},
 		EmptySet(),
 	)
 }
 
 func TestMatchOConcatCharAB(t *testing.T) {
+	ab := "ab"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Concat(Char('a'), Char('b')), ast.Cons(CharSymbol('a'), ast.Cons(CharSymbol('b'), nil)), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Concat(Char('a'), Char('b')), &ab, q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOConcatCharAC(t *testing.T) {
+	ac := "ac"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Concat(Char('a'), Char('b')), ast.Cons(CharSymbol('a'), ast.Cons(CharSymbol('c'), nil)), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Concat(Char('a'), Char('b')), &ac, q)
 		},
 		EmptySet(),
 	)
 }
 
 func TestMatchOConcatCharABC(t *testing.T) {
+	abc := "abc"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Concat(Char('a'), Char('b')),
-				ast.Cons(CharSymbol('a'), ast.Cons(CharSymbol('b'), ast.Cons(CharSymbol('c'), nil))), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Concat(Char('a'), Char('b')), &abc, q)
 		},
 		EmptySet(),
 	)
@@ -181,7 +191,7 @@ func TestMatchOConcatCharABC(t *testing.T) {
 func TestMatchOStarANil(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return MatchO(Star(Char('a')), nil, q)
 		},
 		EmptyStr(),
@@ -189,10 +199,11 @@ func TestMatchOStarANil(t *testing.T) {
 }
 
 func TestMatchOStarABCharA(t *testing.T) {
+	a := "a"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Star(Concat(Char('a'), Char('b'))), CharSymbol('a'), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Star(Concat(Char('a'), Char('b'))), &a, q)
 		},
 		EmptySet(),
 	)
@@ -202,10 +213,11 @@ func TestMatchOStarABCharAB(t *testing.T) {
 	if testing.Short() {
 		return
 	}
+	ab := "ab"
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
-			return MatchO(Star(Concat(Char('a'), Char('b'))), ast.Cons(CharSymbol('a'), ast.Cons(CharSymbol('b'), nil)), q)
+		func(q *Regex) comicro.Goal {
+			return MatchO(Star(Concat(Char('a'), Char('b'))), &ab, q)
 		},
 		EmptyStr(),
 	)
@@ -218,7 +230,7 @@ func TestMatchOStarABCharAB(t *testing.T) {
 // 	ctx, cancel := context.WithCancel(context.Background())
 // 	ctx = comicro.SetMaxRoutines(ctx, 10000)
 // 	defer cancel()
-// 	g := func(q *ast.SExpr) comicro.Goal {
+// 	g := func(q *Regex) comicro.Goal {
 // 		return SDerivOs(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
 // 	}
 // 	ss := comicro.RunStream(ctx, g)
@@ -243,7 +255,7 @@ func TestMatchOStarABCharAB(t *testing.T) {
 // 	ctx, cancel := context.WithCancel(context.Background())
 // 	ctx = comicro.SetMaxRoutines(ctx, 100)
 // 	defer cancel()
-// 	g := func(q *ast.SExpr) comicro.Goal {
+// 	g := func(q *Regex) comicro.Goal {
 // 		return MatchO(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
 // 	}
 // 	ss := comicro.RunStream(ctx, g)

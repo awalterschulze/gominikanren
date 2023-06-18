@@ -29,7 +29,7 @@ func sixes(x *ast.SExpr) Goal {
 	)
 }
 
-func TestFivesAndSixes(t *testing.T) {
+func TestFivesAndSixesSExpr(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ast5 := ast.NewInt(5)
@@ -38,6 +38,7 @@ func TestFivesAndSixes(t *testing.T) {
 	gots := Run(ctx,
 		1,
 		&ast.SExpr{},
+		ast.VarCreator,
 		func(q *ast.SExpr) Goal {
 			return EqualO(
 				q,
@@ -57,6 +58,7 @@ func TestFivesAndSixes(t *testing.T) {
 	gots = Run(ctx,
 		2,
 		&ast.SExpr{},
+		ast.VarCreator,
 		func(x *ast.SExpr) Goal {
 			return fives(x)
 		},
@@ -71,6 +73,7 @@ func TestFivesAndSixes(t *testing.T) {
 
 	stream := RunStream(ctx,
 		&ast.SExpr{},
+		ast.VarCreator,
 		func(x *ast.SExpr) Goal {
 			return Disj(
 				fives(x),
@@ -96,5 +99,30 @@ func TestFivesAndSixes(t *testing.T) {
 	}
 	if !has6 {
 		t.Fatalf("expected to find least one 6")
+	}
+}
+
+func TestFivesAsInt(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	five := int64(5)
+	pointToFive := &five
+
+	gots := Run(ctx,
+		1,
+		pointToFive,
+		ast.VarCreator,
+		func(q *int64) Goal {
+			return EqualO(
+				q,
+				pointToFive,
+			)
+		})
+	got := fmap(gots, func(a any) *int64 {
+		return a.(*int64)
+	})
+	want := []*int64{pointToFive}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("expected %v but got %v", want, got)
 	}
 }

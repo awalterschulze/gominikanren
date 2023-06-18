@@ -46,7 +46,7 @@ func TestReify(t *testing.T) {
 	s = s.AddKeyValue(xvar, e.Car().Cdr())
 	s = s.AddKeyValue(yvar, e.Cdr().Car().Cdr())
 	s = s.AddKeyValue(wvar, e.Cdr().Cdr().Car().Cdr())
-	gote := reifyFromState(xvar, s).(*ast.SExpr)
+	gote := reifyFromState(xvar, s, ast.VarCreator).(*ast.SExpr)
 	got := gote.String()
 	want := "(,v0 (,v1 ,v0) corn ,v5 ((ice) ,v5))"
 	if got != want {
@@ -75,7 +75,7 @@ func TestNoReify(t *testing.T) {
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
 	for i, s := range states {
-		ss[i] = reifyFromState(xvar, s).(*ast.SExpr)
+		ss[i] = reifyFromState(xvar, s, ast.VarCreator).(*ast.SExpr)
 		strs[i] = ss[i].String()
 	}
 	got := "(" + strings.Join(strs, " ") + ")"

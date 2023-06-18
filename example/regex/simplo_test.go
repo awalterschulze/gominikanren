@@ -6,13 +6,12 @@ import (
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 func TestSimplOEmptySet(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(EmptySet(), q)
 		},
 		EmptySet(),
@@ -22,7 +21,7 @@ func TestSimplOEmptySet(t *testing.T) {
 func TestSimplOEmptyStr(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(EmptyStr(), q)
 		},
 		EmptyStr(),
@@ -32,7 +31,7 @@ func TestSimplOEmptyStr(t *testing.T) {
 func TestSimplOChar(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(Char('a'), q)
 		},
 		Char('a'),
@@ -42,7 +41,7 @@ func TestSimplOChar(t *testing.T) {
 func TestSimplOOrAEmptySet(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(Or(EmptySet(), Char('a')), q)
 		},
 		Char('a'),
@@ -52,7 +51,7 @@ func TestSimplOOrAEmptySet(t *testing.T) {
 func TestSimplOOrEmptySetA(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(Or(Char('a'), EmptySet()), q)
 		},
 		Char('a'),
@@ -62,7 +61,7 @@ func TestSimplOOrEmptySetA(t *testing.T) {
 func TestSimplOConcatAEmptySet(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(Concat(EmptySet(), Char('a')), q)
 		},
 		EmptySet(),
@@ -72,7 +71,7 @@ func TestSimplOConcatAEmptySet(t *testing.T) {
 func TestSimplOConcatEmptySetA(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(Concat(Char('a'), EmptySet()), q)
 		},
 		EmptySet(),
@@ -82,7 +81,7 @@ func TestSimplOConcatEmptySetA(t *testing.T) {
 func TestSimplOConcatAEmptyStr(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(Concat(EmptyStr(), Char('a')), q)
 		},
 		Char('a'),
@@ -92,7 +91,7 @@ func TestSimplOConcatAEmptyStr(t *testing.T) {
 func TestSimplOConcatEmptyStrA(t *testing.T) {
 	testo(
 		t,
-		func(q *ast.SExpr) comicro.Goal {
+		func(q *Regex) comicro.Goal {
 			return SimplO(Concat(Char('a'), EmptyStr()), q)
 		},
 		Char('a'),
@@ -105,10 +104,10 @@ func TestGenSimplOA(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	g := func(q *ast.SExpr) comicro.Goal {
+	g := func(q *Regex) comicro.Goal {
 		return SimplO(q, Char('a'))
 	}
-	ss := comicro.RunStream(ctx, &ast.SExpr{}, g)
+	ss := comicro.RunStream(ctx, &Regex{}, VarCreator, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {

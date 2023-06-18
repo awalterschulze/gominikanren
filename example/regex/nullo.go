@@ -3,10 +3,10 @@ package regex
 import (
 	"github.com/awalterschulze/gominikanren/comicro"
 	"github.com/awalterschulze/gominikanren/comini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func NullO(r, out *ast.SExpr) comicro.Goal {
+func NullO(r, out *Regex) comicro.Goal {
+	runeType := rune(0)
 	return comini.Disjs(
 		comicro.Conj(
 			comicro.EqualO(r, EmptySet()),
@@ -17,13 +17,13 @@ func NullO(r, out *ast.SExpr) comicro.Goal {
 			comicro.EqualO(out, EmptyStr()),
 		),
 		comicro.Conj(
-			comicro.CallFresh(&ast.SExpr{}, func(char *ast.SExpr) comicro.Goal {
-				return comicro.EqualO(r, CharFromSExpr(char))
+			comicro.CallFresh(&runeType, func(char *rune) comicro.Goal {
+				return comicro.EqualO(r, CharPtr(char))
 			}),
 			comicro.EqualO(out, EmptySet()),
 		),
-		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
+		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Or(a, b)),
 					comini.Disjs(
@@ -44,8 +44,8 @@ func NullO(r, out *ast.SExpr) comicro.Goal {
 				)
 			})
 		}),
-		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
+		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Concat(a, b)),
 					comini.Disjs(
@@ -66,7 +66,7 @@ func NullO(r, out *ast.SExpr) comicro.Goal {
 				)
 			})
 		}),
-		comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
+		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
 			return comicro.Conj(
 				comicro.EqualO(r, Star(a)),
 				comicro.EqualO(out, EmptyStr()),

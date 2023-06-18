@@ -14,13 +14,13 @@ func RunGoal(ctx context.Context, n int, g Goal) []*State {
 }
 
 // Run behaves like the default miniKanren run command
-func Run[A any](ctx context.Context, n int, varTyp A, g func(A) Goal) []any {
-	ss := RunStream(ctx, varTyp, g)
+func Run[A any](ctx context.Context, n int, varTyp A, create varCreator, g func(A) Goal) []any {
+	ss := RunStream(ctx, varTyp, create, g)
 	return Take(ctx, n, ss)
 }
 
 // RunStream behaves like the default miniKanren run command, but returns a stream of answers
-func RunStream[A any](ctx context.Context, varTyp A, g func(A) Goal) chan any {
+func RunStream[A any](ctx context.Context, varTyp A, create varCreator, g func(A) Goal) chan any {
 	s := NewEmptyState()
 	var v A
 	s, v = NewVar(s, varTyp)
@@ -28,7 +28,7 @@ func RunStream[A any](ctx context.Context, varTyp A, g func(A) Goal) chan any {
 	res := make(chan any, 0)
 	go func() {
 		defer close(res)
-		MapOverNonNilStream(ctx, ss, func(state *State) any { return Reify(state, varTyp) }, res)
+		MapOverNonNilStream(ctx, ss, func(state *State) any { return Reify(state, varTyp, create) }, res)
 	}()
 	return res
 }

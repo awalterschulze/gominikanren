@@ -1,37 +1,78 @@
 package regex
 
-import (
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+type RegexType int32
+
+const (
+	EmptySetType RegexType = 0
+	EmptyStrType RegexType = 1
+	CharType     RegexType = 2
+	OrType       RegexType = 3
+	ConcatType   RegexType = 4
+	StarType     RegexType = 5
 )
 
-func EmptySet() *ast.SExpr {
-	return ast.NewSymbol("∅")
+type Regex struct {
+	Type *RegexType
+	Char *rune
+	R1   *Regex
+	R2   *Regex
 }
 
-func EmptyStr() *ast.SExpr {
-	return ast.NewSymbol("ε")
+func EmptySet() *Regex {
+	typ := EmptySetType
+	return &Regex{Type: &typ}
 }
 
-func Char(c rune) *ast.SExpr {
-	return ast.NewList(ast.NewSymbol("char"), ast.NewSymbol(string([]rune{c})))
+func EmptyStr() *Regex {
+	typ := EmptyStrType
+	return &Regex{Type: &typ}
 }
 
-func CharSymbol(c rune) *ast.SExpr {
-	return ast.NewSymbol(string([]rune{c}))
+func Char(c rune) *Regex {
+	typ := CharType
+	return &Regex{Type: &typ, Char: &c}
 }
 
-func CharFromSExpr(c *ast.SExpr) *ast.SExpr {
-	return ast.NewList(ast.NewSymbol("char"), c)
+func CharPtr(c *rune) *Regex {
+	typ := CharType
+	return &Regex{Type: &typ, Char: c}
 }
 
-func Or(a, b *ast.SExpr) *ast.SExpr {
-	return ast.NewList(ast.NewSymbol("or"), a, b)
+func Or(a, b *Regex) *Regex {
+	typ := OrType
+	return &Regex{Type: &typ, R1: a, R2: b}
 }
 
-func Concat(a, b *ast.SExpr) *ast.SExpr {
-	return ast.NewList(ast.NewSymbol("concat"), a, b)
+func Concat(a, b *Regex) *Regex {
+	typ := ConcatType
+	return &Regex{Type: &typ, R1: a, R2: b}
 }
 
-func Star(a *ast.SExpr) *ast.SExpr {
-	return ast.NewList(ast.NewSymbol("star"), a)
+func Star(a *Regex) *Regex {
+	typ := StarType
+	return &Regex{Type: &typ, R1: a}
+}
+
+func (r *Regex) String() string {
+	if r == nil {
+		return "nil"
+	}
+	if r.Type == nil {
+		return "nilType"
+	}
+	switch *r.Type {
+	case EmptySetType:
+		return "∅"
+	case EmptyStrType:
+		return "ε"
+	case CharType:
+		return string(*r.Char)
+	case OrType:
+		return "(" + r.R1.String() + "|" + r.R2.String() + ")"
+	case ConcatType:
+		return r.R1.String() + r.R2.String()
+	case StarType:
+		return "(" + r.R1.String() + ")*"
+	}
+	panic("unreachable")
 }
