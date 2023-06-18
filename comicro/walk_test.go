@@ -95,7 +95,7 @@ func TestReplaceAll(t *testing.T) {
 		start, state, want := test()
 		t.Run("(walk "+start.String()+" "+state.String()+")", func(t *testing.T) {
 			got := ReplaceAll(start, state)
-			if vgot, ok := GetVar(got); ok {
+			if vgot, ok := state.GetVar(got); ok {
 				got = state.GetName(vgot)
 			} else {
 				got = got.(interface{ String() string }).String()

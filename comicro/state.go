@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 // State is a product of a list of substitutions and a variable counter.
@@ -55,6 +57,16 @@ func (s *State) NewVarWithName(name string) (*State, Var) {
 		Counter:       s.Counter + 1,
 		Names:         names,
 	}, v
+}
+
+func (s *State) GetVar(a any) (Var, bool) {
+	if isvar(a) {
+		return a.(Var), true
+	}
+	if isvarSExpr(a) {
+		return NewVar(a.(*ast.SExpr).Atom.Var.Index), true
+	}
+	return 0, false
 }
 
 func (s *State) GetName(v Var) string {
