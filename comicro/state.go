@@ -3,12 +3,13 @@ package comicro
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
-	Substitutions Substitutions
+	Substitutions map[Var]any
 	Names         map[Var]string
 	Counter       uint64
 }
@@ -18,15 +19,57 @@ func (s *State) String() string {
 	if s.Substitutions == nil {
 		return fmt.Sprintf("(() . %d)", s.Counter)
 	}
-	return fmt.Sprintf("(%s . %d)", s.Substitutions.String(), s.Counter)
+	ks := keys(s.Substitutions)
+	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
+	ss := make([]string, len(s.Substitutions))
+	for i, k := range ks {
+		v := s.Substitutions[k]
+		vstr := fmt.Sprintf("%v", v)
+		kstr := s.GetName(k)
+		if vvar, ok := v.(Var); ok {
+			vstr = s.GetName(vvar)
+		}
+		if !strings.HasPrefix(kstr, "_") {
+			kstr = "," + kstr
+		}
+		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
+	}
+	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), s.Counter)
+}
+
+func (s *State) Equal(other *State) bool {
+	return s.String() == other.String()
 }
 
 func (s *State) NewVar() (*State, Var) {
+	return s.NewVarWithName("v" + strconv.Itoa(int(s.Counter)))
+}
+
+func (s *State) NewVarWithName(name string) (*State, Var) {
+	if s == nil {
+		s = NewEmptyState()
+	}
 	v := NewVar(s.Counter)
+	names := copyMap(s.Names)
+	names[v] = name
 	return &State{
 		Substitutions: s.Substitutions,
 		Counter:       s.Counter + 1,
+		Names:         names,
 	}, v
+}
+
+func (s *State) GetName(v Var) string {
+	if s == nil {
+		return "_0"
+	}
+	if s != nil && s.Names != nil {
+		name, ok := s.Names[v]
+		if ok {
+			return name
+		}
+	}
+	return "_" + strconv.Itoa(len(s.Substitutions))
 }
 
 func (s *State) Get(v Var) (any, bool) {
@@ -40,64 +83,40 @@ func (s *State) Get(v Var) (any, bool) {
 	return a, ok
 }
 
-func (s *State) LenSubstitutions() int {
-	if s == nil {
-		return 0
-	}
-	return len(s.Substitutions)
-}
-
 func (s *State) AddKeyValue(key Var, value any) *State {
+	var ss *State
 	if s == nil {
-		s = NewEmptyState()
+		ss = NewEmptyState()
+		ss.Substitutions = make(map[Var]any)
+	} else {
+		ss = s.Copy()
 	}
-	if s.Substitutions == nil {
-		s.Substitutions = map[Var]any{}
-	}
-	return &State{Substitutions: s.Substitutions.AddKeyValue(key, value), Counter: s.Counter}
+	ss.Substitutions[key] = value
+	return ss
 }
 
 func (s *State) Copy() *State {
-	return &State{
-		Substitutions: s.Substitutions.Copy(),
-		Counter:       s.Counter,
+	if s == nil {
+		return nil
 	}
+	names := copyMap(s.Names)
+	substitutions := copyMap(s.Substitutions)
+	return &State{
+		Substitutions: substitutions,
+		Counter:       s.Counter,
+		Names:         names,
+	}
+}
+
+func copyMap[K comparable, V any](src map[K]V) map[K]V {
+	dst := make(map[K]V, len(src))
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
 }
 
 // NewEmptyState returns an empty state.
 func NewEmptyState() *State {
 	return &State{}
-}
-
-// Substitutions is a list of substitutions represented by a sexprs pair.
-type Substitutions map[Var]any
-
-func (s Substitutions) Copy() Substitutions {
-	m := make(Substitutions, len(s))
-	for k, v := range s {
-		m[k] = v
-	}
-	return m
-}
-
-func (s Substitutions) String() string {
-	ks := keys(s)
-	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
-	ss := make([]string, len(s))
-	for i, k := range ks {
-		v := s[k]
-		ss[i] = fmt.Sprintf("{%v: %v}", k, v)
-	}
-	return strings.Join(ss, ", ")
-}
-
-func (s Substitutions) AddKeyValue(key Var, value any) Substitutions {
-	var ss Substitutions
-	if s == nil {
-		ss = map[Var]any{}
-	} else {
-		ss = s.Copy()
-	}
-	ss[key] = value
-	return ss
 }

@@ -2,8 +2,6 @@ package comini
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
@@ -21,17 +19,17 @@ func TestIfThenElseSuccess(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	y := ast.NewVariable("y")
+	var y comicro.Var
+	state := comicro.NewEmptyState()
+	state, y = state.NewVarWithName("y")
 	ifte := IfThenElseO(
 		comicro.SuccessO,
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.NewEmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, state)
 	got := ss.String()
-	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
-	want := "(({,y: #f} . 0))"
+	want := "(({,y: #f} . 1))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -43,17 +41,17 @@ func TestIfThenElseFailure(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	y := ast.NewVariable("y")
+	var y comicro.Var
+	state := comicro.NewEmptyState()
+	state, y = state.NewVarWithName("y")
 	ifte := IfThenElseO(
 		comicro.FailureO,
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.NewEmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, state)
 	got := ss.String()
-	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", indexOf(y)), "y", -1)
-	want := "(({,y: #t} . 0))"
+	want := "(({,y: #t} . 1))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -65,21 +63,18 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	// assigning var index by hand since we want x < y
-	// otherwise test can fail because of int order in substitution map
-	x := ast.NewVar("x", 10001)
-	y := ast.NewVar("y", 10002)
+	var x, y comicro.Var
+	state := comicro.NewEmptyState()
+	state, x = state.NewVarWithName("x")
+	state, y = state.NewVarWithName("y")
 	ifte := IfThenElseO(
 		comicro.EqualO(ast.NewSymbol("#t"), x),
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.NewEmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, state)
 	got := ss.String()
-	// reifying x and y; we assigned them a random uint64 and lost track of it
-	got = strings.Replace(got, "v10001", "x", -1)
-	got = strings.Replace(got, "v10002", "y", -1)
-	want := "(({,x: #t}, {,y: #f} . 0))"
+	want := "(({,x: #t}, {,y: #f} . 2))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
@@ -91,10 +86,10 @@ func TestIfThenElseDisjoint(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	// assigning var index by hand since we want x < y
-	// otherwise test can fail because of int order in substitution map
-	x := ast.NewVar("x", 10001)
-	y := ast.NewVar("y", 10002)
+	var x, y comicro.Var
+	state := comicro.NewEmptyState()
+	state, x = state.NewVarWithName("x")
+	state, y = state.NewVarWithName("y")
 	ifte := IfThenElseO(
 		comicro.Disj(
 			comicro.EqualO(ast.NewSymbol("#t"), x),
@@ -103,12 +98,9 @@ func TestIfThenElseDisjoint(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.NewEmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, state)
 	got := ss.String()
-	// reifying x and y; we assigned them a random uint64 and lost track of it
-	got = strings.Replace(got, "v10001", "x", -1)
-	got = strings.Replace(got, "v10002", "y", -1)
-	want := "(({,x: #f}, {,y: #f} . 0) ({,x: #t}, {,y: #f} . 0))"
+	want := "(({,x: #f}, {,y: #f} . 2) ({,x: #t}, {,y: #f} . 2))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}

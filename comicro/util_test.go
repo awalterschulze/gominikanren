@@ -7,31 +7,29 @@ import (
 )
 
 func s_x1() *State {
-	return &State{
-		Substitutions: Substitutions{
-			indexOf(ast.NewVar("x", 1)): ast.NewSymbol("1"),
-		},
-		Counter: 2,
-	}
+	s := NewEmptyState()
+	var x Var
+	s, x = s.NewVarWithName("x")
+	s = s.AddKeyValue(x, ast.NewSymbol("1"))
+	return s
 }
 
 func s_xy_y1() *State {
-	return &State{
-		Substitutions: Substitutions{
-			indexOf(ast.NewVar("x", 1)): ast.NewVariable("y"),
-			indexOf(ast.NewVar("y", 2)): ast.NewSymbol("1"),
-		},
-		Counter: 3,
-	}
+	s := NewEmptyState()
+	var x, y Var
+	s, x = s.NewVarWithName("x")
+	s, y = s.NewVarWithName("y")
+	s = s.AddKeyValue(x, y)
+	s = s.AddKeyValue(y, ast.NewSymbol("1"))
+	return s
 }
 
 func s_x2() *State {
-	return &State{
-		Substitutions: Substitutions{
-			indexOf(ast.NewVar("x", 1)): ast.NewSymbol("2"),
-		},
-		Counter: 2,
-	}
+	s := NewEmptyState()
+	var x Var
+	s, x = s.NewVarWithName("x")
+	s = s.AddKeyValue(x, ast.NewSymbol("2"))
+	return s
 }
 
 func empty() *State {

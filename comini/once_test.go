@@ -2,7 +2,6 @@ package comini
 
 import (
 	"context"
-	"strings"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
@@ -12,10 +11,10 @@ import (
 func TestOnce(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	// assigning var index by hand since we want x < y
-	// otherwise test can fail because of int order in substitution map
-	x := ast.NewVar("x", 10001)
-	y := ast.NewVar("y", 10002)
+	var x, y comicro.Var
+	state := comicro.NewEmptyState()
+	state, x = state.NewVarWithName("x")
+	state, y = state.NewVarWithName("y")
 	ifte := IfThenElseO(
 		OnceO(comicro.Disj(
 			comicro.EqualO(ast.NewSymbol("#t"), x),
@@ -24,13 +23,10 @@ func TestOnce(t *testing.T) {
 		comicro.EqualO(ast.NewSymbol("#f"), y),
 		comicro.EqualO(ast.NewSymbol("#t"), y),
 	)
-	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.NewEmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, state)
 	got := ss.String()
-	// reifying x and y; we assigned them a random uint64 and lost track of it
-	got = strings.Replace(got, "v10001", "x", -1)
-	got = strings.Replace(got, "v10002", "y", -1)
-	want1 := "(({,x: #t}, {,y: #f} . 0))"
-	want2 := "(({,x: #f}, {,y: #f} . 0))"
+	want1 := "(({,x: #t}, {,y: #f} . 2))"
+	want2 := "(({,x: #f}, {,y: #f} . 2))"
 	if got != want1 && got != want2 {
 		t.Fatalf("got %v != want %v or %v", got, want1, want2)
 	}

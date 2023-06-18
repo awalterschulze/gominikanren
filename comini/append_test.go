@@ -2,8 +2,6 @@ package comini
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/comicro"
@@ -120,7 +118,9 @@ func TestCarO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	y := ast.NewVariable("y")
+	state := comicro.NewEmptyState()
+	var y comicro.Var
+	state, y = state.NewVarWithName("y")
 	ifte := IfThenElseO(
 		CarO(
 			ast.NewList(
@@ -132,14 +132,12 @@ func TestCarO(t *testing.T) {
 			),
 			ast.NewSymbol("a"),
 		),
-		comicro.EqualO(ast.NewSymbol("#t"), y),
-		comicro.EqualO(ast.NewSymbol("#f"), y),
+		comicro.EqualO(ast.NewSymbol("#t"), y.SExpr()),
+		comicro.EqualO(ast.NewSymbol("#f"), y.SExpr()),
 	)
-	ss := comicro.NewStreamForGoal(ctx, ifte, comicro.NewEmptyState())
+	ss := comicro.NewStreamForGoal(ctx, ifte, state)
 	got := ss.String()
-	// reifying y; we assigned it a random uint64 and lost track of it
-	got = strings.Replace(got, fmt.Sprintf("v%d", y.Atom.Var.Index), "y", -1)
-	want := "(({,v0: (c o r n)}, {,y: #t} . 1))"
+	want := "(({,y: #t}, {,v1: (c o r n)} . 2))"
 	if got != want {
 		t.Fatalf("got %v != want %v", got, want)
 	}
