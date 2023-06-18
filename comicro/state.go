@@ -2,6 +2,7 @@ package comicro
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,6 +15,11 @@ type State struct {
 	Substitutions map[Var]any
 	Names         map[Var]string
 	Counter       uint64
+}
+
+// NewEmptyState returns an empty state.
+func NewEmptyState() *State {
+	return &State{}
 }
 
 // String returns a string representation of State.
@@ -41,6 +47,63 @@ func (s *State) Equal(other *State) bool {
 	return s.String() == other.String()
 }
 
+type Var uintptr
+
+func (v Var) SExpr() *ast.SExpr {
+	return ast.NewVar(fmt.Sprintf("v%d", v), uint64(v))
+}
+
+func (v Var) String() string {
+	return v.SExpr().String()
+}
+
+func isvar(a any) bool {
+	if IsNil(a) {
+		return false
+	}
+	v := reflect.ValueOf(a)
+	if v.Type() != varType {
+		return false
+	}
+	return true
+}
+
+var varType = reflect.TypeOf(Var(0))
+
+var sexprType = reflect.TypeOf(ast.SExpr{})
+var atomType = reflect.TypeOf(ast.Atom{})
+
+func isvarSExpr(s any) bool {
+	v := reflect.ValueOf(s)
+	if v.Kind() != reflect.Ptr {
+		return false
+	}
+	if v.IsNil() {
+		return false
+	}
+	v = v.Elem()
+	k := v.Kind()
+	switch k {
+	case reflect.Struct:
+		if v.Type() != sexprType {
+			return false
+		}
+		atomValue := v.Field(1)
+		if atomValue.IsNil() {
+			return false
+		}
+		if atomValue.Elem().Type() != atomType {
+			return false
+		}
+		varValue := atomValue.Elem().FieldByName("Var")
+		if varValue.IsNil() {
+			return false
+		}
+		return true
+	}
+	return false
+}
+
 func (s *State) NewVar() (*State, Var) {
 	return s.NewVarWithName("v" + strconv.Itoa(int(s.Counter)))
 }
@@ -49,7 +112,7 @@ func (s *State) NewVarWithName(name string) (*State, Var) {
 	if s == nil {
 		s = NewEmptyState()
 	}
-	v := NewVar(s.Counter)
+	v := Var(s.Counter)
 	names := copyMap(s.Names)
 	names[v] = name
 	return &State{
@@ -64,7 +127,7 @@ func (s *State) GetVar(a any) (Var, bool) {
 		return a.(Var), true
 	}
 	if isvarSExpr(a) {
-		return NewVar(a.(*ast.SExpr).Atom.Var.Index), true
+		return Var(a.(*ast.SExpr).Atom.Var.Index), true
 	}
 	return 0, false
 }
@@ -124,9 +187,4 @@ func copyMap[K comparable, V any](src map[K]V) map[K]V {
 		dst[k] = v
 	}
 	return dst
-}
-
-// NewEmptyState returns an empty state.
-func NewEmptyState() *State {
-	return &State{}
 }
