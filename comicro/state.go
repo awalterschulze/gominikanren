@@ -29,9 +29,7 @@ func (s *State) String() string {
 		if vvar, ok := v.(Var); ok {
 			vstr = s.GetName(vvar)
 		}
-		if !strings.HasPrefix(kstr, "_") {
-			kstr = "," + kstr
-		}
+		kstr = "," + kstr
 		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
 	}
 	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), s.Counter)
@@ -61,7 +59,7 @@ func (s *State) NewVarWithName(name string) (*State, Var) {
 
 func (s *State) GetName(v Var) string {
 	if s == nil {
-		return "_0"
+		return "v0"
 	}
 	if s != nil && s.Names != nil {
 		name, ok := s.Names[v]
@@ -69,7 +67,7 @@ func (s *State) GetName(v Var) string {
 			return name
 		}
 	}
-	return "_" + strconv.Itoa(len(s.Substitutions))
+	return "v?"
 }
 
 func (s *State) Get(v Var) (any, bool) {
