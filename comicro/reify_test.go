@@ -28,7 +28,7 @@ scheme code:
 	)
 */
 func TestReify(t *testing.T) {
-	s := NewEmptyState()
+	s := NewEmptyState().WithReifyNames(ast.ReifyName)
 	var x, u, v, w, y, z *ast.SExpr
 	s, u = NewVar(s, &ast.SExpr{})
 	s, v = NewVar(s, &ast.SExpr{})
@@ -46,7 +46,7 @@ func TestReify(t *testing.T) {
 	s = s.AddKeyValue(xvar, e.Car().Cdr())
 	s = s.AddKeyValue(yvar, e.Cdr().Car().Cdr())
 	s = s.AddKeyValue(wvar, e.Cdr().Cdr().Car().Cdr())
-	gote := reifyFromState(xvar, s, ast.VarCreator).(*ast.SExpr)
+	gote := reifyFromState(xvar, s).(*ast.SExpr)
 	got := gote.String()
 	want := "(,v0 (,v1 ,v0) corn ,v5 ((ice) ,v5))"
 	if got != want {
@@ -57,7 +57,7 @@ func TestReify(t *testing.T) {
 func TestNoReify(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	initial := NewEmptyState()
+	initial := NewEmptyState().WithReifyNames(ast.ReifyName)
 	var x *ast.SExpr
 	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	xvar, _ := initial.GetVar(x)
@@ -75,7 +75,7 @@ func TestNoReify(t *testing.T) {
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
 	for i, s := range states {
-		ss[i] = reifyFromState(xvar, s, ast.VarCreator).(*ast.SExpr)
+		ss[i] = reifyFromState(xvar, s).(*ast.SExpr)
 		strs[i] = ss[i].String()
 	}
 	got := "(" + strings.Join(strs, " ") + ")"

@@ -119,15 +119,16 @@ func TestGenSDerivO(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Char('a'), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, VarCreator, g)
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {
-		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
+		res, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			break
 		}
 		count++
-		r := s.(*rune)
+		r := res.(*rune)
 		fmt.Printf("%c\n", *r)
 	}
 	if count < 1 {
@@ -144,15 +145,16 @@ func TestGenSDerivOB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Char('a'), q, EmptySet())
 	}
-	ss := comicro.RunStream(ctx, VarCreator, g)
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {
-		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
+		res, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			break
 		}
 		count++
-		r := s.(*rune)
+		r := res.(*rune)
 		fmt.Printf("%c\n", *r)
 	}
 	if count < 2 {
@@ -169,15 +171,16 @@ func TestGenSDerivOAOrB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Or(Char('a'), Char('b')), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, VarCreator, g)
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {
-		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
+		res, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			break
 		}
 		count++
-		r := s.(*rune)
+		r := res.(*rune)
 		fmt.Printf("%c\n", *r)
 	}
 	if count < 2 {

@@ -116,16 +116,17 @@ func TestGenDeriveOA(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Char('a'), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, VarCreator, g)
+	ss := comicro.RunStream(ctx, s, g)
 	for {
-		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
+		res, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}
-		rptr := s.(*rune)
+		rptr := res.(*rune)
 		fmt.Printf("%c\n", rune(*rptr))
 	}
 }
@@ -138,16 +139,17 @@ func TestGenDeriveOB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Char('a'), q, EmptySet())
 	}
-	ss := comicro.RunStream(ctx, VarCreator, g)
+	ss := comicro.RunStream(ctx, s, g)
 	for {
-		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
+		res, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}
-		rptr := s.(*rune)
+		rptr := res.(*rune)
 		fmt.Printf("%c\n", rune(*rptr))
 	}
 }
@@ -158,16 +160,17 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Or(Char('a'), Char('b')), q, Or(EmptySet(), EmptyStr()))
 	}
-	ss := comicro.RunStream(ctx, VarCreator, g)
+	ss := comicro.RunStream(ctx, s, g)
 	for {
-		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
+		res, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}
-		rptr := s.(*rune)
+		rptr := res.(*rune)
 		fmt.Printf("%c\n", rune(*rptr))
 	}
 }

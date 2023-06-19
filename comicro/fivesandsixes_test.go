@@ -33,11 +33,12 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ast5 := ast.NewInt(5)
+	s := NewEmptyState().WithReifyNames(ast.ReifyName)
 
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
 	gots := Run(ctx,
 		1,
-		ast.VarCreator,
+		s,
 		func(q *ast.SExpr) Goal {
 			return EqualO(
 				q,
@@ -56,7 +57,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	// ((call/fresh fives) empty-state)
 	gots = Run(ctx,
 		2,
-		ast.VarCreator,
+		s,
 		func(x *ast.SExpr) Goal {
 			return fives(x)
 		},
@@ -70,7 +71,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	}
 
 	stream := RunStream(ctx,
-		ast.VarCreator,
+		s,
 		func(x *ast.SExpr) Goal {
 			return Disj(
 				fives(x),
@@ -104,9 +105,10 @@ func TestFivesAsInt(t *testing.T) {
 	defer cancel()
 	five := int64(5)
 	pointToFive := &five
+	s := NewEmptyState().WithReifyNames(ast.ReifyName)
 	gots := Run(ctx,
 		1,
-		ast.VarCreator,
+		s,
 		func(q *int64) Goal {
 			return EqualO(
 				q,

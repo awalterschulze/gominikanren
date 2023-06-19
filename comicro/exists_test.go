@@ -19,7 +19,8 @@ scheme code:
 	)
 */
 func TestFreshKiwi(t *testing.T) {
-	ss := RunGoal(context.Background(), 1,
+	s := NewEmptyState().WithReifyNames(ast.ReifyName)
+	ss := RunGoal(context.Background(), 1, s,
 		Exists(func(fruit *ast.SExpr) Goal {
 			return EqualO(
 				ast.NewSymbol("plum"),

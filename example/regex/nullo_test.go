@@ -138,15 +138,16 @@ func TestGenNullO(t *testing.T) {
 	g := func(q *Regex) comicro.Goal {
 		return NullO(q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, VarCreator, g)
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {
-		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
+		res, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
 			return
 		}
 		count++
-		fmt.Printf("%s\n", s.(Stringer).String())
+		fmt.Printf("%s\n", res.(Stringer).String())
 		if count > 10 {
 			return
 		}

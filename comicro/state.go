@@ -13,13 +13,22 @@ type State struct {
 	Substitutions map[Var]any
 	Names         map[Var]string
 	Pointers      map[Var]reflect.Value
+	ReifyNames    []ReifyName
 	FirstVar      *Var
 	Counter       uint64
 }
 
+type ReifyName func(varType any, name string) (any, bool)
+
 // NewEmptyState returns an empty state.
 func NewEmptyState() *State {
 	return &State{}
+}
+
+func (s *State) WithReifyNames(reifyNames ...ReifyName) *State {
+	res := s.Copy()
+	res.ReifyNames = append(s.ReifyNames, reifyNames...)
+	return res
 }
 
 // String returns a string representation of State.
@@ -69,6 +78,7 @@ func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 		Pointers:      pointers,
 		Names:         names,
 		FirstVar:      s.FirstVar,
+		ReifyNames:    s.ReifyNames,
 	}
 	if s.FirstVar == nil {
 		res.FirstVar = &key
@@ -154,6 +164,7 @@ func (s *State) Copy() *State {
 		Pointers:      pointers,
 		FirstVar:      s.FirstVar,
 		Names:         names,
+		ReifyNames:    s.ReifyNames,
 	}
 }
 
@@ -169,4 +180,15 @@ func copyMap[K comparable, V any](src map[K]V) map[K]V {
 		dst[k] = v
 	}
 	return dst
+}
+
+func (s *State) GetReifyName(v Var) any {
+	varType := s.LookupValue(v)
+	name := "," + s.GetName(v)
+	for _, r := range s.ReifyNames {
+		if val, ok := r(varType, name); ok {
+			return val
+		}
+	}
+	panic(fmt.Sprintf("unable to reify var (%s) with type: %T", name, varType))
 }
