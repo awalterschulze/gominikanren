@@ -116,7 +116,7 @@ func TestGenDeriveOA(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	s := comicro.NewEmptyState().WithVarCreators(CreateVarRegex)
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Char('a'), q, EmptyStr())
 	}
@@ -139,7 +139,7 @@ func TestGenDeriveOB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	s := comicro.NewEmptyState().WithVarCreators(CreateVarRegex)
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Char('a'), q, EmptySet())
 	}
@@ -160,7 +160,7 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	s := comicro.NewEmptyState().WithVarCreators(CreateVarRegex)
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Or(Char('a'), Char('b')), q, Or(EmptySet(), EmptyStr()))
 	}

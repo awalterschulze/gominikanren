@@ -13,21 +13,21 @@ type State struct {
 	Substitutions map[Var]any
 	Names         map[Var]string
 	Pointers      map[Var]reflect.Value
-	ReifyNames    []ReifyName
+	VarCreators   []VarCreator
 	FirstVar      *Var
 	Counter       uint64
 }
 
-type ReifyName func(varType any, name string) (any, bool)
+type VarCreator func(varType any, name string) (any, bool)
 
 // NewEmptyState returns an empty state.
 func NewEmptyState() *State {
 	return &State{}
 }
 
-func (s *State) WithReifyNames(reifyNames ...ReifyName) *State {
+func (s *State) WithVarCreators(varCreators ...VarCreator) *State {
 	res := s.Copy()
-	res.ReifyNames = append(s.ReifyNames, reifyNames...)
+	res.VarCreators = append(s.VarCreators, varCreators...)
 	return res
 }
 
@@ -79,7 +79,7 @@ func NewVarWithName[A any](s *State, name string, typ *A) (*State, *A) {
 		Pointers:      pointers,
 		Names:         names,
 		FirstVar:      s.FirstVar,
-		ReifyNames:    s.ReifyNames,
+		VarCreators:   s.VarCreators,
 	}
 	if s.FirstVar == nil {
 		res.FirstVar = &key
@@ -165,7 +165,7 @@ func (s *State) Copy() *State {
 		Pointers:      pointers,
 		FirstVar:      s.FirstVar,
 		Names:         names,
-		ReifyNames:    s.ReifyNames,
+		VarCreators:   s.VarCreators,
 	}
 }
 
@@ -184,8 +184,8 @@ func copyMap[K comparable, V any](src map[K]V) map[K]V {
 }
 
 func newVarValue(s *State, varType any, name string) any {
-	for _, r := range s.ReifyNames {
-		if val, ok := r(varType, name); ok {
+	for _, create := range s.VarCreators {
+		if val, ok := create(varType, name); ok {
 			return val
 		}
 	}

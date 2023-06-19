@@ -138,7 +138,7 @@ func TestGenNullO(t *testing.T) {
 	g := func(q *Regex) comicro.Goal {
 		return NullO(q, EmptyStr())
 	}
-	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	s := comicro.NewEmptyState().WithVarCreators(CreateVarRegex)
 	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {

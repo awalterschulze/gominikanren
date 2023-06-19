@@ -39,7 +39,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := comicro.NewEmptyState().WithReifyNames(ast.ReifyName)
+	s := comicro.NewEmptyState().WithVarCreators(ast.CreateVar)
 	sanys := comicro.Run(ctx, -1, s, func(q *ast.SExpr) comicro.Goal {
 		return comicro.Exists(func(x *ast.SExpr) comicro.Goal {
 			return comicro.Exists(func(y *ast.SExpr) comicro.Goal {
@@ -76,7 +76,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 func TestAppendOSingleList(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := comicro.NewEmptyState().WithReifyNames(ast.ReifyName)
+	s := comicro.NewEmptyState().WithVarCreators(ast.CreateVar)
 	sanys := comicro.Run(ctx, -1, s, func(q *ast.SExpr) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
@@ -97,7 +97,7 @@ func TestAppendOSingleList(t *testing.T) {
 func TestAppendOSingleAtom(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := comicro.NewEmptyState().WithReifyNames(ast.ReifyName)
+	s := comicro.NewEmptyState().WithVarCreators(ast.CreateVar)
 	sanys := comicro.Run(ctx, -1, s, func(q *ast.SExpr) comicro.Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
