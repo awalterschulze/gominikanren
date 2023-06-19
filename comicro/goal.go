@@ -28,7 +28,7 @@ func RunStream[A any](ctx context.Context, create varCreator, g func(A) Goal) ch
 	res := make(chan any, 0)
 	go func() {
 		defer close(res)
-		MapOverNonNilStream(ctx, ss, func(state *State) any { return Reify(state, v, create) }, res)
+		MapOverNonNilStream(ctx, ss, func(state *State) any { return Reify(state, create) }, res)
 	}()
 	return res
 }
