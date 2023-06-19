@@ -6,7 +6,10 @@ import (
 
 // Map maps a function over a the elements of a slice, the fields of a struct or the values of a map.
 // For example:
-//   - Map([]{1,2,3}, func(x int) int { return x + 1 }) = []{2,3,4}
+//   - Map([]int{1, 2, 3}, func(x any) any { return x.(int) + 1 }).([]int) = []int{2,3,4}
+//   - See Tests for an example of how to map over a struct
+//
+// The following is not possible, because we can only Map back to the same types:
 //   - Map([]{1,2,3}, func(x int) string { return fmt.Sprintf("%d", x) }) = []{"1","2","3"}
 func Map(a any, f func(a any) any) any {
 	if IsNil(a) {
@@ -44,8 +47,8 @@ func Map(a any, f func(a any) any) any {
 
 // Fold folds a function over the elements of a slice or the fields of a struct
 // For example:
-//   - Fold([]{1,2,3}, 0, func(x, sum int) int { return sum + x }) = 6
-//   - Fold([]{1,2,3}, 0, func(x int, s string) string { return s + fmt.Sprintf("%d", x) }) = "123"
+//   - Fold([]int{1, 2, 3}, 0, func(x, sum any) any { return sum.(int) + x.(int) }).(int) = 6
+//   - Fold([]int{1, 2, 3}, "", func(x any, s any) any { return s.(string) + fmt.Sprintf("%d", x) }).(string) = "123"
 func Fold[B any](a any, b B, f func(a any, b B) B) B {
 	if IsNil(a) {
 		return b
@@ -70,8 +73,8 @@ func Fold[B any](a any, b B, f func(a any, b B) B) B {
 
 // Any returns true if the predicate is true for any of the elements in the slice of fields of a struct.
 // For example:
-//   - Any([]{1,2,3}, func(x int) bool { return x == 2 }) = true
-//   - Any([]{1,2,3}, func(x int) bool { return x == 4 }) = false
+//   - Any([]int{1, 2, 3}, func(x any) bool { return x.(int) == 2 }) = true
+//   - Any([]int{1, 2, 3}, func(x any) bool { return x.(int) == 4 }) = false
 func Any(a any, pred func(a any) bool) bool {
 	if IsNil(a) {
 		return false
@@ -101,9 +104,8 @@ func Any(a any, pred func(a any) bool) bool {
 // ZipFold folds a function over the elements of two slices or the fields of two structs together
 // It allows you to shortcircuit the fold by returning false from the function
 // For example:
-//   - ZipFold([]{1,2,3}, []{3,2,1}, 0, func(x1, x2, sum int) (int, bool) { return sum + x1 + x2, true }) = (12, true)
-//   - ZipFold([]{1,2,3}, []{3,2,1}, 0, func(x1, x2, int, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
-//   - ZipFold([]{1,2,3}, []{3,2,1}, 0, func(x1, x2, sum int) (int, bool) { if x1 == 2 { return 0, false } else { return sum + x1 + x2, true }) = (0, false)
+//   - ZipFold([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true }) = (12, true)
+//   - ZipFold([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
 func ZipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
 	if IsNil(a1) {
 		if IsNil(a2) {
