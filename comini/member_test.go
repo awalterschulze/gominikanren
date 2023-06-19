@@ -12,8 +12,9 @@ import (
 func TestMemberO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	s := comicro.NewEmptyState().WithReifyNames(ast.ReifyName)
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sanys := comicro.Run(ctx, -1, ast.VarCreator, func(q *ast.SExpr) comicro.Goal {
+	sanys := comicro.Run(ctx, -1, s, func(q *ast.SExpr) comicro.Goal {
 		return MemberO(
 			q,
 			list,
@@ -35,8 +36,9 @@ func TestMemberO(t *testing.T) {
 func TestMapO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	s := comicro.NewEmptyState().WithReifyNames(ast.ReifyName)
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := comicro.Run(ctx, -1, ast.VarCreator, func(q *ast.SExpr) comicro.Goal {
+	sexprs := comicro.Run(ctx, -1, s, func(q *ast.SExpr) comicro.Goal {
 		return MapO(
 			func(x, y *ast.SExpr) comicro.Goal { return comicro.EqualO(x, y) },
 			q,

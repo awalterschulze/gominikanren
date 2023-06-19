@@ -13,7 +13,8 @@ func testo(t *testing.T, f func(q *Regex) comicro.Goal, want *Regex) {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exprs := comicro.Run(ctx, 1, VarCreator, f)
+	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	exprs := comicro.Run(ctx, 1, s, f)
 	if len(exprs) != 1 {
 		t.Fatalf("expected len %d result, but got %d instead", 1, len(exprs))
 	}
@@ -23,7 +24,7 @@ func testo(t *testing.T, f func(q *Regex) comicro.Goal, want *Regex) {
 	}
 }
 
-func VarCreator(varTyp any, name string) any {
+func ReifyRegex(varTyp any, name string) (any, bool) {
 	switch varTyp.(type) {
 	case *Regex:
 		chars := fmap([]rune(name), func(r rune) *Regex {
@@ -33,11 +34,11 @@ func VarCreator(varTyp any, name string) any {
 		for i := len(chars) - 2; i >= 0; i-- {
 			res = Concat(chars[i], res)
 		}
-		return res
+		return res, true
 	case *rune:
 		name, _ = strings.CutPrefix(name, ",")
 		name, _ = strings.CutPrefix(name, "v")
-		return []rune(name)[0]
+		return []rune(name)[0], true
 	}
-	panic("unknown type")
+	return nil, false
 }

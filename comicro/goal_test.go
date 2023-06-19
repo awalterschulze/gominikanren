@@ -174,7 +174,7 @@ func TestRunGoalAlways3(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := RunGoal(ctx, 3, AlwaysO)
+	ss := RunGoal(ctx, 3, NewEmptyState(), AlwaysO)
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}
