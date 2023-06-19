@@ -7,9 +7,7 @@ func reifys(v any, s *State) *State {
 			return s.AddKeyValue(vvar, s.GetReifyName(vvar))
 		}
 	}
-	return Fold(v, s, func(state *State, a any) *State {
-		return reifys(a, state)
-	})
+	return Fold(v, s, reifys)
 }
 
 // rewrite replaces all variables with their values, if it finds any in the substitutions map.

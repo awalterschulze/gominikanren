@@ -46,7 +46,7 @@ func Map(a any, f func(a any) any) any {
 // For example:
 //   - Fold([]{1,2,3}, 0, func(x, sum int) int { return sum + x }) = 6
 //   - Fold([]{1,2,3}, 0, func(x int, s string) string { return s + fmt.Sprintf("%d", x) }) = "123"
-func Fold[B any](a any, b B, f func(b B, a any) B) B {
+func Fold[B any](a any, b B, f func(a any, b B) B) B {
 	if IsNil(a) {
 		return b
 	}
@@ -55,13 +55,13 @@ func Fold[B any](a any, b B, f func(b B, a any) B) B {
 	case reflect.Ptr:
 		if ra.Elem().Kind() == reflect.Struct {
 			for i := 0; i < ra.Elem().NumField(); i++ {
-				b = f(b, ra.Elem().Field(i).Interface())
+				b = f(ra.Elem().Field(i).Interface(), b)
 			}
 			return b
 		}
 	case reflect.Slice:
 		for i := 0; i < ra.Len(); i++ {
-			b = f(b, ra.Index(i).Interface())
+			b = f(ra.Index(i).Interface(), b)
 		}
 		return b
 	}
