@@ -157,6 +157,12 @@ func (s *State) Copy() *State {
 	}
 }
 
+func (s *State) CopyWithoutSubstitutions() *State {
+	res := s.Copy()
+	res.Substitutions = make(map[Var]any)
+	return res
+}
+
 func copyMap[K comparable, V any](src map[K]V) map[K]V {
 	dst := make(map[K]V, len(src))
 	for k, v := range src {
