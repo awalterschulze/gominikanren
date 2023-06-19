@@ -27,10 +27,10 @@ func reifyFromState(v Var, s *State, create varCreator) any {
 
 // Reify finds reifications for the first introduced var
 // NOTE: the way we've set this up now, vX is a reserved keyword
-func Reify(s *State, typ any, create varCreator) any {
+func Reify(s *State, create varCreator) any {
 	vvar := s.GetFirstVar()
 	if vvar == nil {
-		return typ
+		return nil
 	}
 	return reifyFromState(*vvar, s, create)
 }
