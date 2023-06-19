@@ -135,7 +135,7 @@ func TestZipFoldFalse(t *testing.T) {
 	}
 }
 
-func TestZipFoldStruv(t *testing.T) {
+func TestZipFoldStruct(t *testing.T) {
 	got, gotok := ZipFold(&A{1, "2"}, &A{2, "3"}, 0, func(x1, x2 any, sum int) (int, bool) {
 		switch x1 := x1.(type) {
 		case int:

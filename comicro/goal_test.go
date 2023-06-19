@@ -2,6 +2,7 @@ package comicro
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -335,5 +336,123 @@ func TestPineapple(t *testing.T) {
 	want := pineapple
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
+	}
+}
+
+func TestEqualOSlice(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ss := NewStreamForGoal(ctx, EqualO([]int{1, 2}, []int{1, 2}), NewEmptyState())
+	got := ss.String()
+	want := "((() . 0))"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestNotEqualOSlice(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ss := NewStreamForGoal(ctx, EqualO([]int{1, 2}, []int{1, 3}), NewEmptyState())
+	got := ss.String()
+	want := "()"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestEqualOVarSliceOfPointers(t *testing.T) {
+	happy := "happy"
+	pineapple := "pineapple"
+	pineapples := []*string{&happy, &pineapple}
+	reify := func(varTyp any, name string) (any, bool) {
+		switch varTyp.(type) {
+		case *string:
+			return &name, true
+		case []*string:
+			return []*string{&name}, true
+		}
+		return nil, false
+	}
+	s := NewEmptyState().WithVarCreators(reify)
+	ss := Run(context.Background(), 1, s,
+		func(fruits []*string) Goal {
+			return EqualO(
+				pineapples,
+				fruits,
+			)
+		},
+	)
+	if len(ss) != 1 {
+		t.Fatalf("expected %d, but got %d results", 1, len(ss))
+	}
+	got := (ss[0]).([]*string)
+	want := pineapples
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v != want %v", got, want)
+	}
+}
+
+func TestEqualOVarSliceOfStrings(t *testing.T) {
+	happy := "happy"
+	pineapple := "pineapple"
+	pineapples := []string{happy, pineapple}
+	reify := func(varTyp any, name string) (any, bool) {
+		switch varTyp.(type) {
+		case string:
+			return name, true
+		case []string:
+			return []string{name}, true
+		}
+		return nil, false
+	}
+	s := NewEmptyState().WithVarCreators(reify)
+	ss := Run(context.Background(), 1, s,
+		func(fruits []string) Goal {
+			return EqualO(
+				pineapples,
+				fruits,
+			)
+		},
+	)
+	if len(ss) != 1 {
+		t.Fatalf("expected %d, but got %d results", 1, len(ss))
+	}
+	got := (ss[0]).([]string)
+	want := pineapples
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v != want %v", got, want)
+	}
+}
+
+func TestEqualOSliceOfVarPointer(t *testing.T) {
+	happy := "happy"
+	pineapple := "pineapple"
+	pineapples := []*string{&happy, &pineapple}
+	reify := func(varTyp any, name string) (any, bool) {
+		switch varTyp.(type) {
+		case *string:
+			return &name, true
+		case []*string:
+			return []*string{&name}, true
+		}
+		return nil, false
+	}
+	s := NewEmptyState().WithVarCreators(reify)
+	ss := Run(context.Background(), 1, s,
+		func(fruit *string) Goal {
+			return EqualO(
+				pineapples,
+				[]*string{&happy, fruit},
+			)
+		},
+	)
+	if len(ss) != 1 {
+		t.Fatalf("expected %d, but got %d results", 1, len(ss))
+	}
+	got := *(ss[0]).(*string)
+	want := pineapple
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v != want %v", got, want)
 	}
 }

@@ -68,6 +68,12 @@ func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	}
 	vvalue := newVarValue(s, typ, name)
 	v := reflect.ValueOf(vvalue)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Slice, reflect.Map:
+		// call to Pointer only works for these types and otherwise panics
+	default:
+		panic("cannot make a variable that is not a pointer, slice or map " + v.Type().String())
+	}
 	key := Var(v.Pointer())
 	names := copyMap(s.Names)
 	names[key] = name
@@ -99,6 +105,12 @@ func (s *State) GetVar(a any) (Var, bool) {
 		return avar, true
 	}
 	v := reflect.ValueOf(a)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Slice, reflect.Map:
+		// call to Pointer only works for these types and otherwise panics
+	default:
+		return 0, false
+	}
 	key := Var(v.Pointer())
 	_, ok := s.Pointers[key]
 	return key, ok
