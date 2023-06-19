@@ -8,11 +8,6 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-// helper func used in all tests that use Substitution of vars
-func indexOf(x *ast.SExpr) uint64 {
-	return x.Atom.Var.Index
-}
-
 func TestIfThenElseSuccess(t *testing.T) {
 	if testing.Short() {
 		return
