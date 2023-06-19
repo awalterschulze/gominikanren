@@ -9,6 +9,27 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
+// NeverO is a Goal that returns a never ending stream of suspensions.
+func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
+	for {
+		if ok := ss.Write(ctx, nil); !ok {
+			return
+		}
+	}
+}
+
+// AlwaysO is a goal that returns a never ending stream of success.
+func AlwaysO(ctx context.Context, s *State, ss StreamOfStates) {
+	for {
+		if ok := ss.Write(ctx, nil); !ok {
+			return
+		}
+		if ok := ss.Write(ctx, s); !ok {
+			return
+		}
+	}
+}
+
 func TestEqualO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
