@@ -16,13 +16,13 @@ func NullO(r, out *Regex) comicro.Goal {
 			comicro.EqualO(out, EmptyStr()),
 		),
 		comicro.Conj(
-			comicro.CallFresh(func(char *rune) comicro.Goal {
+			comicro.Exists(func(char *rune) comicro.Goal {
 				return comicro.EqualO(r, CharPtr(char))
 			}),
 			comicro.EqualO(out, EmptySet()),
 		),
-		comicro.CallFresh(func(a *Regex) comicro.Goal {
-			return comicro.CallFresh(func(b *Regex) comicro.Goal {
+		comicro.Exists(func(a *Regex) comicro.Goal {
+			return comicro.Exists(func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Or(a, b)),
 					comini.Disjs(
@@ -43,8 +43,8 @@ func NullO(r, out *Regex) comicro.Goal {
 				)
 			})
 		}),
-		comicro.CallFresh(func(a *Regex) comicro.Goal {
-			return comicro.CallFresh(func(b *Regex) comicro.Goal {
+		comicro.Exists(func(a *Regex) comicro.Goal {
+			return comicro.Exists(func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Concat(a, b)),
 					comini.Disjs(
@@ -65,7 +65,7 @@ func NullO(r, out *Regex) comicro.Goal {
 				)
 			})
 		}),
-		comicro.CallFresh(func(a *Regex) comicro.Goal {
+		comicro.Exists(func(a *Regex) comicro.Goal {
 			return comicro.Conj(
 				comicro.EqualO(r, Star(a)),
 				comicro.EqualO(out, EmptyStr()),

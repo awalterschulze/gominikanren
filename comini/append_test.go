@@ -40,8 +40,8 @@ func TestAppendOAllCombinations(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	sanys := comicro.Run(ctx, -1, ast.VarCreator, func(q *ast.SExpr) comicro.Goal {
-		return comicro.CallFresh(func(x *ast.SExpr) comicro.Goal {
-			return comicro.CallFresh(func(y *ast.SExpr) comicro.Goal {
+		return comicro.Exists(func(x *ast.SExpr) comicro.Goal {
+			return comicro.Exists(func(y *ast.SExpr) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(
 						ast.Cons(x, ast.Cons(y, nil)),
