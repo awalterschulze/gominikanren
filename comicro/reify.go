@@ -14,10 +14,10 @@ func rewrite(v any, s *State) any {
 	})
 }
 
-// Reify finds reifications for the first introduced variable.
+// Rewrite finds rewrites for the first introduced variable.
 // This means it rewrites all substitutions for the first introduced variable.
 // For any variables without substitutions, it adds a placeholder value.
-func Reify(s *State) any {
+func Rewrite(s *State) any {
 	vvar := s.GetFirstVar()
 	if vvar == nil {
 		return nil
