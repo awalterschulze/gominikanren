@@ -66,7 +66,8 @@ func NewVarWithName[A any](s *State, name string, typ *A) (*State, *A) {
 	if s == nil {
 		s = NewEmptyState()
 	}
-	v := reflect.New(reflect.TypeOf(typ).Elem())
+	vvalue := newVarValue(s, typ, name)
+	v := reflect.ValueOf(vvalue)
 	key := Var(v.Pointer())
 	names := copyMap(s.Names)
 	names[key] = name
@@ -103,7 +104,7 @@ func (s *State) GetVar(a any) (Var, bool) {
 	return key, ok
 }
 
-func (s *State) LookupValue(key Var) any {
+func lookupValue(s *State, key Var) any {
 	placeholder, ok := s.Pointers[key]
 	if !ok {
 		panic(fmt.Sprintf("Var %v not found", key))
@@ -182,13 +183,17 @@ func copyMap[K comparable, V any](src map[K]V) map[K]V {
 	return dst
 }
 
-func (s *State) GetReifyName(v Var) any {
-	varType := s.LookupValue(v)
-	name := "," + s.GetName(v)
+func newVarValue(s *State, varType any, name string) any {
 	for _, r := range s.ReifyNames {
 		if val, ok := r(varType, name); ok {
 			return val
 		}
 	}
-	panic(fmt.Sprintf("unable to reify var (%s) with type: %T", name, varType))
+	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
+}
+
+func (s *State) GetReifyName(v Var) any {
+	varType := lookupValue(s, v)
+	name := "," + s.GetName(v)
+	return newVarValue(s, varType, name)
 }
