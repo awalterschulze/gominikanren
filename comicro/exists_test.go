@@ -19,7 +19,7 @@ scheme code:
 	)
 */
 func TestFreshKiwi(t *testing.T) {
-	s := NewEmptyState().WithReifyNames(ast.ReifyName)
+	s := NewEmptyState().WithVarCreators(ast.CreateVar)
 	ss := RunGoal(context.Background(), 1, s,
 		Exists(func(fruit *ast.SExpr) Goal {
 			return EqualO(
@@ -45,7 +45,7 @@ func TestPineapple(t *testing.T) {
 	reify := func(varTyp any, name string) (any, bool) {
 		return &name, true
 	}
-	s := NewEmptyState().WithReifyNames(reify)
+	s := NewEmptyState().WithVarCreators(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruit *string) Goal {
 			return EqualO(

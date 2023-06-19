@@ -119,7 +119,7 @@ func TestGenSDerivO(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Char('a'), q, EmptyStr())
 	}
-	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	s := comicro.NewEmptyState().WithVarCreators(CreateVarRegex)
 	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {
@@ -145,7 +145,7 @@ func TestGenSDerivOB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Char('a'), q, EmptySet())
 	}
-	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	s := comicro.NewEmptyState().WithVarCreators(CreateVarRegex)
 	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {
@@ -171,7 +171,7 @@ func TestGenSDerivOAOrB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Or(Char('a'), Char('b')), q, EmptyStr())
 	}
-	s := comicro.NewEmptyState().WithReifyNames(ReifyRegex)
+	s := comicro.NewEmptyState().WithVarCreators(CreateVarRegex)
 	ss := comicro.RunStream(ctx, s, g)
 	count := 0
 	for {

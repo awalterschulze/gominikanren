@@ -28,7 +28,7 @@ scheme code:
 	)
 */
 func TestReify(t *testing.T) {
-	s := NewEmptyState().WithReifyNames(ast.ReifyName)
+	s := NewEmptyState().WithVarCreators(ast.CreateVar)
 	var x, u, v, w, y, z *ast.SExpr
 	s, u = NewVar(s, &ast.SExpr{})
 	s, v = NewVar(s, &ast.SExpr{})
@@ -57,7 +57,7 @@ func TestReify(t *testing.T) {
 func TestNoReify(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	initial := NewEmptyState().WithReifyNames(ast.ReifyName)
+	initial := NewEmptyState().WithVarCreators(ast.CreateVar)
 	var x *ast.SExpr
 	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	xvar, _ := initial.GetVar(x)

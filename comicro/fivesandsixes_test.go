@@ -33,7 +33,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ast5 := ast.NewInt(5)
-	s := NewEmptyState().WithReifyNames(ast.ReifyName)
+	s := NewEmptyState().WithVarCreators(ast.CreateVar)
 
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
 	gots := Run(ctx,
