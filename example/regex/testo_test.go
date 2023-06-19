@@ -13,7 +13,7 @@ func testo(t *testing.T, f func(q *Regex) comicro.Goal, want *Regex) {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exprs := comicro.Run(ctx, 1, &Regex{}, VarCreator, f)
+	exprs := comicro.Run(ctx, 1, VarCreator, f)
 	if len(exprs) != 1 {
 		t.Fatalf("expected len %d result, but got %d instead", 1, len(exprs))
 	}

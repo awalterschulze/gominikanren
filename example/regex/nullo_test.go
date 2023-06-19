@@ -138,7 +138,7 @@ func TestGenNullO(t *testing.T) {
 	g := func(q *Regex) comicro.Goal {
 		return NullO(q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, &Regex{}, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	count := 0
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
