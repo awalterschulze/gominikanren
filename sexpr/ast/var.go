@@ -1,14 +1,9 @@
 package ast
 
-import (
-	"reflect"
-)
-
 func ReifyName(varTyp any, name string) (any, bool) {
-	typ := reflect.TypeOf(&SExpr{})
-	typOfVarTyp := reflect.TypeOf(varTyp)
-	if !typ.AssignableTo(typOfVarTyp) {
-		return nil, false
+	switch varTyp.(type) {
+	case *SExpr:
+		return NewSymbol(name), true
 	}
-	return NewSymbol(name), true
+	return nil, false
 }
