@@ -37,7 +37,6 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
 	gots := Run(ctx,
 		1,
-		&ast.SExpr{},
 		ast.VarCreator,
 		func(q *ast.SExpr) Goal {
 			return EqualO(
@@ -57,7 +56,6 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	// ((call/fresh fives) empty-state)
 	gots = Run(ctx,
 		2,
-		&ast.SExpr{},
 		ast.VarCreator,
 		func(x *ast.SExpr) Goal {
 			return fives(x)
@@ -72,7 +70,6 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	}
 
 	stream := RunStream(ctx,
-		&ast.SExpr{},
 		ast.VarCreator,
 		func(x *ast.SExpr) Goal {
 			return Disj(
@@ -107,10 +104,8 @@ func TestFivesAsInt(t *testing.T) {
 	defer cancel()
 	five := int64(5)
 	pointToFive := &five
-
 	gots := Run(ctx,
 		1,
-		pointToFive,
 		ast.VarCreator,
 		func(q *int64) Goal {
 			return EqualO(

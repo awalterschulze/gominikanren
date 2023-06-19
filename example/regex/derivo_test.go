@@ -119,7 +119,7 @@ func TestGenDeriveOA(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Char('a'), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, &runeType, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
@@ -141,7 +141,7 @@ func TestGenDeriveOB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Char('a'), q, EmptySet())
 	}
-	ss := comicro.RunStream(ctx, &runeType, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {
@@ -161,7 +161,7 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return DerivO(Or(Char('a'), Char('b')), q, Or(EmptySet(), EmptyStr()))
 	}
-	ss := comicro.RunStream(ctx, &runeType, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {

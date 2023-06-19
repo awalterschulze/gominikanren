@@ -107,7 +107,7 @@ func TestGenSimplOA(t *testing.T) {
 	g := func(q *Regex) comicro.Goal {
 		return SimplO(q, Char('a'))
 	}
-	ss := comicro.RunStream(ctx, &Regex{}, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
 		if !ok {

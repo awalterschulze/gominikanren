@@ -119,7 +119,7 @@ func TestGenSDerivO(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Char('a'), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, &runeType, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	count := 0
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
@@ -144,7 +144,7 @@ func TestGenSDerivOB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Char('a'), q, EmptySet())
 	}
-	ss := comicro.RunStream(ctx, &runeType, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	count := 0
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
@@ -169,7 +169,7 @@ func TestGenSDerivOAOrB(t *testing.T) {
 	g := func(q *rune) comicro.Goal {
 		return SDerivO(Or(Char('a'), Char('b')), q, EmptyStr())
 	}
-	ss := comicro.RunStream(ctx, &runeType, VarCreator, g)
+	ss := comicro.RunStream(ctx, VarCreator, g)
 	count := 0
 	for {
 		s, ok := comicro.ReadNonNilFromStream(ctx, ss)
