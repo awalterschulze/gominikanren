@@ -32,10 +32,6 @@ func unify(u, v any, s *State) (*State, bool) {
 }
 
 func Unify(s *State, x, y any) *State {
-	// make sure untyped nil is converted to typed nil
-	if !reflect.ValueOf(y).IsValid() {
-		y = reflect.Zero(reflect.TypeOf(x)).Interface()
-	}
 	s1, ok := unify(x, y, s)
 	if !ok {
 		return nil
