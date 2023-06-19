@@ -71,8 +71,11 @@ func reifys(v *ast.SExpr, s Substitutions) Substitutions {
 // ReifyVarFromState is a curried function that reifies the input variable for the given input state.
 func ReifyVarFromState(v string) func(s *State) *ast.SExpr {
 	return func(s *State) *ast.SExpr {
+		// rewrite all the variables given the substitutions map
 		vv := walkStar(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Name: v}}}, s.Substitutions)
+		// add values to the substitutions map for all the variables that are left
 		r := reifyS(vv)
+		// rewrite all the variables given the new placeholder substitutions map
 		return walkStar(vv, r)
 	}
 }
@@ -80,8 +83,11 @@ func ReifyVarFromState(v string) func(s *State) *ast.SExpr {
 // ReifyIntVarFromState is a curried function that reifies the input variable for the given input state.
 func ReifyIntVarFromState(v uint64) func(s *State) *ast.SExpr {
 	return func(s *State) *ast.SExpr {
+		// rewrite all the variables given the substitutions map
 		vv := walkStar(&ast.SExpr{Atom: &ast.Atom{Var: &ast.Variable{Index: v}}}, s.Substitutions)
+		// add values to the substitutions map for all the variables that are left
 		r := reifyS(vv)
+		// rewrite all the variables given the new placeholder substitutions map
 		return walkStar(vv, r)
 	}
 }

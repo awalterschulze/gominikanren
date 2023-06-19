@@ -38,7 +38,8 @@ func ReifyRegex(varTyp any, name string) (any, bool) {
 	case *rune:
 		name, _ = strings.CutPrefix(name, ",")
 		name, _ = strings.CutPrefix(name, "v")
-		return []rune(name)[0], true
+		r := []rune(name)[0]
+		return &r, true
 	}
 	return nil, false
 }
