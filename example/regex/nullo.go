@@ -6,7 +6,6 @@ import (
 )
 
 func NullO(r, out *Regex) comicro.Goal {
-	runeType := rune(0)
 	return comini.Disjs(
 		comicro.Conj(
 			comicro.EqualO(r, EmptySet()),
@@ -17,13 +16,13 @@ func NullO(r, out *Regex) comicro.Goal {
 			comicro.EqualO(out, EmptyStr()),
 		),
 		comicro.Conj(
-			comicro.CallFresh(&runeType, func(char *rune) comicro.Goal {
+			comicro.CallFresh(func(char *rune) comicro.Goal {
 				return comicro.EqualO(r, CharPtr(char))
 			}),
 			comicro.EqualO(out, EmptySet()),
 		),
-		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
-			return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
+		comicro.CallFresh(func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Or(a, b)),
 					comini.Disjs(
@@ -44,8 +43,8 @@ func NullO(r, out *Regex) comicro.Goal {
 				)
 			})
 		}),
-		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
-			return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
+		comicro.CallFresh(func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Concat(a, b)),
 					comini.Disjs(
@@ -66,7 +65,7 @@ func NullO(r, out *Regex) comicro.Goal {
 				)
 			})
 		}),
-		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
+		comicro.CallFresh(func(a *Regex) comicro.Goal {
 			return comicro.Conj(
 				comicro.EqualO(r, Star(a)),
 				comicro.EqualO(out, EmptyStr()),

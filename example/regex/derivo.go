@@ -16,10 +16,10 @@ func DerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
 			comicro.EqualO(out, EmptySet()),
 		),
 		DeriveCharO(r, char, out),
-		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
-			return comicro.CallFresh(&Regex{}, func(da *Regex) comicro.Goal {
-				return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
-					return comicro.CallFresh(&Regex{}, func(db *Regex) comicro.Goal {
+		comicro.CallFresh(func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(func(da *Regex) comicro.Goal {
+				return comicro.CallFresh(func(b *Regex) comicro.Goal {
+					return comicro.CallFresh(func(db *Regex) comicro.Goal {
 						return comini.Conjs(
 							comicro.EqualO(r, Or(a, b)),
 							DerivO(a, char, da),
@@ -30,11 +30,11 @@ func DerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
 				})
 			})
 		}),
-		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
-			return comicro.CallFresh(&Regex{}, func(da *Regex) comicro.Goal {
-				return comicro.CallFresh(&Regex{}, func(na *Regex) comicro.Goal {
-					return comicro.CallFresh(&Regex{}, func(b *Regex) comicro.Goal {
-						return comicro.CallFresh(&Regex{}, func(db *Regex) comicro.Goal {
+		comicro.CallFresh(func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(func(da *Regex) comicro.Goal {
+				return comicro.CallFresh(func(na *Regex) comicro.Goal {
+					return comicro.CallFresh(func(b *Regex) comicro.Goal {
+						return comicro.CallFresh(func(db *Regex) comicro.Goal {
 							return comini.Conjs(
 								comicro.EqualO(r, Concat(a, b)),
 								DerivO(a, char, da),
@@ -47,8 +47,8 @@ func DerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
 				})
 			})
 		}),
-		comicro.CallFresh(&Regex{}, func(a *Regex) comicro.Goal {
-			return comicro.CallFresh(&Regex{}, func(da *Regex) comicro.Goal {
+		comicro.CallFresh(func(a *Regex) comicro.Goal {
+			return comicro.CallFresh(func(da *Regex) comicro.Goal {
 				return comini.Conjs(
 					comicro.EqualO(r, Star(a)),
 					DerivO(a, char, da),

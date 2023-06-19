@@ -62,8 +62,8 @@ func natplus(x, y, z *ast.SExpr) comicro.Goal {
 	return comini.Conde(
 		[]comicro.Goal{comicro.EqualO(x, zero), comicro.EqualO(y, z)},
 		[]comicro.Goal{
-			comicro.CallFresh(&ast.SExpr{}, func(a *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(&ast.SExpr{}, func(b *ast.SExpr) comicro.Goal {
+			comicro.CallFresh(func(a *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(func(b *ast.SExpr) comicro.Goal {
 					return comini.Conjs(
 						succ(a, x),
 						succ(b, z),
@@ -80,10 +80,10 @@ func fib(conj func(...comicro.Goal) comicro.Goal, x, y *ast.SExpr) comicro.Goal 
 		[]comicro.Goal{comicro.EqualO(x, zero), comicro.EqualO(y, zero)},
 		[]comicro.Goal{comicro.EqualO(x, one), comicro.EqualO(y, one)},
 		[]comicro.Goal{
-			comicro.CallFresh(&ast.SExpr{}, func(n1 *ast.SExpr) comicro.Goal {
-				return comicro.CallFresh(&ast.SExpr{}, func(n2 *ast.SExpr) comicro.Goal {
-					return comicro.CallFresh(&ast.SExpr{}, func(f1 *ast.SExpr) comicro.Goal {
-						return comicro.CallFresh(&ast.SExpr{}, func(f2 *ast.SExpr) comicro.Goal {
+			comicro.CallFresh(func(n1 *ast.SExpr) comicro.Goal {
+				return comicro.CallFresh(func(n2 *ast.SExpr) comicro.Goal {
+					return comicro.CallFresh(func(f1 *ast.SExpr) comicro.Goal {
+						return comicro.CallFresh(func(f2 *ast.SExpr) comicro.Goal {
 							return conj(
 								succ(n1, x),
 								succ(n2, n1),
