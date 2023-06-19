@@ -105,7 +105,7 @@ func TestFivesAsInt(t *testing.T) {
 	defer cancel()
 	five := int64(5)
 	pointToFive := &five
-	s := NewEmptyState().WithReifyNames(ast.ReifyName)
+	s := NewEmptyState()
 	gots := Run(ctx,
 		1,
 		s,
