@@ -38,3 +38,28 @@ func TestFreshKiwi(t *testing.T) {
 		t.Fatalf("got %s != want %s", got, want)
 	}
 }
+
+func TestPineapple(t *testing.T) {
+	pineapple := "pineapple"
+	pointy := &pineapple
+	reify := func(varTyp any, name string) (any, bool) {
+		return &name, true
+	}
+	s := NewEmptyState().WithReifyNames(reify)
+	ss := Run(context.Background(), 1, s,
+		func(fruit *string) Goal {
+			return EqualO(
+				pointy,
+				fruit,
+			)
+		},
+	)
+	if len(ss) != 1 {
+		t.Fatalf("expected %d, but got %d results", 1, len(ss))
+	}
+	got := *(ss[0]).(*string)
+	want := pineapple
+	if got != want {
+		t.Fatalf("got %s != want %s", got, want)
+	}
+}
