@@ -1,13 +1,13 @@
 package comicro
 
-func reifys(v any, s *State) *State {
+func addPlaceHolders(v any, s *State) *State {
 	if vvar, ok := s.GetVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
 			return s.AddKeyValue(vvar, s.GetReifyName(vvar))
 		}
 	}
-	return Fold(v, s, reifys)
+	return Fold(v, s, addPlaceHolders)
 }
 
 // rewrite replaces all variables with their values, if it finds any in the substitutions map.
@@ -25,18 +25,18 @@ func rewrite(v any, s *State) any {
 }
 
 // reifyFromState is a curried function that reifies the input variable for the given input state.
-func reifyFromState(v Var, s *State) any {
+func reifyFromState(start Var, state *State) any {
 	// rewrite all the variables given the substitutions map
-	vv := rewrite(v, s)
+	substitutedValue := rewrite(start, state)
 	// add values to the substitutions map for all the variables that are left
-	emptySubs := s.CopyWithoutSubstitutions()
-	r := reifys(vv, emptySubs)
-	// rewrite all the variables given the new substitutions map
-	return rewrite(vv, r)
+	placeholders := addPlaceHolders(substitutedValue, state.CopyWithoutSubstitutions())
+	// rewrite all the variables given the new placeholder substitutions map
+	return rewrite(substitutedValue, placeholders)
 }
 
-// Reify finds reifications for the first introduced var
-// NOTE: the way we've set this up now, vX is a reserved keyword
+// Reify finds reifications for the first introduced variable.
+// This means it rewrites all substitutions for the first introduced variable.
+// For any variables without substitutions, it adds a placeholder value.
 func Reify(s *State) any {
 	vvar := s.GetFirstVar()
 	if vvar == nil {
