@@ -19,9 +19,8 @@ func reifys(v any, s *State, create varCreator) *State {
 // reifyFromState is a curried function that reifies the input variable for the given input state.
 func reifyFromState(v Var, s *State, create varCreator) any {
 	vv := ReplaceAll(v, s)
-	noSubs := s.Copy()
-	noSubs.Substitutions = make(map[Var]any)
-	r := reifys(vv, noSubs, create)
+	emptySubs := s.CopyWithoutSubstitutions()
+	r := reifys(vv, emptySubs, create)
 	return ReplaceAll(vv, r)
 }
 
