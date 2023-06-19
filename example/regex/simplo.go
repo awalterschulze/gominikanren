@@ -21,8 +21,8 @@ func ShortCircuitDisj(a, b comicro.Goal) comicro.Goal {
 }
 
 func simplO(r, s *Regex) comicro.Goal {
-	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
-		return comicro.CallFresh(&Regex{}, func(r2 *Regex) comicro.Goal {
+	return comicro.CallFresh(func(r1 *Regex) comicro.Goal {
+		return comicro.CallFresh(func(r2 *Regex) comicro.Goal {
 			return comini.Conjs(
 				comini.Disjs(
 					comini.Conjs(
@@ -121,30 +121,29 @@ func IsEmptyStr(r *Regex) comicro.Goal {
 }
 
 func IsChar(r *Regex) comicro.Goal {
-	runeType := rune(0)
-	return comicro.CallFresh(&runeType, func(c *rune) comicro.Goal {
+	return comicro.CallFresh(func(c *rune) comicro.Goal {
 		return comicro.EqualO(r, CharPtr(c))
 	})
 }
 
 func IsOr(r *Regex) comicro.Goal {
-	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
-		return comicro.CallFresh(&Regex{}, func(r2 *Regex) comicro.Goal {
+	return comicro.CallFresh(func(r1 *Regex) comicro.Goal {
+		return comicro.CallFresh(func(r2 *Regex) comicro.Goal {
 			return comicro.EqualO(r, Or(r1, r2))
 		})
 	})
 }
 
 func IsConcat(r *Regex) comicro.Goal {
-	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
-		return comicro.CallFresh(&Regex{}, func(r2 *Regex) comicro.Goal {
+	return comicro.CallFresh(func(r1 *Regex) comicro.Goal {
+		return comicro.CallFresh(func(r2 *Regex) comicro.Goal {
 			return comicro.EqualO(r, Concat(r1, r2))
 		})
 	})
 }
 
 func IsStar(r *Regex) comicro.Goal {
-	return comicro.CallFresh(&Regex{}, func(r1 *Regex) comicro.Goal {
+	return comicro.CallFresh(func(r1 *Regex) comicro.Goal {
 		return comicro.EqualO(r, Star(r1))
 	})
 }
