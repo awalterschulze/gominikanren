@@ -16,17 +16,3 @@ func Lookup(key Var, s *State) any {
 	}
 	return value
 }
-
-// Replace replaces all variables with their values, if it finds any in the substitutions map.
-// It only replaces the variables that it finds on it's recursive walk, starting at the input variable.
-func ReplaceAll(v any, s *State) any {
-	if vvar, ok := s.GetVar(v); ok {
-		v = Lookup(vvar, s)
-		if vvar, ok := v.(Var); ok {
-			return s.LookupValue(vvar)
-		}
-	}
-	return Map(v, func(a any) any {
-		return ReplaceAll(a, s)
-	})
-}

@@ -12,12 +12,29 @@ func reifys(v any, s *State) *State {
 	})
 }
 
+// rewrite replaces all variables with their values, if it finds any in the substitutions map.
+// It only replaces the variables that it finds on it's recursive walk, starting at the input variable.
+func rewrite(v any, s *State) any {
+	if vvar, ok := s.GetVar(v); ok {
+		v = Lookup(vvar, s)
+		if vvar, ok := v.(Var); ok {
+			return s.LookupValue(vvar)
+		}
+	}
+	return Map(v, func(a any) any {
+		return rewrite(a, s)
+	})
+}
+
 // reifyFromState is a curried function that reifies the input variable for the given input state.
 func reifyFromState(v Var, s *State) any {
-	vv := ReplaceAll(v, s)
+	// rewrite all the variables given the substitutions map
+	vv := rewrite(v, s)
+	// add values to the substitutions map for all the variables that are left
 	emptySubs := s.CopyWithoutSubstitutions()
 	r := reifys(vv, emptySubs)
-	return ReplaceAll(vv, r)
+	// rewrite all the variables given the new substitutions map
+	return rewrite(vv, r)
 }
 
 // Reify finds reifications for the first introduced var

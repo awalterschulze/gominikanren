@@ -107,7 +107,7 @@ func TestReplaceAll(t *testing.T) {
 		start, state, want := test()
 		startName := state.GetName(start)
 		t.Run("(walk "+startName+" "+state.String()+")", func(t *testing.T) {
-			got := ReplaceAll(start, state)
+			got := rewrite(start, state)
 			if vgot, ok := state.GetVar(got); ok {
 				got = state.GetName(vgot)
 			} else {
