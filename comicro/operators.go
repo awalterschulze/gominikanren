@@ -6,7 +6,7 @@ import (
 )
 
 // EqualO returns a Goal that unifies the input expressions in the output stream.
-func EqualO[A any](x, y *A) Goal {
+func EqualO[A any](x, y A) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		ss.Write(ctx, Unify(s, x, y))
 	}
@@ -62,9 +62,9 @@ func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates
 }
 
 // Exists expects a function that expects a variable and returns a Goal.
-func Exists[A any](f func(*A) Goal) Goal {
+func Exists[A any](f func(A) Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
-		var typ *A
+		var typ A
 		s1, v := NewVar(s, typ)
 		f(v)(ctx, s1, ss)
 	}
