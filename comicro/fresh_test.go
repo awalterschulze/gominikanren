@@ -20,7 +20,7 @@ scheme code:
 */
 func TestFreshKiwi(t *testing.T) {
 	ss := RunGoal(context.Background(), 1,
-		CallFresh(func(fruit *ast.SExpr) Goal {
+		Exists(func(fruit *ast.SExpr) Goal {
 			return EqualO(
 				ast.NewSymbol("plum"),
 				fruit,

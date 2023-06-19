@@ -8,7 +8,7 @@ func MatchO(r *Regex, s *string, res *Regex) comicro.Goal {
 	if s == nil {
 		return NullO(r, res)
 	}
-	return comicro.CallFresh(func(dr *Regex) comicro.Goal {
+	return comicro.Exists(func(dr *Regex) comicro.Goal {
 		return comicro.Conj(
 			SDerivOs(r, *s, dr),
 			NullO(dr, res),
@@ -27,7 +27,7 @@ func SDerivOs(r *Regex, s string, res *Regex) comicro.Goal {
 	}
 	head := ss[0]
 	tail := string(ss[1:])
-	return comicro.CallFresh(func(dr *Regex) comicro.Goal {
+	return comicro.Exists(func(dr *Regex) comicro.Goal {
 		return comicro.Conj(
 			SDerivO(r, &head, dr),
 			SDerivOs(dr, tail, res),
