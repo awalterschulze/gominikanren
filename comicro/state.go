@@ -58,11 +58,11 @@ func (s *State) Equal(other *State) bool {
 
 type Var uintptr
 
-func NewVar[A any](s *State, typ *A) (*State, *A) {
+func NewVar[A any](s *State, typ A) (*State, A) {
 	return NewVarWithName(s, "v"+strconv.Itoa(int(s.Counter)), typ)
 }
 
-func NewVarWithName[A any](s *State, name string, typ *A) (*State, *A) {
+func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	if s == nil {
 		s = NewEmptyState()
 	}
@@ -84,7 +84,7 @@ func NewVarWithName[A any](s *State, name string, typ *A) (*State, *A) {
 	if s.FirstVar == nil {
 		res.FirstVar = &key
 	}
-	return res, v.Interface().(*A)
+	return res, v.Interface().(A)
 }
 
 func (s *State) GetFirstVar() *Var {
