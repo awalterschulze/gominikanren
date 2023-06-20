@@ -16,8 +16,8 @@ func TestMapInc(t *testing.T) {
 }
 
 type A struct {
-	A int
-	B string
+	Field1 int
+	Field2 string
 }
 
 func TestMapStruct(t *testing.T) {
@@ -160,17 +160,34 @@ func TestZipFoldStruct(t *testing.T) {
 }
 
 func TestZipFoldDeepEqual(t *testing.T) {
-	got, gotok := ZipFold(&A{1, "2"}, &A{1, "2"}, true, func(x1, x2 any, eq bool) (bool, bool) {
-		switch x1 := x1.(type) {
-		case int:
-			return eq && x1 == x2.(int), true
-		case string:
-			return eq && x1 == x2.(string), true
-		}
-		return eq, false
-	})
-	want, wantok := true, true
-	if got != want || gotok != wantok {
+	got := DeepEqual(&MyStruct{1, "2"}, &MyStruct{1, "2"})
+	want := true
+	if got != want {
 		t.Fatalf("expected %v but got %v", want, got)
 	}
+}
+
+type MyStruct struct {
+	Field1 int
+	Field2 string
+}
+
+func DeepEqual(x, y any) bool {
+	equalValues, sameTypes := ZipFold(x, y, true,
+		func(xfield, yfield any, eq bool) (bool, bool) {
+			switch xfield := xfield.(type) {
+			case int:
+				if yfield, ok := yfield.(int); ok {
+					return eq && xfield == yfield, true
+				}
+				return eq, false
+			case string:
+				if yfield, ok := yfield.(string); ok {
+					return eq && xfield == yfield, true
+				}
+				return eq, false
+			}
+			return eq, false
+		})
+	return equalValues && sameTypes
 }
