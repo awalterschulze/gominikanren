@@ -158,3 +158,19 @@ func TestZipFoldStruct(t *testing.T) {
 		t.Fatalf("expected %v but got %v", want, got)
 	}
 }
+
+func TestZipFoldDeepEqual(t *testing.T) {
+	got, gotok := ZipFold(&A{1, "2"}, &A{1, "2"}, true, func(x1, x2 any, eq bool) (bool, bool) {
+		switch x1 := x1.(type) {
+		case int:
+			return eq && x1 == x2.(int), true
+		case string:
+			return eq && x1 == x2.(string), true
+		}
+		return eq, false
+	})
+	want, wantok := true, true
+	if got != want || gotok != wantok {
+		t.Fatalf("expected %v but got %v", want, got)
+	}
+}
