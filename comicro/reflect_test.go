@@ -174,7 +174,7 @@ type MyStruct struct {
 }
 
 func DeepEqual(x, y any) bool {
-	equalValues, sameTypes := ZipFold(x, y, true,
+	equalValues, ok := ZipFold(x, y, true,
 		func(xfield, yfield any, eq bool) (bool, bool) {
 			switch xfield := xfield.(type) {
 			case int:
@@ -195,5 +195,5 @@ func DeepEqual(x, y any) bool {
 			}
 			return eq, false
 		})
-	return equalValues && sameTypes
+	return equalValues && ok
 }
