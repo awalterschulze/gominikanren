@@ -160,7 +160,7 @@ func TestZipFoldStruct(t *testing.T) {
 }
 
 func TestZipFoldDeepEqual(t *testing.T) {
-	got := DeepEqual(&MyStruct{1, "2"}, &MyStruct{1, "2"})
+	got := DeepEqual(&MyStruct{1, "2", &MyStruct{3, "4", nil}}, &MyStruct{1, "2", &MyStruct{3, "4", nil}})
 	want := true
 	if got != want {
 		t.Fatalf("expected %v but got %v", want, got)
@@ -170,6 +170,7 @@ func TestZipFoldDeepEqual(t *testing.T) {
 type MyStruct struct {
 	Field1 int
 	Field2 string
+	More   *MyStruct
 }
 
 func DeepEqual(x, y any) bool {
@@ -184,6 +185,11 @@ func DeepEqual(x, y any) bool {
 			case string:
 				if yfield, ok := yfield.(string); ok {
 					return eq && xfield == yfield, true
+				}
+				return eq, false
+			case *MyStruct:
+				if yfield, ok := yfield.(*MyStruct); ok {
+					return eq && DeepEqual(xfield, yfield), true
 				}
 				return eq, false
 			}
