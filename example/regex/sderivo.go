@@ -2,11 +2,10 @@ package regex
 
 import (
 	"github.com/awalterschulze/gominikanren/comicro"
-	"github.com/awalterschulze/gominikanren/comini"
 )
 
 func SDerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
-	return comini.Disjs(
+	return comicro.Disjs(
 		comicro.Conj(
 			comicro.EqualO(r, EmptySet()),
 			comicro.EqualO(out, EmptySet()),
@@ -20,7 +19,7 @@ func SDerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
 			return comicro.Exists(func(da *Regex) comicro.Goal {
 				return comicro.Exists(func(b *Regex) comicro.Goal {
 					return comicro.Exists(func(db *Regex) comicro.Goal {
-						return comini.Conjs(
+						return comicro.Conjs(
 							comicro.EqualO(r, Or(a, b)),
 							SDerivO(a, char, da),
 							SDerivO(b, char, db),
@@ -37,7 +36,7 @@ func SDerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
 						return comicro.Exists(func(db *Regex) comicro.Goal {
 							return comicro.Exists(func(ca *Regex) comicro.Goal {
 								return comicro.Exists(func(cb *Regex) comicro.Goal {
-									return comini.Conjs(
+									return comicro.Conjs(
 										comicro.EqualO(r, Concat(a, b)),
 										SDerivO(a, char, da),
 										SDerivO(b, char, db),
@@ -55,7 +54,7 @@ func SDerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
 		}),
 		comicro.Exists(func(a *Regex) comicro.Goal {
 			return comicro.Exists(func(da *Regex) comicro.Goal {
-				return comini.Conjs(
+				return comicro.Conjs(
 					comicro.EqualO(r, Star(a)),
 					SDerivO(a, char, da),
 					SimpleConcatO(da, r, out),

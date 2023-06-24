@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/awalterschulze/gominikanren/comicro"
-	"github.com/awalterschulze/gominikanren/comini"
 )
 
 type Node struct {
@@ -50,7 +49,7 @@ func ConcatO(xs, ys, zs *Node) comicro.Goal {
 		comicro.Exists(func(head *string) comicro.Goal {
 			return comicro.Exists(func(xtail *Node) comicro.Goal {
 				return comicro.Exists(func(ztail *Node) comicro.Goal {
-					return comini.Conjs(
+					return comicro.Conjs(
 						comicro.EqualO(xs, Prepend(head, xtail)),
 						comicro.EqualO(Prepend(head, ztail), zs),
 						ConcatO(xtail, ys, ztail),

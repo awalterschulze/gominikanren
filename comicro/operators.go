@@ -69,3 +69,31 @@ func Exists[A any](f func(A) Goal) Goal {
 		f(v)(ctx, s1, ss)
 	}
 }
+
+// Disjs is a macro that extends disjunction to arbitrary arguments
+func Disjs(gs ...Goal) Goal {
+	return func(ctx context.Context, s *State, ss StreamOfStates) {
+		wait := sync.WaitGroup{}
+		for i := range gs {
+			f := func(i int) func() { return func() { gs[i](ctx, s, ss) } }(i)
+			Go(ctx, &wait, f)
+		}
+		wait.Wait()
+	}
+}
+
+// Conjs is a macro that extends conjunction to arbitrary arguments
+func Conjs(gs ...Goal) Goal {
+	if len(gs) == 0 {
+		return SuccessO
+	}
+	if len(gs) == 1 {
+		return gs[0]
+	}
+	g1 := gs[0]
+	g2 := Conjs(gs[1:]...)
+	return func(ctx context.Context, s *State, ss StreamOfStates) {
+		g1s := NewStreamForGoal(ctx, g1, s)
+		Bind(ctx, g1s, g2, ss)
+	}
+}

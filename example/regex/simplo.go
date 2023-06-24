@@ -23,13 +23,13 @@ func ShortCircuitDisj(a, b comicro.Goal) comicro.Goal {
 func simplO(r, s *Regex) comicro.Goal {
 	return comicro.Exists(func(r1 *Regex) comicro.Goal {
 		return comicro.Exists(func(r2 *Regex) comicro.Goal {
-			return comini.Conjs(
-				comini.Disjs(
-					comini.Conjs(
+			return comicro.Conjs(
+				comicro.Disjs(
+					comicro.Conjs(
 						comicro.EqualO(r, Or(r1, r2)),
 						SimpleOrO(r1, r2, s),
 					),
-					comini.Conjs(
+					comicro.Conjs(
 						comicro.EqualO(r, Concat(r1, r2)),
 						SimpleConcatO(r1, r2, s),
 					),
@@ -41,7 +41,7 @@ func simplO(r, s *Regex) comicro.Goal {
 
 func SimpleOrO(r1, r2, res *Regex) comicro.Goal {
 	r := comicro.EqualO(res, Or(r1, r2))
-	return comini.Disjs(
+	return comicro.Disjs(
 		comicro.Conj(
 			IsEmptySet(r1),
 			comicro.EqualO(res, r2),
@@ -50,22 +50,22 @@ func SimpleOrO(r1, r2, res *Regex) comicro.Goal {
 			IsEmptySet(r2),
 			comicro.EqualO(res, r1),
 		),
-		comini.Conjs(IsEmptyStr(r1), IsNotEmptySet(r2), r),
-		comini.Conjs(IsEmptyStr(r2), IsNotEmptySet(r1), r),
-		comini.Conjs(IsChar(r1), IsNotEmptySet(r2), r),
-		comini.Conjs(IsChar(r2), IsNotEmptySet(r1), r),
-		comini.Conjs(IsOr(r1), IsNotEmptySet(r2), r),
-		comini.Conjs(IsOr(r2), IsNotEmptySet(r1), r),
-		comini.Conjs(IsConcat(r1), IsNotEmptySet(r2), r),
-		comini.Conjs(IsConcat(r2), IsNotEmptySet(r1), r),
-		comini.Conjs(IsStar(r1), IsNotEmptySet(r2), r),
-		comini.Conjs(IsStar(r2), IsNotEmptySet(r1), r),
+		comicro.Conjs(IsEmptyStr(r1), IsNotEmptySet(r2), r),
+		comicro.Conjs(IsEmptyStr(r2), IsNotEmptySet(r1), r),
+		comicro.Conjs(IsChar(r1), IsNotEmptySet(r2), r),
+		comicro.Conjs(IsChar(r2), IsNotEmptySet(r1), r),
+		comicro.Conjs(IsOr(r1), IsNotEmptySet(r2), r),
+		comicro.Conjs(IsOr(r2), IsNotEmptySet(r1), r),
+		comicro.Conjs(IsConcat(r1), IsNotEmptySet(r2), r),
+		comicro.Conjs(IsConcat(r2), IsNotEmptySet(r1), r),
+		comicro.Conjs(IsStar(r1), IsNotEmptySet(r2), r),
+		comicro.Conjs(IsStar(r2), IsNotEmptySet(r1), r),
 	)
 }
 
 func SimpleConcatO(r1, r2, res *Regex) comicro.Goal {
 	r := comicro.EqualO(res, Concat(r1, r2))
-	return comini.Disjs(
+	return comicro.Disjs(
 		comicro.Conj(
 			IsEmptySet(r1),
 			comicro.EqualO(res, EmptySet()),
@@ -82,19 +82,19 @@ func SimpleConcatO(r1, r2, res *Regex) comicro.Goal {
 			IsEmptyStr(r2),
 			comicro.EqualO(res, r1),
 		),
-		comini.Conjs(IsChar(r1), IsNotEmpty(r2), r),
-		comini.Conjs(IsChar(r2), IsNotEmpty(r1), r),
-		comini.Conjs(IsOr(r1), IsNotEmpty(r2), r),
-		comini.Conjs(IsOr(r2), IsNotEmpty(r1), r),
-		comini.Conjs(IsConcat(r1), IsNotEmpty(r2), r),
-		comini.Conjs(IsConcat(r2), IsNotEmpty(r1), r),
-		comini.Conjs(IsStar(r1), IsNotEmpty(r2), r),
-		comini.Conjs(IsStar(r2), IsNotEmpty(r1), r),
+		comicro.Conjs(IsChar(r1), IsNotEmpty(r2), r),
+		comicro.Conjs(IsChar(r2), IsNotEmpty(r1), r),
+		comicro.Conjs(IsOr(r1), IsNotEmpty(r2), r),
+		comicro.Conjs(IsOr(r2), IsNotEmpty(r1), r),
+		comicro.Conjs(IsConcat(r1), IsNotEmpty(r2), r),
+		comicro.Conjs(IsConcat(r2), IsNotEmpty(r1), r),
+		comicro.Conjs(IsStar(r1), IsNotEmpty(r2), r),
+		comicro.Conjs(IsStar(r2), IsNotEmpty(r1), r),
 	)
 }
 
 func IsNotEmpty(r *Regex) comicro.Goal {
-	return comini.Disjs(
+	return comicro.Disjs(
 		IsChar(r),
 		IsOr(r),
 		IsConcat(r),
@@ -103,7 +103,7 @@ func IsNotEmpty(r *Regex) comicro.Goal {
 }
 
 func IsNotEmptySet(r *Regex) comicro.Goal {
-	return comini.Disjs(
+	return comicro.Disjs(
 		IsEmptyStr(r),
 		IsChar(r),
 		IsOr(r),

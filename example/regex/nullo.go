@@ -2,11 +2,10 @@ package regex
 
 import (
 	"github.com/awalterschulze/gominikanren/comicro"
-	"github.com/awalterschulze/gominikanren/comini"
 )
 
 func NullO(r, out *Regex) comicro.Goal {
-	return comini.Disjs(
+	return comicro.Disjs(
 		comicro.Conj(
 			comicro.EqualO(r, EmptySet()),
 			comicro.EqualO(out, EmptySet()),
@@ -25,16 +24,16 @@ func NullO(r, out *Regex) comicro.Goal {
 			return comicro.Exists(func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Or(a, b)),
-					comini.Disjs(
-						comini.Conjs(
+					comicro.Disjs(
+						comicro.Conjs(
 							NullO(a, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
 						),
-						comini.Conjs(
+						comicro.Conjs(
 							NullO(b, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),
 						),
-						comini.Conjs(
+						comicro.Conjs(
 							NullO(a, EmptySet()),
 							NullO(b, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
@@ -47,16 +46,16 @@ func NullO(r, out *Regex) comicro.Goal {
 			return comicro.Exists(func(b *Regex) comicro.Goal {
 				return comicro.Conj(
 					comicro.EqualO(r, Concat(a, b)),
-					comini.Disjs(
-						comini.Conjs(
+					comicro.Disjs(
+						comicro.Conjs(
 							NullO(a, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
 						),
-						comini.Conjs(
+						comicro.Conjs(
 							NullO(b, EmptySet()),
 							comicro.EqualO(out, EmptySet()),
 						),
-						comini.Conjs(
+						comicro.Conjs(
 							NullO(a, EmptyStr()),
 							NullO(b, EmptyStr()),
 							comicro.EqualO(out, EmptyStr()),

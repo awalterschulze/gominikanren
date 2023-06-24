@@ -76,7 +76,7 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) comicro.Goal, x, y *ast.SExpr) comicro.
 				return comicro.Exists(func(xd *ast.SExpr) comicro.Goal {
 					return comicro.Exists(func(ya *ast.SExpr) comicro.Goal {
 						return comicro.Exists(func(yd *ast.SExpr) comicro.Goal {
-							return Conjs(
+							return comicro.Conjs(
 								comicro.EqualO(x, ast.Cons(xa, xd)),
 								comicro.EqualO(y, ast.Cons(ya, yd)),
 								f(xa, ya),

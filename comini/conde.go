@@ -8,7 +8,7 @@ import (
 func Conde(gs ...[]comicro.Goal) comicro.Goal {
 	conj := make([]comicro.Goal, len(gs))
 	for i, v := range gs {
-		conj[i] = Conjs(v...)
+		conj[i] = comicro.Conjs(v...)
 	}
-	return Disjs(conj...)
+	return comicro.Disjs(conj...)
 }
