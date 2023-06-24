@@ -2,42 +2,7 @@ package regex
 
 import (
 	"github.com/awalterschulze/gominikanren/comicro"
-	"github.com/awalterschulze/gominikanren/comini"
 )
-
-func SimplO(r, s *Regex) comicro.Goal {
-	return ShortCircuitDisj(
-		simplO(r, s),
-		comicro.EqualO(r, s),
-	)
-}
-
-func ShortCircuitDisj(a, b comicro.Goal) comicro.Goal {
-	return comini.IfThenElseO(
-		a,
-		a,
-		b,
-	)
-}
-
-func simplO(r, s *Regex) comicro.Goal {
-	return comicro.Exists(func(r1 *Regex) comicro.Goal {
-		return comicro.Exists(func(r2 *Regex) comicro.Goal {
-			return comicro.Conjs(
-				comicro.Disjs(
-					comicro.Conjs(
-						comicro.EqualO(r, Or(r1, r2)),
-						SimpleOrO(r1, r2, s),
-					),
-					comicro.Conjs(
-						comicro.EqualO(r, Concat(r1, r2)),
-						SimpleConcatO(r1, r2, s),
-					),
-				),
-			)
-		})
-	})
-}
 
 func SimpleOrO(r1, r2, res *Regex) comicro.Goal {
 	r := comicro.EqualO(res, Or(r1, r2))
