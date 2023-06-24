@@ -20,7 +20,7 @@ func CreateVar(varTyp any, name string) (any, bool) {
 	return nil, false
 }
 
-func ref[A any](s A) *A {
+func newString(s string) *string {
 	return &s
 }
 
@@ -52,19 +52,19 @@ func TestPrependO(t *testing.T) {
 	s := comicro.NewEmptyState().WithVarCreators(CreateVar)
 	gots := toStrings(comicro.Run(ctx, -1, s, func(q *Node) comicro.Goal {
 		return comicro.EqualO(
-			&Node{ref("a"), &Node{ref("b"), nil}},
+			NewNode("a", NewNode("b", NewNode("c", nil))),
 			q,
 		)
 	}))
-	wants := []string{"[a,b]"}
+	wants := []string{"[a,b,c]"}
 	if !reflect.DeepEqual(gots, wants) {
 		t.Fatalf("expected list: got %v, want %v", gots, wants)
 	}
 
 	gots = toStrings(comicro.Run(ctx, -1, s, func(q *Node) comicro.Goal {
 		return PrependO(
-			ref("a"),
-			&Node{ref("b"), nil},
+			newString("a"),
+			NewNode("b", NewNode("c", nil)),
 			q,
 		)
 	}))
@@ -75,8 +75,8 @@ func TestPrependO(t *testing.T) {
 	gots = toStrings(comicro.Run(ctx, -1, s, func(q *string) comicro.Goal {
 		return PrependO(
 			q,
-			&Node{ref("b"), nil},
-			&Node{ref("a"), &Node{ref("b"), nil}},
+			NewNode("b", NewNode("c", nil)),
+			NewNode("a", NewNode("b", NewNode("c", nil))),
 		)
 	}))
 	wants = []string{"a"}
@@ -86,27 +86,25 @@ func TestPrependO(t *testing.T) {
 
 	gots = toStrings(comicro.Run(ctx, -1, s, func(q *Node) comicro.Goal {
 		return PrependO(
-			ref("a"),
+			newString("a"),
 			q,
-			&Node{ref("a"), &Node{ref("b"), nil}},
+			NewNode("a", NewNode("b", NewNode("c", nil))),
 		)
 	}))
-	wants = []string{"[b]"}
+	wants = []string{"[b,c]"}
 	if !reflect.DeepEqual(gots, wants) {
 		t.Fatalf("expected suffix list: got %v, want %v", gots, wants)
 	}
 }
 
 func TestConcatOSingleList(t *testing.T) {
-	bs := &Node{ref("b"), nil}
-	as := &Node{ref("a"), nil}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := comicro.NewEmptyState().WithVarCreators(CreateVar)
 	gots := toStrings(comicro.Run(ctx, -1, s, func(q *Node) comicro.Goal {
 		return ConcatO(
-			as,
-			bs,
+			NewNode("a", nil),
+			NewNode("b", nil),
 			q,
 		)
 	}))
@@ -117,7 +115,43 @@ func TestConcatOSingleList(t *testing.T) {
 }
 
 func TestConcatOAllCombinations(t *testing.T) {
-	cakeandicedtea := &Node{ref("cake"), &Node{ref("&"), &Node{ref("ice"), &Node{ref("d"), &Node{ref("t"), nil}}}}}
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s := comicro.NewEmptyState().WithVarCreators(ast.CreateVar)
+	gots := toStrings(comicro.Run(ctx, -1, s, func(q *Pair) comicro.Goal {
+		return comicro.Exists(func(x *Node) comicro.Goal {
+			return comicro.Exists(func(y *Node) comicro.Goal {
+				return comicro.Conj(
+					comicro.EqualO(
+						&Pair{x, y},
+						q,
+					),
+					ConcatO(
+						x,
+						y,
+						NewNode("a", NewNode("b", NewNode("c", NewNode("d", nil)))),
+					),
+				)
+			})
+		})
+	}))
+	wants := []string{
+		`{[], [a,b,c,d]}`,
+		`{[a,b,c,d], []}`,
+		`{[a,b,c], [d]}`,
+		`{[a,b], [c,d]}`,
+		`{[a], [b,c,d]}`,
+	}
+	if !reflect.DeepEqual(gots, wants) {
+		t.Fatalf("got %s != want %s", gots, wants)
+	}
+}
+
+func TestConcatOAllCombinationsCakeAndIcedTea(t *testing.T) {
+	cakeandicedtea := NewNode("cake", NewNode("&", NewNode("ice", NewNode("d", NewNode("t", nil)))))
 	if testing.Short() {
 		return
 	}

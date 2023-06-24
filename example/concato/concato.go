@@ -12,6 +12,10 @@ type Node struct {
 	Next *Node
 }
 
+func NewNode(v string, n *Node) *Node {
+	return &Node{&v, n}
+}
+
 func (n *Node) String() string {
 	if n == nil {
 		return "[]"
