@@ -101,12 +101,12 @@ func Any(a any, pred func(a any) bool) bool {
 	return false
 }
 
-// ZipFold folds a function over the elements of two slices or the fields of two structs together
-// It allows you to shortcircuit the fold by returning false from the function
+// ZipReduce reduces a function over the elements of two slices or the fields of two structs together
+// It allows you to shortcircuit the reduce by returning false from the function
 // For example:
-//   - ZipFold([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true }) = (12, true)
-//   - ZipFold([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
-func ZipFold[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
+//   - ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true }) = (12, true)
+//   - ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
+func ZipReduce[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
 	if IsNil(a1) {
 		if IsNil(a2) {
 			return b, true

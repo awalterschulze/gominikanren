@@ -104,24 +104,24 @@ func TestAnyStruct(t *testing.T) {
 	}
 }
 
-func TestZipFoldSum(t *testing.T) {
-	got, gotok := ZipFold([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true })
+func TestZipReduceSum(t *testing.T) {
+	got, gotok := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true })
 	want, wantok := 12, true
 	if got != want || gotok != wantok {
 		t.Fatalf("expected %v but got %v", want, got)
 	}
 }
 
-func TestZipFoldConcat(t *testing.T) {
-	got, gotok := ZipFold([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true })
+func TestZipReduceConcat(t *testing.T) {
+	got, gotok := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true })
 	want, wantok := "132231", true
 	if got != want || gotok != wantok {
 		t.Fatalf("expected %v but got %v", want, got)
 	}
 }
 
-func TestZipFoldFalse(t *testing.T) {
-	got, gotok := ZipFold([]int{1, 2, 3}, []int{3, 2, 1}, 0,
+func TestZipReduceFalse(t *testing.T) {
+	got, gotok := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, 0,
 		func(x1, x2 any, sum int) (int, bool) {
 			if x1 == 2 {
 				return 0, false
@@ -135,8 +135,8 @@ func TestZipFoldFalse(t *testing.T) {
 	}
 }
 
-func TestZipFoldStruct(t *testing.T) {
-	got, gotok := ZipFold(&A{1, "2"}, &A{2, "3"}, 0, func(x1, x2 any, sum int) (int, bool) {
+func TestZipReduceStruct(t *testing.T) {
+	got, gotok := ZipReduce(&A{1, "2"}, &A{2, "3"}, 0, func(x1, x2 any, sum int) (int, bool) {
 		switch x1 := x1.(type) {
 		case int:
 			return sum + x1 + x2.(int), true
@@ -159,7 +159,7 @@ func TestZipFoldStruct(t *testing.T) {
 	}
 }
 
-func TestZipFoldDeepEqual(t *testing.T) {
+func TestZipReduceDeepEqual(t *testing.T) {
 	got := DeepEqual(&MyStruct{1, "2", &MyStruct{3, "4", nil}}, &MyStruct{1, "2", &MyStruct{3, "4", nil}})
 	want := true
 	if got != want {
@@ -174,7 +174,7 @@ type MyStruct struct {
 }
 
 func DeepEqual(x, y any) bool {
-	equalValues, ok := ZipFold(x, y, true,
+	equalValues, ok := ZipReduce(x, y, true,
 		func(xfield, yfield any, eq bool) (bool, bool) {
 			switch xfield := xfield.(type) {
 			case int:

@@ -32,7 +32,7 @@ func unify(u, v any, s *State) (*State, bool) {
 	if vvar, ok := vv.(Var); ok {
 		return exts(vvar, uu, s)
 	}
-	ss, sok := ZipFold(uu, vv, s, unify)
+	ss, sok := ZipReduce(uu, vv, s, unify)
 	if !sok {
 		return nil, false
 	}
