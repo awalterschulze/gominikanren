@@ -16,13 +16,13 @@ func (ss StreamOfStates) Read(ctx context.Context) (*State, bool) {
 	return ReadFromStream(ctx, ss)
 }
 
-func ReadFromStream[A any](ctx context.Context, c <-chan A) (A, bool) {
+func ReadFromStream[A any](ctx context.Context, ss <-chan A) (A, bool) {
 	var zero A
-	if c == nil {
+	if ss == nil {
 		return zero, false
 	}
 	select {
-	case a, ok := <-c:
+	case a, ok := <-ss:
 		return a, ok
 	case <-ctx.Done():
 	}
@@ -33,14 +33,14 @@ func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
 	return WriteToStream(ctx, s, ss)
 }
 
-func WriteToStream[A any](ctx context.Context, a A, c chan<- A) bool {
-	if c == nil {
+func WriteToStream[A any](ctx context.Context, a A, ss chan<- A) bool {
+	if ss == nil {
 		return false
 	}
 	select {
 	case <-ctx.Done():
 		return false
-	case c <- a:
+	case ss <- a:
 		return true
 	}
 }
@@ -50,9 +50,10 @@ func (ss StreamOfStates) Close() {
 }
 
 func WriteStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
-	MapOverStream(ctx, src, func(a A) A {
+	identity := func(a A) A {
 		return a
-	}, dst)
+	}
+	MapOverStream(ctx, src, identity, dst)
 }
 
 func MapOverStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
@@ -104,11 +105,11 @@ func NewStreamForGoal(ctx context.Context, g Goal, s *State) StreamOfStates {
 	return ss
 }
 
-func Take[A any](ctx context.Context, n int, c chan A) []A {
+func Take[A any](ctx context.Context, n int, ss chan A) []A {
 	if n == 0 {
 		return nil
 	}
-	if c == nil {
+	if ss == nil {
 		return nil
 	}
 	var as []A
@@ -120,7 +121,7 @@ func Take[A any](ctx context.Context, n int, c chan A) []A {
 		if i == n {
 			break
 		}
-		a, ok := ReadFromStream(ctx, c)
+		a, ok := ReadFromStream(ctx, ss)
 		if !ok {
 			break
 		}
