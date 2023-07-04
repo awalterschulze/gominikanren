@@ -30,10 +30,10 @@ func NewState(varCreators ...VarCreator) *State {
 type Var uintptr
 
 func NewVar[A any](s *State, typ A) (*State, A) {
-	return NewVarWithName(s, "v"+strconv.Itoa(int(s.counter)), typ)
+	return newVarWithName(s, "v"+strconv.Itoa(int(s.counter)), typ)
 }
 
-func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
+func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	if s == nil {
 		s = NewState()
 	}

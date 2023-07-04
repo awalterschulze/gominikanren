@@ -24,8 +24,8 @@ func TestOnce(t *testing.T) {
 	defer cancel()
 	var x, y *ast.SExpr
 	state := NewState()
-	state, x = NewVarWithName(state, "x", &ast.SExpr{})
-	state, y = NewVarWithName(state, "y", &ast.SExpr{})
+	state, x = newVarWithName(state, "x", &ast.SExpr{})
+	state, y = newVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		OnceO(Disj(
 			EqualO(ast.NewSymbol("#t"), x),

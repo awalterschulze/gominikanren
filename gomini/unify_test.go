@@ -9,8 +9,8 @@ import (
 func TestOccurs(t *testing.T) {
 	s := NewState()
 	var x, y *ast.SExpr
-	s, x = NewVarWithName(s, "x", &ast.SExpr{})
-	s, y = NewVarWithName(s, "y", &ast.SExpr{})
+	s, x = newVarWithName(s, "x", &ast.SExpr{})
+	s, y = newVarWithName(s, "y", &ast.SExpr{})
 	xvar, _ := s.castVar(x)
 	yvar, _ := s.castVar(y)
 
@@ -35,7 +35,7 @@ func TestOccurs(t *testing.T) {
 func TestExtsXA(t *testing.T) {
 	got := NewState()
 	var x *ast.SExpr
-	got, x = NewVarWithName(got, "x", &ast.SExpr{})
+	got, x = newVarWithName(got, "x", &ast.SExpr{})
 	xvar, _ := got.castVar(x)
 	want := got.copy()
 	var gotok bool
@@ -52,7 +52,7 @@ func TestExtsXA(t *testing.T) {
 func TestExtsXX(t *testing.T) {
 	got := NewState()
 	var x *ast.SExpr
-	got, x = NewVarWithName(got, "x", &ast.SExpr{})
+	got, x = newVarWithName(got, "x", &ast.SExpr{})
 	xvar, _ := got.castVar(x)
 	var gotok bool
 	_, gotok = exts(xvar, x, got)
@@ -64,8 +64,8 @@ func TestExtsXX(t *testing.T) {
 func TestExtsXY(t *testing.T) {
 	got := NewState()
 	var x, y *ast.SExpr
-	got, x = NewVarWithName(got, "x", &ast.SExpr{})
-	got, y = NewVarWithName(got, "y", &ast.SExpr{})
+	got, x = newVarWithName(got, "x", &ast.SExpr{})
+	got, y = newVarWithName(got, "y", &ast.SExpr{})
 	xvar, _ := got.castVar(x)
 	want := got.copy()
 	var gotok bool
@@ -82,9 +82,9 @@ func TestExtsXY(t *testing.T) {
 func TestExtsXYZ(t *testing.T) {
 	got := NewState()
 	var x, y, z *ast.SExpr
-	got, x = NewVarWithName(got, "x", &ast.SExpr{})
-	got, y = NewVarWithName(got, "y", &ast.SExpr{})
-	got, z = NewVarWithName(got, "z", &ast.SExpr{})
+	got, x = newVarWithName(got, "x", &ast.SExpr{})
+	got, y = newVarWithName(got, "y", &ast.SExpr{})
+	got, z = newVarWithName(got, "z", &ast.SExpr{})
 	xvar, _ := got.castVar(x)
 	yvar, _ := got.castVar(y)
 	zvar, _ := got.castVar(z)
