@@ -14,7 +14,7 @@ func IfThenElseO(cond, thn, els Goal) Goal {
 }
 
 func ifThenElseO(ctx context.Context, conds StreamOfStates, thn, els Goal, s *State, res StreamOfStates) {
-	headState, ok := conds.ReadNonNil(ctx)
+	headState, ok := conds.Read(ctx)
 	if !ok {
 		els(ctx, s, res)
 		return

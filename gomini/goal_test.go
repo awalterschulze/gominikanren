@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/awalterschulze/gominikanren/sexpr"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
@@ -13,8 +14,10 @@ import (
 // NeverO is a Goal that returns a never ending stream of suspensions.
 func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
 	for {
-		if ok := ss.Write(ctx, nil); !ok {
+		select {
+		case <-ctx.Done():
 			return
+		case <-time.After(1 * time.Second):
 		}
 	}
 }
@@ -22,9 +25,6 @@ func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
 // AlwaysO is a goal that returns a never ending stream of success.
 func AlwaysO(ctx context.Context, s *State, ss StreamOfStates) {
 	for {
-		if ok := ss.Write(ctx, nil); !ok {
-			return
-		}
 		if ok := ss.Write(ctx, s); !ok {
 			return
 		}
@@ -76,22 +76,6 @@ func TestSuccessO(t *testing.T) {
 	}
 }
 
-func TestNeverO(t *testing.T) {
-	if testing.Short() {
-		return
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	ss := NewStreamForGoal(ctx, NeverO, NewState())
-	s, ok := <-ss
-	if s != nil {
-		t.Fatalf("expected suspension")
-	}
-	if !ok {
-		t.Fatalf("expected never ending")
-	}
-}
-
 func TestDisj1(t *testing.T) {
 	if testing.Short() {
 		return
@@ -123,9 +107,12 @@ func TestDisj1(t *testing.T) {
 	if got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
-	_, ok := <-ss
-	if !ok {
-		t.Fatalf("expected never ending")
+	select {
+	case _, ok := <-ss:
+		if !ok {
+			t.Fatalf("expected never ending")
+		}
+	default:
 	}
 }
 
@@ -159,11 +146,13 @@ func TestDisj2(t *testing.T) {
 			break
 		}
 	}
-	_, ok := <-ss
-	if !ok {
-		t.Fatalf("expected never ending")
+	select {
+	case _, ok := <-ss:
+		if !ok {
+			t.Fatalf("expected never ending")
+		}
+	default:
 	}
-
 }
 
 func TestAlwaysO(t *testing.T) {
