@@ -11,7 +11,7 @@ func s_x1() *State {
 	s := NewState()
 	var x *ast.SExpr
 	s, x = newVarWithName(s, "x", &ast.SExpr{})
-	xvar, _ := s.castVar(x)
+	xvar, _ := s.CastVar(x)
 	s = s.AddKeyValue(xvar, ast.NewSymbol("1"))
 	return s
 }
@@ -21,8 +21,8 @@ func s_xy_y1() *State {
 	var x, y *ast.SExpr
 	s, x = newVarWithName(s, "x", &ast.SExpr{})
 	s, y = newVarWithName(s, "y", &ast.SExpr{})
-	xvar, _ := s.castVar(x)
-	yvar, _ := s.castVar(y)
+	xvar, _ := s.CastVar(x)
+	yvar, _ := s.CastVar(y)
 	s = s.AddKeyValue(xvar, y)
 	s = s.AddKeyValue(yvar, ast.NewSymbol("1"))
 	return s
@@ -32,7 +32,7 @@ func s_x2() *State {
 	s := NewState()
 	var x *ast.SExpr
 	s, x = newVarWithName(s, "x", &ast.SExpr{})
-	xvar, _ := s.castVar(x)
+	xvar, _ := s.CastVar(x)
 	s = s.AddKeyValue(xvar, ast.NewSymbol("2"))
 	return s
 }

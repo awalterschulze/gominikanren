@@ -8,11 +8,11 @@ import (
 // where cycles in substitutions can lead to (ok = false)
 func unify(x, y any, s *State) (*State, bool) {
 	var xx any = x
-	if xvar, ok := s.castVar(x); ok {
+	if xvar, ok := s.CastVar(x); ok {
 		xx = Lookup(xvar, s)
 	}
 	var yy any = y
-	if yyar, ok := s.castVar(y); ok {
+	if yyar, ok := s.CastVar(y); ok {
 		yy = Lookup(yyar, s)
 	}
 	if reflect.DeepEqual(xx, yy) {
@@ -42,7 +42,7 @@ func exts(x Var, v any, s *State) (*State, bool) {
 }
 
 func occurs(x Var, v any, s *State) bool {
-	if vvar, ok := s.castVar(v); ok {
+	if vvar, ok := s.CastVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
 			return reflect.DeepEqual(x, vvar)

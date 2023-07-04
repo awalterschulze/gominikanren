@@ -14,11 +14,11 @@ func TestLookup(t *testing.T) {
 	s, x = newVarWithName(s, "x", &ast.SExpr{})
 	s, y = newVarWithName(s, "y", &ast.SExpr{})
 	s, z = newVarWithName(s, "z", &ast.SExpr{})
-	xvar, _ := s.castVar(x)
-	yvar, _ := s.castVar(y)
-	zvar, _ := s.castVar(z)
-	wvar, _ := s.castVar(w)
-	vvar, _ := s.castVar(v)
+	xvar, _ := s.CastVar(x)
+	yvar, _ := s.CastVar(y)
+	zvar, _ := s.CastVar(z)
+	wvar, _ := s.CastVar(w)
+	vvar, _ := s.CastVar(v)
 
 	zaxwyz, a := newVarWithName(s, "a", &ast.SExpr{})
 	zaxwyz = zaxwyz.AddKeyValue(zvar, a)
@@ -51,7 +51,7 @@ func TestLookup(t *testing.T) {
 		startName := state.getName(start)
 		t.Run("(walk "+startName+" "+s.String()+")", func(t *testing.T) {
 			got := Lookup(start, state)
-			if vgot, ok := state.castVar(got); ok {
+			if vgot, ok := state.CastVar(got); ok {
 				got = state.getName(vgot)
 			} else {
 				got = got.(interface{ String() string }).String()

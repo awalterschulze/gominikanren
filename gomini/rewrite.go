@@ -3,10 +3,10 @@ package gomini
 // rewrite replaces all variables with their values, if it finds any in the substitutions map.
 // It only replaces the variables that it finds on it's recursive walk, starting at the input variable.
 func rewrite(v any, s *State) any {
-	if vvar, ok := s.castVar(v); ok {
+	if vvar, ok := s.CastVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			return s.lookupPlaceholderValue(vvar)
+			return s.LookupPlaceholderValue(vvar)
 		}
 	}
 	return Map(v, func(a any) any {

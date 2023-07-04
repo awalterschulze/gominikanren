@@ -27,6 +27,41 @@ func NewState(varCreators ...VarCreator) *State {
 	return &State{varCreators: varCreators, substitutions: make(map[Var]any), placeholders: make(map[Var]any), names: make(map[Var]string)}
 }
 
+func (s *State) GetQueryVar() *Var {
+	return s.queryVar
+}
+
+func (s *State) AddKeyValue(key Var, value any) *State {
+	ss := s.copy()
+	ss.substitutions[key] = value
+	return ss
+}
+
+func (s *State) FindSubstitution(v Var) (any, bool) {
+	a, ok := s.substitutions[v]
+	return a, ok
+}
+
+func (s *State) LookupPlaceholderValue(key Var) any {
+	placeholder, ok := s.placeholders[key]
+	if !ok {
+		panic(fmt.Sprintf("Var %v not found", key))
+	}
+	return placeholder
+}
+
+func (s *State) CastVar(a any) (Var, bool) {
+	if avar, ok := a.(Var); ok {
+		return avar, true
+	}
+	if !isPointerValue(a) {
+		return 0, false
+	}
+	key := Var(reflect.ValueOf(a).Pointer())
+	_, ok := s.placeholders[key]
+	return key, ok
+}
+
 type Var uintptr
 
 func NewVar[A any](s *State, typ A) (*State, A) {
@@ -73,22 +108,6 @@ func (s *State) copy() *State {
 	}
 }
 
-func (s *State) GetQueryVar() *Var {
-	return s.queryVar
-}
-
-func (s *State) castVar(a any) (Var, bool) {
-	if avar, ok := a.(Var); ok {
-		return avar, true
-	}
-	if !isPointerValue(a) {
-		return 0, false
-	}
-	key := Var(reflect.ValueOf(a).Pointer())
-	_, ok := s.placeholders[key]
-	return key, ok
-}
-
 func isPointerValue(a any) bool {
 	v := reflect.ValueOf(a)
 	switch v.Kind() {
@@ -97,25 +116,6 @@ func isPointerValue(a any) bool {
 	default:
 		return false
 	}
-}
-
-func (s *State) lookupPlaceholderValue(key Var) any {
-	placeholder, ok := s.placeholders[key]
-	if !ok {
-		panic(fmt.Sprintf("Var %v not found", key))
-	}
-	return placeholder
-}
-
-func (s *State) findSubstitution(v Var) (any, bool) {
-	a, ok := s.substitutions[v]
-	return a, ok
-}
-
-func (s *State) AddKeyValue(key Var, value any) *State {
-	ss := s.copy()
-	ss.substitutions[key] = value
-	return ss
 }
 
 func copyMap[K comparable, V any](src map[K]V) map[K]V {
