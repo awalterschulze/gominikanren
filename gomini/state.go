@@ -34,9 +34,6 @@ func NewVar[A any](s *State, typ A) (*State, A) {
 }
 
 func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
-	if s == nil {
-		s = NewState()
-	}
 	res := &State{
 		substitutions: s.substitutions,
 		placeholders:  copyMap(s.placeholders),
@@ -55,9 +52,6 @@ func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 }
 
 func (s *State) copy() *State {
-	if s == nil {
-		return nil
-	}
 	return &State{
 		substitutions: copyMap(s.substitutions),
 		placeholders:  copyMap(s.placeholders),
@@ -88,9 +82,6 @@ func (s *State) GetQueryVar() *Var {
 }
 
 func (s *State) castVar(a any) (Var, bool) {
-	if s == nil {
-		return 0, false
-	}
 	if avar, ok := a.(Var); ok {
 		return avar, true
 	}
@@ -115,9 +106,6 @@ func (s *State) lookupPlaceholderValue(key Var) any {
 }
 
 func (s *State) findSubstitution(v Var) (any, bool) {
-	if s == nil {
-		return nil, false
-	}
 	if s.substitutions == nil {
 		return nil, false
 	}
@@ -126,13 +114,7 @@ func (s *State) findSubstitution(v Var) (any, bool) {
 }
 
 func (s *State) AddKeyValue(key Var, value any) *State {
-	var ss *State
-	if s == nil {
-		ss = NewState()
-		ss.substitutions = make(map[Var]any)
-	} else {
-		ss = s.copy()
-	}
+	ss := s.copy()
 	ss.substitutions[key] = value
 	return ss
 }
@@ -150,10 +132,7 @@ func (s *State) Equal(other *State) bool {
 }
 
 func (s *State) getName(v Var) string {
-	if s == nil {
-		return "v0"
-	}
-	if s != nil && s.names != nil {
+	if s.names != nil {
 		name, ok := s.names[v]
 		if ok {
 			return name
