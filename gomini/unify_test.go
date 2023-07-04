@@ -13,8 +13,8 @@ func TestOccurs(t *testing.T) {
 	s, y = NewVarWithName(s, "y", &ast.SExpr{})
 	xvar, _ := s.castVar(x)
 	yvar, _ := s.castVar(y)
-	sxy := s.Copy()
-	sxy = sxy.AddKeyValue(yvar, x)
+
+	sxy := s.AddKeyValue(yvar, x)
 	tests := []func() (Var, *ast.SExpr, *State, bool){
 		tuple4(xvar, x, s, true),
 		tuple4(xvar, y, s, false),
@@ -37,7 +37,7 @@ func TestExtsXA(t *testing.T) {
 	var x *ast.SExpr
 	got, x = NewVarWithName(got, "x", &ast.SExpr{})
 	xvar, _ := got.castVar(x)
-	want := got.Copy()
+	want := got.copy()
 	var gotok bool
 	got, gotok = exts(xvar, ast.NewSymbol("a"), got)
 	if !gotok {
@@ -67,7 +67,7 @@ func TestExtsXY(t *testing.T) {
 	got, x = NewVarWithName(got, "x", &ast.SExpr{})
 	got, y = NewVarWithName(got, "y", &ast.SExpr{})
 	xvar, _ := got.castVar(x)
-	want := got.Copy()
+	want := got.copy()
 	var gotok bool
 	got, gotok = exts(xvar, y, got)
 	if !gotok {
@@ -91,7 +91,7 @@ func TestExtsXYZ(t *testing.T) {
 	got = got.AddKeyValue(zvar, x)
 	got = got.AddKeyValue(yvar, z)
 
-	want := got.Copy()
+	want := got.copy()
 	var gotok bool
 	got, gotok = exts(xvar, ast.NewSymbol("e"), got)
 	if !gotok {
