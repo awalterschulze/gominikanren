@@ -103,10 +103,6 @@ func (s *State) lookupPlaceholderValue(key Var) any {
 	return placeholder.Interface()
 }
 
-func (s *State) isSameVar(a, b Var) bool {
-	return s.pointers[a].Pointer() == s.pointers[b].Pointer()
-}
-
 func (s *State) findSubstitution(v Var) (any, bool) {
 	if s == nil {
 		return nil, false
@@ -124,13 +120,13 @@ func (s *State) AddKeyValue(key Var, value any) *State {
 		ss = NewEmptyState()
 		ss.substitutions = make(map[Var]any)
 	} else {
-		ss = s.Copy()
+		ss = s.copy()
 	}
 	ss.substitutions[key] = value
 	return ss
 }
 
-func (s *State) Copy() *State {
+func (s *State) copy() *State {
 	if s == nil {
 		return nil
 	}
@@ -157,7 +153,7 @@ func copyMap[K comparable, V any](src map[K]V) map[K]V {
 
 // Provide optional VarCreator, which is used to give variables printable names for debugging purposes.
 func (s *State) WithVarCreators(varCreators ...VarCreator) *State {
-	res := s.Copy()
+	res := s.copy()
 	res.varCreators = append(s.varCreators, varCreators...)
 	return res
 }

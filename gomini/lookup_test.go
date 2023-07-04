@@ -8,7 +8,7 @@ import (
 
 func TestLookup(t *testing.T) {
 	s := NewEmptyState()
-	var a, v, w, x, y, z *ast.SExpr
+	var v, w, x, y, z *ast.SExpr
 	s, v = NewVarWithName(s, "v", &ast.SExpr{})
 	s, w = NewVarWithName(s, "w", &ast.SExpr{})
 	s, x = NewVarWithName(s, "x", &ast.SExpr{})
@@ -19,21 +19,21 @@ func TestLookup(t *testing.T) {
 	zvar, _ := s.castVar(z)
 	wvar, _ := s.castVar(w)
 	vvar, _ := s.castVar(v)
-	zaxwyz := s.Copy()
-	zaxwyz, a = NewVarWithName(zaxwyz, "a", &ast.SExpr{})
+
+	zaxwyz, a := NewVarWithName(s, "a", &ast.SExpr{})
 	zaxwyz = zaxwyz.AddKeyValue(zvar, a)
 	zaxwyz = zaxwyz.AddKeyValue(xvar, w)
 	zaxwyz = zaxwyz.AddKeyValue(yvar, z)
-	xyvxwx := s.Copy()
-	xyvxwx = xyvxwx.AddKeyValue(xvar, y)
+
+	xyvxwx := s.AddKeyValue(xvar, y)
 	xyvxwx = xyvxwx.AddKeyValue(vvar, x)
 	xyvxwx = xyvxwx.AddKeyValue(wvar, x)
-	xbxywxe := s.Copy()
-	xbxywxe = xbxywxe.AddKeyValue(xvar, ast.NewSymbol("b"))
+
+	xbxywxe := s.AddKeyValue(xvar, ast.NewSymbol("b"))
 	xbxywxe = xbxywxe.AddKeyValue(zvar, y)
 	xbxywxe = xbxywxe.AddKeyValue(wvar, ast.NewList(x, ast.NewSymbol("e"), z))
-	xezxyz := s.Copy()
-	xezxyz = xezxyz.AddKeyValue(xvar, ast.NewSymbol("e"))
+
+	xezxyz := s.AddKeyValue(xvar, ast.NewSymbol("e"))
 	xezxyz = xezxyz.AddKeyValue(zvar, x)
 	xezxyz = xezxyz.AddKeyValue(yvar, z)
 	tests := []func() (Var, *State, string){

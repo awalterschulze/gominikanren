@@ -53,7 +53,7 @@ func occurs(x Var, v any, s *State) bool {
 	if vvar, ok := s.castVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			return s.isSameVar(vvar, x)
+			return reflect.DeepEqual(x, vvar)
 		}
 	}
 	return Any(v, func(a any) bool {
