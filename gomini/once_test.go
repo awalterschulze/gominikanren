@@ -7,6 +7,18 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
+// OnceO is a goal that returns one successful state.
+func OnceO(g Goal) Goal {
+	return func(ctx context.Context, s *State, ss StreamOfStates) {
+		gs := NewStreamForGoal(ctx, g, s)
+		state, ok := gs.ReadNonNil(ctx)
+		if !ok {
+			return
+		}
+		ss.Write(ctx, state)
+	}
+}
+
 func TestOnce(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
