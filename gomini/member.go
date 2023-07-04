@@ -65,12 +65,12 @@ we can detect either and unroll before applying search
 	))
 */
 func MapO(f func(*ast.SExpr, *ast.SExpr) Goal, x, y *ast.SExpr) Goal {
-	return Conde(
-		[]Goal{
+	return Disjs(
+		Conjs(
 			EqualO(x, nil),
 			EqualO(y, nil),
-		},
-		[]Goal{
+		),
+		Conjs(
 			Exists(func(xa *ast.SExpr) Goal {
 				return Exists(func(xd *ast.SExpr) Goal {
 					return Exists(func(ya *ast.SExpr) Goal {
@@ -85,6 +85,6 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) Goal, x, y *ast.SExpr) Goal {
 					})
 				})
 			}),
-		},
+		),
 	)
 }

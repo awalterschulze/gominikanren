@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/gomini"
+	. "github.com/awalterschulze/gominikanren/gomini"
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
 var result []*ast.SExpr
 
-func benchFib(b *testing.B, num int, f func(...gomini.Goal) gomini.Goal) {
+func benchFib(b *testing.B, num int, f func(...Goal) Goal) {
 	var r []*ast.SExpr
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -20,19 +20,19 @@ func benchFib(b *testing.B, num int, f func(...gomini.Goal) gomini.Goal) {
 }
 
 func BenchmarkFib10Co(b *testing.B) {
-	benchFib(b, 10, gomini.Conjs)
+	benchFib(b, 10, Conjs)
 }
 
 func BenchmarkFib15Co(b *testing.B) {
-	benchFib(b, 15, gomini.Conjs)
+	benchFib(b, 15, Conjs)
 }
 
 // peano numbers and extralogical convenience functions
 var zero = ast.NewInt(0)
 var one = makenat(1)
 
-func succ(prev, next *ast.SExpr) gomini.Goal {
-	return gomini.EqualO(next, ast.Cons(prev, nil))
+func succ(prev, next *ast.SExpr) Goal {
+	return EqualO(next, ast.Cons(prev, nil))
 }
 
 func makenat(n int) *ast.SExpr {
@@ -57,32 +57,32 @@ func toList(list []int) *ast.SExpr {
 	return out
 }
 
-func natplus(x, y, z *ast.SExpr) gomini.Goal {
-	return gomini.Conde(
-		[]gomini.Goal{gomini.EqualO(x, zero), gomini.EqualO(y, z)},
-		[]gomini.Goal{
-			gomini.Exists(func(a *ast.SExpr) gomini.Goal {
-				return gomini.Exists(func(b *ast.SExpr) gomini.Goal {
-					return gomini.Conjs(
+func natplus(x, y, z *ast.SExpr) Goal {
+	return Disjs(
+		Conjs(EqualO(x, zero), EqualO(y, z)),
+		Conjs(
+			Exists(func(a *ast.SExpr) Goal {
+				return Exists(func(b *ast.SExpr) Goal {
+					return Conjs(
 						succ(a, x),
 						succ(b, z),
 						natplus(a, y, b),
 					)
 				})
 			}),
-		},
+		),
 	)
 }
 
-func fib(conj func(...gomini.Goal) gomini.Goal, x, y *ast.SExpr) gomini.Goal {
-	return gomini.Conde(
-		[]gomini.Goal{gomini.EqualO(x, zero), gomini.EqualO(y, zero)},
-		[]gomini.Goal{gomini.EqualO(x, one), gomini.EqualO(y, one)},
-		[]gomini.Goal{
-			gomini.Exists(func(n1 *ast.SExpr) gomini.Goal {
-				return gomini.Exists(func(n2 *ast.SExpr) gomini.Goal {
-					return gomini.Exists(func(f1 *ast.SExpr) gomini.Goal {
-						return gomini.Exists(func(f2 *ast.SExpr) gomini.Goal {
+func fib(conj func(...Goal) Goal, x, y *ast.SExpr) Goal {
+	return Disjs(
+		Conjs(EqualO(x, zero), EqualO(y, zero)),
+		Conjs(EqualO(x, one), EqualO(y, one)),
+		Conjs(
+			Exists(func(n1 *ast.SExpr) Goal {
+				return Exists(func(n2 *ast.SExpr) Goal {
+					return Exists(func(f1 *ast.SExpr) Goal {
+						return Exists(func(f2 *ast.SExpr) Goal {
 							return conj(
 								succ(n1, x),
 								succ(n2, n1),
@@ -94,15 +94,15 @@ func fib(conj func(...gomini.Goal) gomini.Goal, x, y *ast.SExpr) gomini.Goal {
 					})
 				})
 			}),
-		},
+		),
 	)
 }
 
-func runFib(n int, f func(...gomini.Goal) gomini.Goal) []*ast.SExpr {
+func runFib(n int, f func(...Goal) Goal) []*ast.SExpr {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := gomini.NewEmptyState().WithVarCreators(ast.CreateVar)
-	return fmap(gomini.Run(ctx, -1, s, func(q *ast.SExpr) gomini.Goal {
+	s := NewEmptyState().WithVarCreators(ast.CreateVar)
+	return fmap(Run(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return fib(f, makenat(n), q)
 	}), func(x any) *ast.SExpr {
 		return x.(*ast.SExpr)
