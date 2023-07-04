@@ -8,10 +8,11 @@ import (
 // EqualO returns a Goal that unifies the input expressions in the output stream.
 func EqualO[A any](x, y A) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
-		u := Unify(s, x, y)
-		if u != nil {
-			ss.Write(ctx, u)
+		unifiedState, ok := unify(x, y, s)
+		if !ok {
+			return
 		}
+		ss.Write(ctx, unifiedState)
 	}
 }
 
