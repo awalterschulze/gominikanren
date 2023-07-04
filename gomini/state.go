@@ -11,11 +11,12 @@ import (
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	substitutions map[Var]any
-	names         map[Var]string
-	pointers      map[Var]reflect.Value
-	varCreators   []VarCreator
-	firstVar      *Var
+	queryVar      *Var
 	counter       uint64
+	pointers      map[Var]reflect.Value
+
+	names       map[Var]string
+	varCreators []VarCreator
 }
 
 type VarCreator func(varType any, name string) (any, bool)
@@ -53,11 +54,11 @@ func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 		counter:       s.counter + 1,
 		pointers:      pointers,
 		names:         names,
-		firstVar:      s.firstVar,
+		queryVar:      s.queryVar,
 		varCreators:   s.varCreators,
 	}
-	if s.firstVar == nil {
-		res.firstVar = &key
+	if s.queryVar == nil {
+		res.queryVar = &key
 	}
 	return res, v.Interface().(A)
 }
@@ -71,8 +72,8 @@ func (s *State) newVarValue(varType any, name string) any {
 	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
 }
 
-func (s *State) GetFirstVar() *Var {
-	return s.firstVar
+func (s *State) GetQueryVar() *Var {
+	return s.queryVar
 }
 
 func (s *State) castVar(a any) (Var, bool) {
@@ -140,7 +141,7 @@ func (s *State) Copy() *State {
 		substitutions: substitutions,
 		counter:       s.counter,
 		pointers:      pointers,
-		firstVar:      s.firstVar,
+		queryVar:      s.queryVar,
 		names:         names,
 		varCreators:   s.varCreators,
 	}
