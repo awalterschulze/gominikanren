@@ -22,8 +22,9 @@ type State struct {
 type VarCreator func(varType any, name string) (any, bool)
 
 // NewEmptyState returns an empty state.
-func NewEmptyState() *State {
-	return &State{}
+// Provide optional VarCreator, which is used to give variables printable names for debugging purposes.
+func NewEmptyState(varCreators ...VarCreator) *State {
+	return &State{varCreators: varCreators}
 }
 
 type Var uintptr
@@ -149,13 +150,6 @@ func copyMap[K comparable, V any](src map[K]V) map[K]V {
 		dst[k] = v
 	}
 	return dst
-}
-
-// Provide optional VarCreator, which is used to give variables printable names for debugging purposes.
-func (s *State) WithVarCreators(varCreators ...VarCreator) *State {
-	res := s.copy()
-	res.varCreators = append(s.varCreators, varCreators...)
-	return res
 }
 
 func (s *State) Equal(other *State) bool {

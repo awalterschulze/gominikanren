@@ -294,7 +294,7 @@ scheme code:
 	)
 */
 func TestExistsKiwi(t *testing.T) {
-	s := NewEmptyState().WithVarCreators(ast.CreateVar)
+	s := NewEmptyState(ast.CreateVar)
 	ss := RunGoal(context.Background(), 1, s,
 		Exists(func(fruit *ast.SExpr) Goal {
 			return EqualO(
@@ -320,7 +320,7 @@ func TestPineapple(t *testing.T) {
 	reify := func(varTyp any, name string) (any, bool) {
 		return &name, true
 	}
-	s := NewEmptyState().WithVarCreators(reify)
+	s := NewEmptyState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruit *string) Goal {
 			return EqualO(
@@ -374,7 +374,7 @@ func TestEqualOVarSliceOfPointers(t *testing.T) {
 		}
 		return nil, false
 	}
-	s := NewEmptyState().WithVarCreators(reify)
+	s := NewEmptyState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruits []*string) Goal {
 			return EqualO(
@@ -406,7 +406,7 @@ func TestEqualOVarSliceOfStrings(t *testing.T) {
 		}
 		return nil, false
 	}
-	s := NewEmptyState().WithVarCreators(reify)
+	s := NewEmptyState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruits []string) Goal {
 			return EqualO(
@@ -438,7 +438,7 @@ func TestEqualOSliceOfVarPointer(t *testing.T) {
 		}
 		return nil, false
 	}
-	s := NewEmptyState().WithVarCreators(reify)
+	s := NewEmptyState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruit *string) Goal {
 			return EqualO(
