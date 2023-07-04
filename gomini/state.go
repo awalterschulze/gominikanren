@@ -30,46 +30,53 @@ func NewState(varCreators ...VarCreator) *State {
 type Var uintptr
 
 func NewVar[A any](s *State, typ A) (*State, A) {
-	return newVarWithName(s, "v"+strconv.Itoa(int(len(s.placeholders))), typ)
+	return newVarWithName(s, "v"+strconv.Itoa(len(s.placeholders)), typ)
 }
 
 func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	if s == nil {
 		s = NewState()
 	}
-	vvalue := s.newVarValue(typ, name)
-	vreflect := reflect.ValueOf(vvalue)
-	checkIsPointer(vreflect)
-	key := Var(vreflect.Pointer())
-	names := copyMap(s.names)
-	names[key] = name
-	placeholders := copyMap(s.placeholders)
-	placeholders[key] = vvalue
 	res := &State{
 		substitutions: s.substitutions,
-		placeholders:  placeholders,
-		names:         names,
+		placeholders:  copyMap(s.placeholders),
+		names:         copyMap(s.names),
 		queryVar:      s.queryVar,
 		varCreators:   s.varCreators,
 	}
+	vvalue := s.newVarValue(typ, name)
+	key := Var(reflect.ValueOf(vvalue).Pointer())
+	res.names[key] = name
+	res.placeholders[key] = vvalue
 	if s.queryVar == nil {
 		res.queryVar = &key
 	}
 	return res, vvalue.(A)
 }
 
-func checkIsPointer(v reflect.Value) {
-	switch v.Kind() {
-	case reflect.Ptr, reflect.Slice, reflect.Map:
-		// call to Pointer only works for these types and otherwise panics
-	default:
-		panic("cannot make a variable that is not a pointer, slice or map " + v.Type().String())
+func (s *State) copy() *State {
+	if s == nil {
+		return nil
+	}
+	return &State{
+		substitutions: copyMap(s.substitutions),
+		placeholders:  copyMap(s.placeholders),
+		queryVar:      s.queryVar,
+		names:         copyMap(s.names),
+		varCreators:   s.varCreators,
 	}
 }
 
 func (s *State) newVarValue(varType any, name string) any {
 	for _, create := range s.varCreators {
 		if val, ok := create(varType, name); ok {
+			v := reflect.ValueOf(val)
+			switch v.Kind() {
+			case reflect.Ptr, reflect.Slice, reflect.Map:
+				// call to Pointer only works for these types and otherwise panics
+			default:
+				panic("cannot make a variable that is not a pointer, slice or map " + v.Type().String())
+			}
 			return val
 		}
 	}
@@ -128,22 +135,6 @@ func (s *State) AddKeyValue(key Var, value any) *State {
 	}
 	ss.substitutions[key] = value
 	return ss
-}
-
-func (s *State) copy() *State {
-	if s == nil {
-		return nil
-	}
-	names := copyMap(s.names)
-	substitutions := copyMap(s.substitutions)
-	placeholders := copyMap(s.placeholders)
-	return &State{
-		substitutions: substitutions,
-		placeholders:  placeholders,
-		queryVar:      s.queryVar,
-		names:         names,
-		varCreators:   s.varCreators,
-	}
 }
 
 func copyMap[K comparable, V any](src map[K]V) map[K]V {
