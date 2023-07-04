@@ -29,23 +29,6 @@ func ReadFromStream[A any](ctx context.Context, c <-chan A) (A, bool) {
 	return zero, false
 }
 
-func (ss StreamOfStates) ReadNonNil(ctx context.Context) (*State, bool) {
-	return ReadNonNilFromStream(ctx, ss)
-}
-
-func ReadNonNilFromStream[A any](ctx context.Context, c <-chan A) (A, bool) {
-	var zero A
-	for {
-		a, ok := ReadFromStream(ctx, c)
-		if !ok {
-			return zero, false
-		}
-		if !IsNil(a) {
-			return a, true
-		}
-	}
-}
-
 func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
 	return WriteToStream(ctx, s, ss)
 }
@@ -85,26 +68,13 @@ func MapOverStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst
 	}
 }
 
-func MapOverNonNilStream[A comparable, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
-	for {
-		a, ok := ReadNonNilFromStream(ctx, src)
-		if !ok {
-			return
-		}
-		b := f(a)
-		if ok := WriteToStream(ctx, b, dst); !ok {
-			return
-		}
-	}
-}
-
 // String returns a string representation of a stream of states.
 // Warning: If the list is infinite this function will not terminate.
 func (ss StreamOfStates) String() string {
 	buf := []string{}
 	if ss != nil {
 		for {
-			s, ok := ss.ReadNonNil(context.Background())
+			s, ok := ss.Read(context.Background())
 			if !ok {
 				break
 			}
@@ -150,7 +120,7 @@ func Take[A any](ctx context.Context, n int, c chan A) []A {
 		if i == n {
 			break
 		}
-		a, ok := ReadNonNilFromStream(ctx, c)
+		a, ok := ReadFromStream(ctx, c)
 		if !ok {
 			break
 		}

@@ -11,7 +11,7 @@ import (
 func OnceO(g Goal) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
 		gs := NewStreamForGoal(ctx, g, s)
-		state, ok := gs.ReadNonNil(ctx)
+		state, ok := gs.Read(ctx)
 		if !ok {
 			return
 		}

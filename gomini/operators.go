@@ -8,7 +8,10 @@ import (
 // EqualO returns a Goal that unifies the input expressions in the output stream.
 func EqualO[A any](x, y A) Goal {
 	return func(ctx context.Context, s *State, ss StreamOfStates) {
-		ss.Write(ctx, Unify(s, x, y))
+		u := Unify(s, x, y)
+		if u != nil {
+			ss.Write(ctx, u)
+		}
 	}
 }
 
@@ -52,7 +55,7 @@ func Conj(g1, g2 Goal) Goal {
 func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates) {
 	wait := sync.WaitGroup{}
 	for {
-		state, ok := stream.ReadNonNil(ctx)
+		state, ok := stream.Read(ctx)
 		if !ok {
 			break
 		}
