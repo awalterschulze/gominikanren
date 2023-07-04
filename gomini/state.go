@@ -42,13 +42,25 @@ func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 		varCreators:   s.varCreators,
 	}
 	vvalue := s.newVarValue(typ, name)
-	key := Var(reflect.ValueOf(vvalue).Pointer())
-	res.names[key] = name
-	res.placeholders[key] = vvalue
+	vvar := Var(reflect.ValueOf(vvalue).Pointer())
+	res.names[vvar] = name
+	res.placeholders[vvar] = vvalue
 	if s.queryVar == nil {
-		res.queryVar = &key
+		res.queryVar = &vvar
 	}
 	return res, vvalue.(A)
+}
+
+func (s *State) newVarValue(varType any, name string) any {
+	for _, create := range s.varCreators {
+		if val, ok := create(varType, name); ok {
+			if !isPointerValue(val) {
+				panic(fmt.Sprintf("cannot make a variable that is not a pointer, slice or map: %#v", val))
+			}
+			return val
+		}
+	}
+	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
 }
 
 func (s *State) copy() *State {
@@ -61,22 +73,6 @@ func (s *State) copy() *State {
 	}
 }
 
-func (s *State) newVarValue(varType any, name string) any {
-	for _, create := range s.varCreators {
-		if val, ok := create(varType, name); ok {
-			v := reflect.ValueOf(val)
-			switch v.Kind() {
-			case reflect.Ptr, reflect.Slice, reflect.Map:
-				// call to Pointer only works for these types and otherwise panics
-			default:
-				panic("cannot make a variable that is not a pointer, slice or map " + v.Type().String())
-			}
-			return val
-		}
-	}
-	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
-}
-
 func (s *State) GetQueryVar() *Var {
 	return s.queryVar
 }
@@ -85,16 +81,22 @@ func (s *State) castVar(a any) (Var, bool) {
 	if avar, ok := a.(Var); ok {
 		return avar, true
 	}
+	if !isPointerValue(a) {
+		return 0, false
+	}
+	key := Var(reflect.ValueOf(a).Pointer())
+	_, ok := s.placeholders[key]
+	return key, ok
+}
+
+func isPointerValue(a any) bool {
 	v := reflect.ValueOf(a)
 	switch v.Kind() {
 	case reflect.Ptr, reflect.Slice, reflect.Map:
-		// call to Pointer only works for these types and otherwise panics
+		return true
 	default:
-		return 0, false
+		return false
 	}
-	key := Var(v.Pointer())
-	_, ok := s.placeholders[key]
-	return key, ok
 }
 
 func (s *State) lookupPlaceholderValue(key Var) any {
