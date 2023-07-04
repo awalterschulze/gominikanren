@@ -24,7 +24,7 @@ type VarCreator func(varType any, name string) (any, bool)
 // NewState returns an empty state.
 // Provide optional VarCreator, which is used to give variables printable names for debugging purposes.
 func NewState(varCreators ...VarCreator) *State {
-	return &State{varCreators: varCreators}
+	return &State{varCreators: varCreators, substitutions: make(map[Var]any), placeholders: make(map[Var]any), names: make(map[Var]string)}
 }
 
 type Var uintptr
@@ -106,9 +106,6 @@ func (s *State) lookupPlaceholderValue(key Var) any {
 }
 
 func (s *State) findSubstitution(v Var) (any, bool) {
-	if s.substitutions == nil {
-		return nil, false
-	}
 	a, ok := s.substitutions[v]
 	return a, ok
 }
@@ -132,18 +129,16 @@ func (s *State) Equal(other *State) bool {
 }
 
 func (s *State) getName(v Var) string {
-	if s.names != nil {
-		name, ok := s.names[v]
-		if ok {
-			return name
-		}
+	name, ok := s.names[v]
+	if ok {
+		return name
 	}
 	return "v?"
 }
 
 // String returns a string representation of State.
 func (s *State) String() string {
-	if s.substitutions == nil {
+	if len(s.substitutions) == 0 {
 		return fmt.Sprintf("(() . %d)", len(s.placeholders))
 	}
 	ks := keys(s.substitutions)
