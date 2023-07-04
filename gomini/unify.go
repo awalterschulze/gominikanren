@@ -4,14 +4,6 @@ import (
 	"reflect"
 )
 
-func Unify(s *State, x, y any) *State {
-	s1, ok := unify(x, y, s)
-	if !ok {
-		return nil
-	}
-	return s1
-}
-
 // unify returns either (ok = false) or the substitution s extended with zero or more associations,
 // where cycles in substitutions can lead to (ok = false)
 func unify(x, y any, s *State) (*State, bool) {
