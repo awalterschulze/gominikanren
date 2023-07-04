@@ -10,12 +10,12 @@ import (
 
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
-	Substitutions map[Var]any
-	Names         map[Var]string
-	Pointers      map[Var]reflect.Value
-	VarCreators   []VarCreator
-	FirstVar      *Var
-	Counter       uint64
+	substitutions map[Var]any
+	names         map[Var]string
+	pointers      map[Var]reflect.Value
+	varCreators   []VarCreator
+	firstVar      *Var
+	counter       uint64
 }
 
 type VarCreator func(varType any, name string) (any, bool)
@@ -25,48 +25,17 @@ func NewEmptyState() *State {
 	return &State{}
 }
 
-func (s *State) WithVarCreators(varCreators ...VarCreator) *State {
-	res := s.Copy()
-	res.VarCreators = append(s.VarCreators, varCreators...)
-	return res
-}
-
-// String returns a string representation of State.
-func (s *State) String() string {
-	if s.Substitutions == nil {
-		return fmt.Sprintf("(() . %d)", s.Counter)
-	}
-	ks := keys(s.Substitutions)
-	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
-	ss := make([]string, len(s.Substitutions))
-	for i, k := range ks {
-		v := s.Substitutions[k]
-		vstr := fmt.Sprintf("%v", v)
-		kstr := s.GetName(k)
-		if vvar, ok := v.(Var); ok {
-			vstr = s.GetName(vvar)
-		}
-		kstr = "," + kstr
-		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
-	}
-	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), s.Counter)
-}
-
-func (s *State) Equal(other *State) bool {
-	return s.String() == other.String()
-}
-
 type Var uintptr
 
 func NewVar[A any](s *State, typ A) (*State, A) {
-	return NewVarWithName(s, "v"+strconv.Itoa(int(s.Counter)), typ)
+	return NewVarWithName(s, "v"+strconv.Itoa(int(s.counter)), typ)
 }
 
 func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	if s == nil {
 		s = NewEmptyState()
 	}
-	vvalue := newVarValue(s, typ, name)
+	vvalue := s.newVarValue(typ, name)
 	v := reflect.ValueOf(vvalue)
 	switch v.Kind() {
 	case reflect.Ptr, reflect.Slice, reflect.Map:
@@ -75,26 +44,35 @@ func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 		panic("cannot make a variable that is not a pointer, slice or map " + v.Type().String())
 	}
 	key := Var(v.Pointer())
-	names := copyMap(s.Names)
+	names := copyMap(s.names)
 	names[key] = name
-	pointers := copyMap(s.Pointers)
+	pointers := copyMap(s.pointers)
 	pointers[key] = v
 	res := &State{
-		Substitutions: s.Substitutions,
-		Counter:       s.Counter + 1,
-		Pointers:      pointers,
-		Names:         names,
-		FirstVar:      s.FirstVar,
-		VarCreators:   s.VarCreators,
+		substitutions: s.substitutions,
+		counter:       s.counter + 1,
+		pointers:      pointers,
+		names:         names,
+		firstVar:      s.firstVar,
+		varCreators:   s.varCreators,
 	}
-	if s.FirstVar == nil {
-		res.FirstVar = &key
+	if s.firstVar == nil {
+		res.firstVar = &key
 	}
 	return res, v.Interface().(A)
 }
 
+func (s *State) newVarValue(varType any, name string) any {
+	for _, create := range s.varCreators {
+		if val, ok := create(varType, name); ok {
+			return val
+		}
+	}
+	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
+}
+
 func (s *State) GetFirstVar() *Var {
-	return s.FirstVar
+	return s.firstVar
 }
 
 func (s *State) GetVar(a any) (Var, bool) {
@@ -112,12 +90,12 @@ func (s *State) GetVar(a any) (Var, bool) {
 		return 0, false
 	}
 	key := Var(v.Pointer())
-	_, ok := s.Pointers[key]
+	_, ok := s.pointers[key]
 	return key, ok
 }
 
 func lookupValue(s *State, key Var) any {
-	placeholder, ok := s.Pointers[key]
+	placeholder, ok := s.pointers[key]
 	if !ok {
 		panic(fmt.Sprintf("Var %v not found", key))
 	}
@@ -125,15 +103,15 @@ func lookupValue(s *State, key Var) any {
 }
 
 func (s *State) SameVar(a, b Var) bool {
-	return s.Pointers[a].Pointer() == s.Pointers[b].Pointer()
+	return s.pointers[a].Pointer() == s.pointers[b].Pointer()
 }
 
 func (s *State) GetName(v Var) string {
 	if s == nil {
 		return "v0"
 	}
-	if s != nil && s.Names != nil {
-		name, ok := s.Names[v]
+	if s != nil && s.names != nil {
+		name, ok := s.names[v]
 		if ok {
 			return name
 		}
@@ -145,10 +123,10 @@ func (s *State) Get(v Var) (any, bool) {
 	if s == nil {
 		return nil, false
 	}
-	if s.Substitutions == nil {
+	if s.substitutions == nil {
 		return nil, false
 	}
-	a, ok := s.Substitutions[v]
+	a, ok := s.substitutions[v]
 	return a, ok
 }
 
@@ -156,11 +134,11 @@ func (s *State) AddKeyValue(key Var, value any) *State {
 	var ss *State
 	if s == nil {
 		ss = NewEmptyState()
-		ss.Substitutions = make(map[Var]any)
+		ss.substitutions = make(map[Var]any)
 	} else {
 		ss = s.Copy()
 	}
-	ss.Substitutions[key] = value
+	ss.substitutions[key] = value
 	return ss
 }
 
@@ -168,16 +146,16 @@ func (s *State) Copy() *State {
 	if s == nil {
 		return nil
 	}
-	names := copyMap(s.Names)
-	substitutions := copyMap(s.Substitutions)
-	pointers := copyMap(s.Pointers)
+	names := copyMap(s.names)
+	substitutions := copyMap(s.substitutions)
+	pointers := copyMap(s.pointers)
 	return &State{
-		Substitutions: substitutions,
-		Counter:       s.Counter,
-		Pointers:      pointers,
-		FirstVar:      s.FirstVar,
-		Names:         names,
-		VarCreators:   s.VarCreators,
+		substitutions: substitutions,
+		counter:       s.counter,
+		pointers:      pointers,
+		firstVar:      s.firstVar,
+		names:         names,
+		varCreators:   s.varCreators,
 	}
 }
 
@@ -189,11 +167,34 @@ func copyMap[K comparable, V any](src map[K]V) map[K]V {
 	return dst
 }
 
-func newVarValue(s *State, varType any, name string) any {
-	for _, create := range s.VarCreators {
-		if val, ok := create(varType, name); ok {
-			return val
-		}
+// Provide optional VarCreator, which is used to give variables printable names for debugging purposes.
+func (s *State) WithVarCreators(varCreators ...VarCreator) *State {
+	res := s.Copy()
+	res.varCreators = append(s.varCreators, varCreators...)
+	return res
+}
+
+func (s *State) Equal(other *State) bool {
+	return s.String() == other.String()
+}
+
+// String returns a string representation of State.
+func (s *State) String() string {
+	if s.substitutions == nil {
+		return fmt.Sprintf("(() . %d)", s.counter)
 	}
-	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
+	ks := keys(s.substitutions)
+	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
+	ss := make([]string, len(s.substitutions))
+	for i, k := range ks {
+		v := s.substitutions[k]
+		vstr := fmt.Sprintf("%v", v)
+		kstr := s.GetName(k)
+		if vvar, ok := v.(Var); ok {
+			vstr = s.GetName(vvar)
+		}
+		kstr = "," + kstr
+		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
+	}
+	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), s.counter)
 }
