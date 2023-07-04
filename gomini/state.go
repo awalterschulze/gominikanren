@@ -75,7 +75,7 @@ func (s *State) GetFirstVar() *Var {
 	return s.firstVar
 }
 
-func (s *State) GetVar(a any) (Var, bool) {
+func (s *State) castVar(a any) (Var, bool) {
 	if s == nil {
 		return 0, false
 	}
@@ -94,7 +94,7 @@ func (s *State) GetVar(a any) (Var, bool) {
 	return key, ok
 }
 
-func lookupValue(s *State, key Var) any {
+func (s *State) lookupPlaceholderValue(key Var) any {
 	placeholder, ok := s.pointers[key]
 	if !ok {
 		panic(fmt.Sprintf("Var %v not found", key))
@@ -102,24 +102,11 @@ func lookupValue(s *State, key Var) any {
 	return placeholder.Interface()
 }
 
-func (s *State) SameVar(a, b Var) bool {
+func (s *State) isSameVar(a, b Var) bool {
 	return s.pointers[a].Pointer() == s.pointers[b].Pointer()
 }
 
-func (s *State) GetName(v Var) string {
-	if s == nil {
-		return "v0"
-	}
-	if s != nil && s.names != nil {
-		name, ok := s.names[v]
-		if ok {
-			return name
-		}
-	}
-	return "v?"
-}
-
-func (s *State) Get(v Var) (any, bool) {
+func (s *State) findSubstitution(v Var) (any, bool) {
 	if s == nil {
 		return nil, false
 	}
@@ -178,6 +165,19 @@ func (s *State) Equal(other *State) bool {
 	return s.String() == other.String()
 }
 
+func (s *State) getName(v Var) string {
+	if s == nil {
+		return "v0"
+	}
+	if s != nil && s.names != nil {
+		name, ok := s.names[v]
+		if ok {
+			return name
+		}
+	}
+	return "v?"
+}
+
 // String returns a string representation of State.
 func (s *State) String() string {
 	if s.substitutions == nil {
@@ -189,9 +189,9 @@ func (s *State) String() string {
 	for i, k := range ks {
 		v := s.substitutions[k]
 		vstr := fmt.Sprintf("%v", v)
-		kstr := s.GetName(k)
+		kstr := s.getName(k)
 		if vvar, ok := v.(Var); ok {
-			vstr = s.GetName(vvar)
+			vstr = s.getName(vvar)
 		}
 		kstr = "," + kstr
 		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
