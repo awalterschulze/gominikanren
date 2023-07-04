@@ -14,25 +14,25 @@ func Unify(s *State, x, y any) *State {
 
 // unify returns either (ok = false) or the substitution s extended with zero or more associations,
 // where cycles in substitutions can lead to (ok = false)
-func unify(u, v any, s *State) (*State, bool) {
-	var uu any = u
-	var vv any = v
-	if uvar, ok := s.GetVar(u); ok {
-		uu = Lookup(uvar, s)
+func unify(x, y any, s *State) (*State, bool) {
+	var xx any = x
+	if xvar, ok := s.GetVar(x); ok {
+		xx = Lookup(xvar, s)
 	}
-	if vvar, ok := s.GetVar(v); ok {
-		vv = Lookup(vvar, s)
+	var yy any = y
+	if yyar, ok := s.GetVar(y); ok {
+		yy = Lookup(yyar, s)
 	}
-	if reflect.DeepEqual(uu, vv) {
+	if reflect.DeepEqual(xx, yy) {
 		return s, true
 	}
-	if uvar, ok := uu.(Var); ok {
-		return exts(uvar, vv, s)
+	if xvar, ok := xx.(Var); ok {
+		return exts(xvar, yy, s)
 	}
-	if vvar, ok := vv.(Var); ok {
-		return exts(vvar, uu, s)
+	if yyar, ok := yy.(Var); ok {
+		return exts(yyar, xx, s)
 	}
-	ss, sok := ZipReduce(uu, vv, s, unify)
+	ss, sok := ZipReduce(xx, yy, s, unify)
 	if !sok {
 		return nil, false
 	}
