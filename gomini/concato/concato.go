@@ -32,10 +32,6 @@ func (n *Node) String() string {
 	return res
 }
 
-func Prepend(val *string, list *Node) *Node {
-	return &Node{val, list}
-}
-
 // ConcatO is a goal that appends two lists into the third list.
 // ConcatO(xs, ys, zs) ⇔
 // (xs = ∅ ∧ ys = zs) ∨
@@ -50,8 +46,8 @@ func ConcatO(xs, ys, zs *Node) Goal {
 			return Exists(func(xtail *Node) Goal {
 				return Exists(func(ztail *Node) Goal {
 					return Conjs(
-						EqualO(xs, Prepend(head, xtail)),
-						EqualO(zs, Prepend(head, ztail)),
+						PrependO(head, xtail, xs),
+						PrependO(head, ztail, zs),
 						ConcatO(xtail, ys, ztail),
 					)
 				})
@@ -60,6 +56,6 @@ func ConcatO(xs, ys, zs *Node) Goal {
 	)
 }
 
-func PrependO(xhead *string, xtail *Node, xs *Node) Goal {
-	return EqualO(Prepend(xhead, xtail), xs)
+func PrependO(head *string, tail *Node, list *Node) Goal {
+	return EqualO(list, &Node{head, tail})
 }
