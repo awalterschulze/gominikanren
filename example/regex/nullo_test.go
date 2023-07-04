@@ -147,7 +147,7 @@ func TestGenNullO(t *testing.T) {
 			return
 		}
 		count++
-		fmt.Printf("%s\n", res.(Stringer).String())
+		fmt.Printf("%s\n", res.(stringer).String())
 		if count > 10 {
 			return
 		}
