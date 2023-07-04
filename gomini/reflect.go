@@ -45,32 +45,6 @@ func Map(a any, f func(a any) any) any {
 	return a
 }
 
-// Fold folds a function over the elements of a slice or the fields of a struct
-// For example:
-//   - Fold([]int{1, 2, 3}, 0, func(x, sum any) any { return sum.(int) + x.(int) }).(int) = 6
-//   - Fold([]int{1, 2, 3}, "", func(x any, s any) any { return s.(string) + fmt.Sprintf("%d", x) }).(string) = "123"
-func Fold[B any](a any, b B, f func(a any, b B) B) B {
-	if IsNil(a) {
-		return b
-	}
-	ra := reflect.ValueOf(a)
-	switch ra.Kind() {
-	case reflect.Ptr:
-		if ra.Elem().Kind() == reflect.Struct {
-			for i := 0; i < ra.Elem().NumField(); i++ {
-				b = f(ra.Elem().Field(i).Interface(), b)
-			}
-			return b
-		}
-	case reflect.Slice:
-		for i := 0; i < ra.Len(); i++ {
-			b = f(ra.Index(i).Interface(), b)
-		}
-		return b
-	}
-	return b
-}
-
 // Any returns true if the predicate is true for any of the elements in the slice of fields of a struct.
 // For example:
 //   - Any([]int{1, 2, 3}, func(x any) bool { return x.(int) == 2 }) = true

@@ -36,42 +36,6 @@ func TestMapStruct(t *testing.T) {
 	}
 }
 
-func TestFoldSum(t *testing.T) {
-	got := Fold([]int{1, 2, 3}, 0, func(x, sum any) any { return sum.(int) + x.(int) }).(int)
-	want := 6
-	if got != want {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
-}
-
-func TestFoldConcat(t *testing.T) {
-	got := Fold([]int{1, 2, 3}, "", func(x any, s any) any { return s.(string) + fmt.Sprintf("%d", x) }).(string)
-	want := "123"
-	if got != want {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
-}
-
-func TestFoldStruct(t *testing.T) {
-	got := Fold(&A{1, "2"}, 0, func(x, sum any) any {
-		switch x := x.(type) {
-		case int:
-			return sum.(int) + x
-		case string:
-			xi, err := strconv.Atoi(x)
-			if err != nil {
-				return sum.(int)
-			}
-			return sum.(int) + xi
-		}
-		return sum
-	}).(int)
-	want := 3
-	if got != want {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
-}
-
 func TestAnyIntTrue(t *testing.T) {
 	got := Any([]int{1, 2, 3}, func(x any) bool { return x.(int) == 2 })
 	want := true
