@@ -138,7 +138,7 @@ func TestGenNullO(t *testing.T) {
 	g := func(q *Regex) Goal {
 		return NullO(q, EmptyStr())
 	}
-	s := NewEmptyState(CreateVarRegex)
+	s := NewState(CreateVarRegex)
 	ss := RunStream(ctx, s, g)
 	count := 0
 	for {

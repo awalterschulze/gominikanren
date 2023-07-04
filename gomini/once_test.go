@@ -23,7 +23,7 @@ func TestOnce(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	var x, y *ast.SExpr
-	state := NewEmptyState()
+	state := NewState()
 	state, x = NewVarWithName(state, "x", &ast.SExpr{})
 	state, y = NewVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(

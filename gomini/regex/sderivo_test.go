@@ -119,7 +119,7 @@ func TestGenSDerivO(t *testing.T) {
 	g := func(q *rune) Goal {
 		return SDerivO(Char('a'), q, EmptyStr())
 	}
-	s := NewEmptyState(CreateVarRegex)
+	s := NewState(CreateVarRegex)
 	ss := RunStream(ctx, s, g)
 	count := 0
 	for {
@@ -145,7 +145,7 @@ func TestGenSDerivOB(t *testing.T) {
 	g := func(q *rune) Goal {
 		return SDerivO(Char('a'), q, EmptySet())
 	}
-	s := NewEmptyState(CreateVarRegex)
+	s := NewState(CreateVarRegex)
 	ss := RunStream(ctx, s, g)
 	count := 0
 	for {
@@ -171,7 +171,7 @@ func TestGenSDerivOAOrB(t *testing.T) {
 	g := func(q *rune) Goal {
 		return SDerivO(Or(Char('a'), Char('b')), q, EmptyStr())
 	}
-	s := NewEmptyState(CreateVarRegex)
+	s := NewState(CreateVarRegex)
 	ss := RunStream(ctx, s, g)
 	count := 0
 	for {

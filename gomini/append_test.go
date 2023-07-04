@@ -78,7 +78,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState(ast.CreateVar)
+	s := NewState(ast.CreateVar)
 	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return Exists(func(x *ast.SExpr) Goal {
 			return Exists(func(y *ast.SExpr) Goal {
@@ -115,7 +115,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 func TestAppendOSingleList(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState(ast.CreateVar)
+	s := NewState(ast.CreateVar)
 	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
@@ -136,7 +136,7 @@ func TestAppendOSingleList(t *testing.T) {
 func TestAppendOSingleAtom(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState(ast.CreateVar)
+	s := NewState(ast.CreateVar)
 	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
@@ -160,7 +160,7 @@ func TestCarO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	state := NewEmptyState()
+	state := NewState()
 	var y *ast.SExpr
 	state, y = NewVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(

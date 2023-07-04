@@ -116,7 +116,7 @@ func TestGenDeriveOA(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState(CreateVarRegex)
+	s := NewState(CreateVarRegex)
 	g := func(q *rune) Goal {
 		return DerivO(Char('a'), q, EmptyStr())
 	}
@@ -139,7 +139,7 @@ func TestGenDeriveOB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState(CreateVarRegex)
+	s := NewState(CreateVarRegex)
 	g := func(q *rune) Goal {
 		return DerivO(Char('a'), q, EmptySet())
 	}
@@ -160,7 +160,7 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState(CreateVarRegex)
+	s := NewState(CreateVarRegex)
 	g := func(q *rune) Goal {
 		return DerivO(Or(Char('a'), Char('b')), q, Or(EmptySet(), EmptyStr()))
 	}

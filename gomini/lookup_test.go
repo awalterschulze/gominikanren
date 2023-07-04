@@ -7,7 +7,7 @@ import (
 )
 
 func TestLookup(t *testing.T) {
-	s := NewEmptyState()
+	s := NewState()
 	var v, w, x, y, z *ast.SExpr
 	s, v = NewVarWithName(s, "v", &ast.SExpr{})
 	s, w = NewVarWithName(s, "w", &ast.SExpr{})
