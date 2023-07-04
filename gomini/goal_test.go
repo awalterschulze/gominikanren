@@ -190,13 +190,18 @@ func TestAlwaysO(t *testing.T) {
 	}
 }
 
+func runGoal(ctx context.Context, n int, s *State, g Goal) []*State {
+	ss := NewStreamForGoal(ctx, g, s)
+	return Take(ctx, n, ss)
+}
+
 func TestRunGoalAlways3(t *testing.T) {
 	if testing.Short() {
 		return
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := RunGoal(ctx, 3, NewState(), AlwaysO)
+	ss := runGoal(ctx, 3, NewState(), AlwaysO)
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}
@@ -295,7 +300,7 @@ scheme code:
 */
 func TestExistsKiwi(t *testing.T) {
 	s := NewState(ast.CreateVar)
-	ss := RunGoal(context.Background(), 1, s,
+	ss := runGoal(context.Background(), 1, s,
 		Exists(func(fruit *ast.SExpr) Goal {
 			return EqualO(
 				ast.NewSymbol("plum"),
