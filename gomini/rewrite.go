@@ -18,7 +18,7 @@ func rewrite(v any, s *State) any {
 // This means it rewrites all substitutions for the first introduced variable.
 // For any variables without substitutions, it adds a placeholder value.
 func Rewrite(s *State) any {
-	vvar := s.GetFirstVar()
+	vvar := s.GetQueryVar()
 	if vvar == nil {
 		return nil
 	}
