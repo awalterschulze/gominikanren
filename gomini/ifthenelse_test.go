@@ -15,7 +15,7 @@ func TestIfThenElseSuccess(t *testing.T) {
 	defer cancel()
 	var y *ast.SExpr
 	state := NewState()
-	state, y = NewVarWithName(state, "y", &ast.SExpr{})
+	state, y = newVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		SuccessO,
 		EqualO(ast.NewSymbol("#f"), y),
@@ -37,7 +37,7 @@ func TestIfThenElseFailure(t *testing.T) {
 	defer cancel()
 	var y *ast.SExpr
 	state := NewState()
-	state, y = NewVarWithName(state, "y", &ast.SExpr{})
+	state, y = newVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		FailureO,
 		EqualO(ast.NewSymbol("#f"), y),
@@ -59,8 +59,8 @@ func TestIfThenElseXIsTrue(t *testing.T) {
 	defer cancel()
 	var x, y *ast.SExpr
 	state := NewState()
-	state, x = NewVarWithName(state, "x", &ast.SExpr{})
-	state, y = NewVarWithName(state, "y", &ast.SExpr{})
+	state, x = newVarWithName(state, "x", &ast.SExpr{})
+	state, y = newVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		EqualO(ast.NewSymbol("#t"), x),
 		EqualO(ast.NewSymbol("#f"), y),
@@ -82,8 +82,8 @@ func TestIfThenElseDisjoint(t *testing.T) {
 	defer cancel()
 	var x, y *ast.SExpr
 	state := NewState()
-	state, x = NewVarWithName(state, "x", &ast.SExpr{})
-	state, y = NewVarWithName(state, "y", &ast.SExpr{})
+	state, x = newVarWithName(state, "x", &ast.SExpr{})
+	state, y = newVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
 		Disj(
 			EqualO(ast.NewSymbol("#t"), x),

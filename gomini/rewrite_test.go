@@ -59,7 +59,7 @@ func TestNoRewrites(t *testing.T) {
 	defer cancel()
 	initial := NewState(ast.CreateVar)
 	var x *ast.SExpr
-	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
+	initial, x = newVarWithName(initial, "x", &ast.SExpr{})
 	xvar, _ := initial.castVar(x)
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
@@ -89,18 +89,18 @@ func TestNoRewrites(t *testing.T) {
 func TestRewriteInternal(t *testing.T) {
 	s := NewState()
 	var v, w, x, y, z *ast.SExpr
-	s, v = NewVarWithName(s, "v", &ast.SExpr{})
-	s, w = NewVarWithName(s, "w", &ast.SExpr{})
-	s, x = NewVarWithName(s, "x", &ast.SExpr{})
-	s, y = NewVarWithName(s, "y", &ast.SExpr{})
-	s, z = NewVarWithName(s, "z", &ast.SExpr{})
+	s, v = newVarWithName(s, "v", &ast.SExpr{})
+	s, w = newVarWithName(s, "w", &ast.SExpr{})
+	s, x = newVarWithName(s, "x", &ast.SExpr{})
+	s, y = newVarWithName(s, "y", &ast.SExpr{})
+	s, z = newVarWithName(s, "z", &ast.SExpr{})
 	xvar, _ := s.castVar(x)
 	yvar, _ := s.castVar(y)
 	zvar, _ := s.castVar(z)
 	wvar, _ := s.castVar(w)
 	vvar, _ := s.castVar(v)
 
-	zaxwyz, a := NewVarWithName(s, "a", &ast.SExpr{})
+	zaxwyz, a := newVarWithName(s, "a", &ast.SExpr{})
 	zaxwyz = zaxwyz.AddKeyValue(zvar, a)
 	zaxwyz = zaxwyz.AddKeyValue(xvar, w)
 	zaxwyz = zaxwyz.AddKeyValue(yvar, z)

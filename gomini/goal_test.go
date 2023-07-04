@@ -100,7 +100,7 @@ func TestDisj1(t *testing.T) {
 	defer cancel()
 	initial := NewState()
 	var x *ast.SExpr
-	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
+	initial, x = newVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
 		Disj(
 			EqualO(
@@ -137,7 +137,7 @@ func TestDisj2(t *testing.T) {
 	defer cancel()
 	initial := NewState()
 	var x *ast.SExpr
-	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
+	initial, x = newVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
 		Disj(
 			NeverO,
@@ -215,7 +215,7 @@ func TestRunGoalDisj2(t *testing.T) {
 	defer cancel()
 	s := NewState()
 	var x *ast.SExpr
-	s, x = NewVarWithName(s, "x", &ast.SExpr{})
+	s, x = newVarWithName(s, "x", &ast.SExpr{})
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
@@ -237,7 +237,7 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 	defer cancel()
 	s := NewState()
 	var x *ast.SExpr
-	s, x = NewVarWithName(s, "x", &ast.SExpr{})
+	s, x = newVarWithName(s, "x", &ast.SExpr{})
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
@@ -259,7 +259,7 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 	defer cancel()
 	initial := NewState()
 	var x *ast.SExpr
-	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
+	initial, x = newVarWithName(initial, "x", &ast.SExpr{})
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
