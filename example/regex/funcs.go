@@ -31,6 +31,6 @@ func tuple4[A, B, C, D any](a A, b B, c C, d D) func() (A, B, C, D) {
 	}
 }
 
-type Stringer interface {
+type stringer interface {
 	String() string
 }

@@ -74,11 +74,11 @@ func main() {
 }
 //Output:
 //(
-//  (() (cake & ice d t)) 
-//  ((cake) (& ice d t)) 
-//  ((cake &) (ice d t)) 
-//  ((cake & ice) (d t)) 
-//  ((cake & ice d) (t)) 
+//  (() (cake & ice d t))
+//  ((cake) (& ice d t))
+//  ((cake &) (ice d t))
+//  ((cake & ice) (d t))
+//  ((cake & ice d) (t))
 //  ((cake & ice d t) ())
 //)
 ```

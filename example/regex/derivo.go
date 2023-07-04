@@ -1,112 +1,112 @@
 package regex
 
 import (
-	"github.com/awalterschulze/gominikanren/comicro"
+	. "github.com/awalterschulze/gominikanren/comicro"
 )
 
-func DerivO(r *Regex, char *rune, out *Regex) comicro.Goal {
-	return comicro.Disjs(
-		comicro.Conj(
-			comicro.EqualO(r, EmptySet()),
-			comicro.EqualO(out, EmptySet()),
+func DerivO(r *Regex, char *rune, out *Regex) Goal {
+	return Disjs(
+		Conj(
+			EqualO(r, EmptySet()),
+			EqualO(out, EmptySet()),
 		),
-		comicro.Conj(
-			comicro.EqualO(r, EmptyStr()),
-			comicro.EqualO(out, EmptySet()),
+		Conj(
+			EqualO(r, EmptyStr()),
+			EqualO(out, EmptySet()),
 		),
 		DeriveCharO(r, char, out),
-		comicro.Exists(func(a *Regex) comicro.Goal {
-			return comicro.Exists(func(da *Regex) comicro.Goal {
-				return comicro.Exists(func(b *Regex) comicro.Goal {
-					return comicro.Exists(func(db *Regex) comicro.Goal {
-						return comicro.Conjs(
-							comicro.EqualO(r, Or(a, b)),
+		Exists(func(a *Regex) Goal {
+			return Exists(func(da *Regex) Goal {
+				return Exists(func(b *Regex) Goal {
+					return Exists(func(db *Regex) Goal {
+						return Conjs(
+							EqualO(r, Or(a, b)),
 							DerivO(a, char, da),
 							DerivO(b, char, db),
-							comicro.EqualO(out, Or(da, db)),
+							EqualO(out, Or(da, db)),
 						)
 					})
 				})
 			})
 		}),
-		comicro.Exists(func(a *Regex) comicro.Goal {
-			return comicro.Exists(func(da *Regex) comicro.Goal {
-				return comicro.Exists(func(na *Regex) comicro.Goal {
-					return comicro.Exists(func(b *Regex) comicro.Goal {
-						return comicro.Exists(func(db *Regex) comicro.Goal {
-							return comicro.Conjs(
-								comicro.EqualO(r, Concat(a, b)),
+		Exists(func(a *Regex) Goal {
+			return Exists(func(da *Regex) Goal {
+				return Exists(func(na *Regex) Goal {
+					return Exists(func(b *Regex) Goal {
+						return Exists(func(db *Regex) Goal {
+							return Conjs(
+								EqualO(r, Concat(a, b)),
 								DerivO(a, char, da),
 								DerivO(b, char, db),
 								NullO(a, na),
-								comicro.EqualO(out, Or(Concat(da, b), Concat(na, db))),
+								EqualO(out, Or(Concat(da, b), Concat(na, db))),
 							)
 						})
 					})
 				})
 			})
 		}),
-		comicro.Exists(func(a *Regex) comicro.Goal {
-			return comicro.Exists(func(da *Regex) comicro.Goal {
-				return comicro.Conjs(
-					comicro.EqualO(r, Star(a)),
+		Exists(func(a *Regex) Goal {
+			return Exists(func(da *Regex) Goal {
+				return Conjs(
+					EqualO(r, Star(a)),
 					DerivO(a, char, da),
-					comicro.EqualO(out, Concat(da, Star(a))),
+					EqualO(out, Concat(da, Star(a))),
 				)
 			})
 		}),
 	)
 }
 
-func DeriveCharO(r *Regex, char *rune, out *Regex) comicro.Goal {
+func DeriveCharO(r *Regex, char *rune, out *Regex) Goal {
 	a := rune('a')
 	b := rune('b')
 	c := rune('c')
-	return comicro.Disjs(
-		comicro.Conjs(
-			comicro.EqualO(char, &a),
-			comicro.EqualO(r, Char('a')),
-			comicro.EqualO(out, EmptyStr()),
+	return Disjs(
+		Conjs(
+			EqualO(char, &a),
+			EqualO(r, Char('a')),
+			EqualO(out, EmptyStr()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &a),
-			comicro.EqualO(r, Char('b')),
-			comicro.EqualO(out, EmptySet()),
+		Conjs(
+			EqualO(char, &a),
+			EqualO(r, Char('b')),
+			EqualO(out, EmptySet()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &a),
-			comicro.EqualO(r, Char('c')),
-			comicro.EqualO(out, EmptySet()),
+		Conjs(
+			EqualO(char, &a),
+			EqualO(r, Char('c')),
+			EqualO(out, EmptySet()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &b),
-			comicro.EqualO(r, Char('a')),
-			comicro.EqualO(out, EmptySet()),
+		Conjs(
+			EqualO(char, &b),
+			EqualO(r, Char('a')),
+			EqualO(out, EmptySet()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &b),
-			comicro.EqualO(r, Char('b')),
-			comicro.EqualO(out, EmptyStr()),
+		Conjs(
+			EqualO(char, &b),
+			EqualO(r, Char('b')),
+			EqualO(out, EmptyStr()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &b),
-			comicro.EqualO(r, Char('c')),
-			comicro.EqualO(out, EmptySet()),
+		Conjs(
+			EqualO(char, &b),
+			EqualO(r, Char('c')),
+			EqualO(out, EmptySet()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &c),
-			comicro.EqualO(r, Char('a')),
-			comicro.EqualO(out, EmptySet()),
+		Conjs(
+			EqualO(char, &c),
+			EqualO(r, Char('a')),
+			EqualO(out, EmptySet()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &c),
-			comicro.EqualO(r, Char('b')),
-			comicro.EqualO(out, EmptySet()),
+		Conjs(
+			EqualO(char, &c),
+			EqualO(r, Char('b')),
+			EqualO(out, EmptySet()),
 		),
-		comicro.Conjs(
-			comicro.EqualO(char, &c),
-			comicro.EqualO(r, Char('c')),
-			comicro.EqualO(out, EmptyStr()),
+		Conjs(
+			EqualO(char, &c),
+			EqualO(r, Char('c')),
+			EqualO(out, EmptyStr()),
 		),
 	)
 }
