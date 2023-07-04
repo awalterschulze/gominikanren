@@ -36,9 +36,9 @@ func TestRewrite1(t *testing.T) {
 	s, x = NewVar(s, &ast.SExpr{})
 	s, y = NewVar(s, &ast.SExpr{})
 	s, z = NewVar(s, &ast.SExpr{})
-	xvar, _ := s.GetVar(x)
-	yvar, _ := s.GetVar(y)
-	wvar, _ := s.GetVar(w)
+	xvar, _ := s.castVar(x)
+	yvar, _ := s.castVar(y)
+	wvar, _ := s.castVar(w)
 	a1 := ast.NewList(x, u, w, y, z, ast.NewList(ast.NewList(ast.NewSymbol("ice")), z))
 	a2 := ast.Cons(y, ast.NewSymbol("corn"))
 	a3 := ast.NewList(w, v, u)
@@ -60,7 +60,7 @@ func TestNoRewrites(t *testing.T) {
 	initial := NewEmptyState().WithVarCreators(ast.CreateVar)
 	var x *ast.SExpr
 	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
-	xvar, _ := initial.GetVar(x)
+	xvar, _ := initial.castVar(x)
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
 		x,
@@ -94,11 +94,11 @@ func TestRewriteInternal(t *testing.T) {
 	s, x = NewVarWithName(s, "x", &ast.SExpr{})
 	s, y = NewVarWithName(s, "y", &ast.SExpr{})
 	s, z = NewVarWithName(s, "z", &ast.SExpr{})
-	xvar, _ := s.GetVar(x)
-	yvar, _ := s.GetVar(y)
-	zvar, _ := s.GetVar(z)
-	wvar, _ := s.GetVar(w)
-	vvar, _ := s.GetVar(v)
+	xvar, _ := s.castVar(x)
+	yvar, _ := s.castVar(y)
+	zvar, _ := s.castVar(z)
+	wvar, _ := s.castVar(w)
+	vvar, _ := s.castVar(v)
 	zaxwyz := s.Copy()
 	zaxwyz, a = NewVarWithName(zaxwyz, "a", &ast.SExpr{})
 	zaxwyz = zaxwyz.AddKeyValue(zvar, a)
@@ -128,11 +128,11 @@ func TestRewriteInternal(t *testing.T) {
 	}
 	for _, test := range tests {
 		start, state, want := test()
-		startName := state.GetName(start)
+		startName := state.getName(start)
 		t.Run("(walk "+startName+" "+state.String()+")", func(t *testing.T) {
 			got := rewrite(start, state)
-			if vgot, ok := state.GetVar(got); ok {
-				got = state.GetName(vgot)
+			if vgot, ok := state.castVar(got); ok {
+				got = state.getName(vgot)
 			} else {
 				got = got.(interface{ String() string }).String()
 			}

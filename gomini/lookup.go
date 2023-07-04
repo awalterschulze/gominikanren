@@ -1,16 +1,14 @@
 package gomini
 
-// Lookup returns the value of the variable,
-// if it has any substitutions it recurses,
-// otherwise it returns the final variable or final variable
-// that it reaches in it's walk of the substitutions map.
+// Lookup returns the value of the variable in the substitutions map.
+// If the value is a variable, it recurses, until it finds a final value or variable without a substitution.
 func Lookup(key Var, s *State) any {
-	value, ok := s.Get(key)
+	value, ok := s.findSubstitution(key)
 	if !ok {
 		// There are no more substitutions to be made, this variable is the final value.
 		return key
 	}
-	if newvar, ok := s.GetVar(value); ok {
+	if newvar, ok := s.castVar(value); ok {
 		// If this value is a variable, then we need to Lookup it.
 		return Lookup(newvar, s)
 	}
