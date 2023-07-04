@@ -11,7 +11,7 @@ import (
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	substitutions map[Var]any
-	pointers      map[Var]reflect.Value
+	placeholders  map[Var]any
 	queryVar      *Var
 
 	names       map[Var]string
@@ -30,7 +30,7 @@ func NewState(varCreators ...VarCreator) *State {
 type Var uintptr
 
 func NewVar[A any](s *State, typ A) (*State, A) {
-	return newVarWithName(s, "v"+strconv.Itoa(int(len(s.pointers))), typ)
+	return newVarWithName(s, "v"+strconv.Itoa(int(len(s.placeholders))), typ)
 }
 
 func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
@@ -38,21 +38,16 @@ func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 		s = NewState()
 	}
 	vvalue := s.newVarValue(typ, name)
-	v := reflect.ValueOf(vvalue)
-	switch v.Kind() {
-	case reflect.Ptr, reflect.Slice, reflect.Map:
-		// call to Pointer only works for these types and otherwise panics
-	default:
-		panic("cannot make a variable that is not a pointer, slice or map " + v.Type().String())
-	}
-	key := Var(v.Pointer())
+	vreflect := reflect.ValueOf(vvalue)
+	checkIsPointer(vreflect)
+	key := Var(vreflect.Pointer())
 	names := copyMap(s.names)
 	names[key] = name
-	pointers := copyMap(s.pointers)
-	pointers[key] = v
+	placeholders := copyMap(s.placeholders)
+	placeholders[key] = vvalue
 	res := &State{
 		substitutions: s.substitutions,
-		pointers:      pointers,
+		placeholders:  placeholders,
 		names:         names,
 		queryVar:      s.queryVar,
 		varCreators:   s.varCreators,
@@ -60,7 +55,16 @@ func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	if s.queryVar == nil {
 		res.queryVar = &key
 	}
-	return res, v.Interface().(A)
+	return res, vvalue.(A)
+}
+
+func checkIsPointer(v reflect.Value) {
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Slice, reflect.Map:
+		// call to Pointer only works for these types and otherwise panics
+	default:
+		panic("cannot make a variable that is not a pointer, slice or map " + v.Type().String())
+	}
 }
 
 func (s *State) newVarValue(varType any, name string) any {
@@ -91,16 +95,16 @@ func (s *State) castVar(a any) (Var, bool) {
 		return 0, false
 	}
 	key := Var(v.Pointer())
-	_, ok := s.pointers[key]
+	_, ok := s.placeholders[key]
 	return key, ok
 }
 
 func (s *State) lookupPlaceholderValue(key Var) any {
-	placeholder, ok := s.pointers[key]
+	placeholder, ok := s.placeholders[key]
 	if !ok {
 		panic(fmt.Sprintf("Var %v not found", key))
 	}
-	return placeholder.Interface()
+	return placeholder
 }
 
 func (s *State) findSubstitution(v Var) (any, bool) {
@@ -132,10 +136,10 @@ func (s *State) copy() *State {
 	}
 	names := copyMap(s.names)
 	substitutions := copyMap(s.substitutions)
-	pointers := copyMap(s.pointers)
+	placeholders := copyMap(s.placeholders)
 	return &State{
 		substitutions: substitutions,
-		pointers:      pointers,
+		placeholders:  placeholders,
 		queryVar:      s.queryVar,
 		names:         names,
 		varCreators:   s.varCreators,
@@ -170,7 +174,7 @@ func (s *State) getName(v Var) string {
 // String returns a string representation of State.
 func (s *State) String() string {
 	if s.substitutions == nil {
-		return fmt.Sprintf("(() . %d)", len(s.pointers))
+		return fmt.Sprintf("(() . %d)", len(s.placeholders))
 	}
 	ks := keys(s.substitutions)
 	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
@@ -185,5 +189,5 @@ func (s *State) String() string {
 		kstr = "," + kstr
 		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
 	}
-	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), len(s.pointers))
+	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), len(s.placeholders))
 }
