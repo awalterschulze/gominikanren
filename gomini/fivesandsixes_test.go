@@ -33,7 +33,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	ast5 := ast.NewInt(5)
-	s := NewEmptyState(ast.CreateVar)
+	s := NewState(ast.CreateVar)
 
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
 	gots := Run(ctx,
@@ -105,7 +105,7 @@ func TestFivesAsInt(t *testing.T) {
 	defer cancel()
 	five := int64(5)
 	pointToFive := &five
-	s := NewEmptyState()
+	s := NewState()
 	gots := Run(ctx,
 		1,
 		s,

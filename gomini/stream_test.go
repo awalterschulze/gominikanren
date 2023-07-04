@@ -6,7 +6,7 @@ import (
 )
 
 func TestStreamSingle(t *testing.T) {
-	s := NewSingletonStream(context.Background(), NewEmptyState())
+	s := NewSingletonStream(context.Background(), NewState())
 	if s == nil {
 		t.Fatalf("expected non nil stream")
 	}

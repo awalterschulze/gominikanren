@@ -49,7 +49,7 @@ func TestEqualO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			ss := NewStreamForGoal(ctx, EqualO(uexpr, vexpr), NewEmptyState())
+			ss := NewStreamForGoal(ctx, EqualO(uexpr, vexpr), NewState())
 			got := ss.String()
 			if got != want {
 				t.Fatalf("got %s want %s", got, want)
@@ -61,7 +61,7 @@ func TestEqualO(t *testing.T) {
 func TestFailureO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, FailureO, NewEmptyState())
+	ss := NewStreamForGoal(ctx, FailureO, NewState())
 	if got, want := ss.String(), "()"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -70,7 +70,7 @@ func TestFailureO(t *testing.T) {
 func TestSuccessO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, SuccessO, NewEmptyState())
+	ss := NewStreamForGoal(ctx, SuccessO, NewState())
 	if got, want := ss.String(), "((() . 0))"; got != want {
 		t.Fatalf("got %s != want %s", got, want)
 	}
@@ -82,7 +82,7 @@ func TestNeverO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, NeverO, NewEmptyState())
+	ss := NewStreamForGoal(ctx, NeverO, NewState())
 	s, ok := <-ss
 	if s != nil {
 		t.Fatalf("expected suspension")
@@ -98,7 +98,7 @@ func TestDisj1(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	initial := NewEmptyState()
+	initial := NewState()
 	var x *ast.SExpr
 	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
@@ -135,7 +135,7 @@ func TestDisj2(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	initial := NewEmptyState()
+	initial := NewState()
 	var x *ast.SExpr
 	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
@@ -172,7 +172,7 @@ func TestAlwaysO(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, AlwaysO, NewEmptyState())
+	ss := NewStreamForGoal(ctx, AlwaysO, NewState())
 	var s *State
 	for s = range ss {
 		if s != nil {
@@ -196,7 +196,7 @@ func TestRunGoalAlways3(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := RunGoal(ctx, 3, NewEmptyState(), AlwaysO)
+	ss := RunGoal(ctx, 3, NewState(), AlwaysO)
 	if len(ss) != 3 {
 		t.Fatalf("expected 3 got %d", len(ss))
 	}
@@ -213,7 +213,7 @@ func TestRunGoalAlways3(t *testing.T) {
 func TestRunGoalDisj2(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState()
+	s := NewState()
 	var x *ast.SExpr
 	s, x = NewVarWithName(s, "x", &ast.SExpr{})
 	e1 := EqualO(
@@ -235,7 +235,7 @@ func TestRunGoalDisj2(t *testing.T) {
 func TestRunGoalConj2NoResults(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState()
+	s := NewState()
 	var x *ast.SExpr
 	s, x = NewVarWithName(s, "x", &ast.SExpr{})
 	e1 := EqualO(
@@ -257,7 +257,7 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 func TestRunGoalConj2OneResults(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	initial := NewEmptyState()
+	initial := NewState()
 	var x *ast.SExpr
 	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	e1 := EqualO(
@@ -294,7 +294,7 @@ scheme code:
 	)
 */
 func TestExistsKiwi(t *testing.T) {
-	s := NewEmptyState(ast.CreateVar)
+	s := NewState(ast.CreateVar)
 	ss := RunGoal(context.Background(), 1, s,
 		Exists(func(fruit *ast.SExpr) Goal {
 			return EqualO(
@@ -320,7 +320,7 @@ func TestPineapple(t *testing.T) {
 	reify := func(varTyp any, name string) (any, bool) {
 		return &name, true
 	}
-	s := NewEmptyState(reify)
+	s := NewState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruit *string) Goal {
 			return EqualO(
@@ -342,7 +342,7 @@ func TestPineapple(t *testing.T) {
 func TestEqualOSlice(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, EqualO([]int{1, 2}, []int{1, 2}), NewEmptyState())
+	ss := NewStreamForGoal(ctx, EqualO([]int{1, 2}, []int{1, 2}), NewState())
 	got := ss.String()
 	want := "((() . 0))"
 	if got != want {
@@ -353,7 +353,7 @@ func TestEqualOSlice(t *testing.T) {
 func TestNotEqualOSlice(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ss := NewStreamForGoal(ctx, EqualO([]int{1, 2}, []int{1, 3}), NewEmptyState())
+	ss := NewStreamForGoal(ctx, EqualO([]int{1, 2}, []int{1, 3}), NewState())
 	got := ss.String()
 	want := "()"
 	if got != want {
@@ -374,7 +374,7 @@ func TestEqualOVarSliceOfPointers(t *testing.T) {
 		}
 		return nil, false
 	}
-	s := NewEmptyState(reify)
+	s := NewState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruits []*string) Goal {
 			return EqualO(
@@ -406,7 +406,7 @@ func TestEqualOVarSliceOfStrings(t *testing.T) {
 		}
 		return nil, false
 	}
-	s := NewEmptyState(reify)
+	s := NewState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruits []string) Goal {
 			return EqualO(
@@ -438,7 +438,7 @@ func TestEqualOSliceOfVarPointer(t *testing.T) {
 		}
 		return nil, false
 	}
-	s := NewEmptyState(reify)
+	s := NewState(reify)
 	ss := Run(context.Background(), 1, s,
 		func(fruit *string) Goal {
 			return EqualO(

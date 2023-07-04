@@ -21,9 +21,9 @@ type State struct {
 
 type VarCreator func(varType any, name string) (any, bool)
 
-// NewEmptyState returns an empty state.
+// NewState returns an empty state.
 // Provide optional VarCreator, which is used to give variables printable names for debugging purposes.
-func NewEmptyState(varCreators ...VarCreator) *State {
+func NewState(varCreators ...VarCreator) *State {
 	return &State{varCreators: varCreators}
 }
 
@@ -35,7 +35,7 @@ func NewVar[A any](s *State, typ A) (*State, A) {
 
 func NewVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	if s == nil {
-		s = NewEmptyState()
+		s = NewState()
 	}
 	vvalue := s.newVarValue(typ, name)
 	v := reflect.ValueOf(vvalue)
@@ -118,7 +118,7 @@ func (s *State) findSubstitution(v Var) (any, bool) {
 func (s *State) AddKeyValue(key Var, value any) *State {
 	var ss *State
 	if s == nil {
-		ss = NewEmptyState()
+		ss = NewState()
 		ss.substitutions = make(map[Var]any)
 	} else {
 		ss = s.copy()
