@@ -28,7 +28,7 @@ scheme code:
 	)
 */
 func TestRewrite1(t *testing.T) {
-	s := NewEmptyState().WithVarCreators(ast.CreateVar)
+	s := NewEmptyState(ast.CreateVar)
 	var x, u, v, w, y, z *ast.SExpr
 	s, u = NewVar(s, &ast.SExpr{})
 	s, v = NewVar(s, &ast.SExpr{})
@@ -57,7 +57,7 @@ func TestRewrite1(t *testing.T) {
 func TestNoRewrites(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	initial := NewEmptyState().WithVarCreators(ast.CreateVar)
+	initial := NewEmptyState(ast.CreateVar)
 	var x *ast.SExpr
 	initial, x = NewVarWithName(initial, "x", &ast.SExpr{})
 	xvar, _ := initial.castVar(x)

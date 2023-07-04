@@ -56,7 +56,7 @@ func toStrings(xs []any) []string {
 func TestPrependO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState().WithVarCreators(CreateVar)
+	s := NewEmptyState(CreateVar)
 	gots := toStrings(Run(ctx, -1, s, func(q *Node) Goal {
 		return EqualO(
 			NewNode("a", NewNode("b", NewNode("c", nil))),
@@ -107,7 +107,7 @@ func TestPrependO(t *testing.T) {
 func TestConcatOSingleList(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState().WithVarCreators(CreateVar)
+	s := NewEmptyState(CreateVar)
 	gots := toStrings(Run(ctx, -1, s, func(q *Node) Goal {
 		return ConcatO(
 			NewNode("a", nil),
@@ -161,7 +161,7 @@ func TestConcatOAllCombinationsCakeAndIcedTea(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState().WithVarCreators(CreateVar)
+	s := NewEmptyState(CreateVar)
 	gots := toStrings(Run(ctx, -1, s, func(q *Pair) Goal {
 		return Exists(func(x *Node) Goal {
 			return Exists(func(y *Node) Goal {

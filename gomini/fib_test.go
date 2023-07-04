@@ -101,7 +101,7 @@ func fib(conj func(...Goal) Goal, x, y *ast.SExpr) Goal {
 func runFib(n int, f func(...Goal) Goal) []*ast.SExpr {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState().WithVarCreators(ast.CreateVar)
+	s := NewEmptyState(ast.CreateVar)
 	return fmap(Run(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return fib(f, makenat(n), q)
 	}), func(x any) *ast.SExpr {

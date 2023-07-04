@@ -96,7 +96,7 @@ func MapO(f func(*ast.SExpr, *ast.SExpr) Goal, x, y *ast.SExpr) Goal {
 func TestMemberO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState().WithVarCreators(ast.CreateVar)
+	s := NewEmptyState(ast.CreateVar)
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
 	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return MemberO(
@@ -120,7 +120,7 @@ func TestMemberO(t *testing.T) {
 func TestMapO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewEmptyState().WithVarCreators(ast.CreateVar)
+	s := NewEmptyState(ast.CreateVar)
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
 	sexprs := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return MapO(
