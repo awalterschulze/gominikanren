@@ -203,9 +203,3 @@ func newVarValue(s *State, varType any, name string) any {
 	}
 	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
 }
-
-func (s *State) GetReifyName(v Var) any {
-	varType := lookupValue(s, v)
-	name := "," + s.GetName(v)
-	return newVarValue(s, varType, name)
-}
