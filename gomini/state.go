@@ -11,14 +11,14 @@ import (
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	substitutions map[Var]any
-	queryVar      *Var
-	counter       uint64
 	pointers      map[Var]reflect.Value
+	queryVar      *Var
 
 	names       map[Var]string
 	varCreators []VarCreator
 }
 
+// VarCreator is a function that creates a variable of a given type and name for debugging purposes.
 type VarCreator func(varType any, name string) (any, bool)
 
 // NewState returns an empty state.
@@ -30,7 +30,7 @@ func NewState(varCreators ...VarCreator) *State {
 type Var uintptr
 
 func NewVar[A any](s *State, typ A) (*State, A) {
-	return newVarWithName(s, "v"+strconv.Itoa(int(s.counter)), typ)
+	return newVarWithName(s, "v"+strconv.Itoa(int(len(s.pointers))), typ)
 }
 
 func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
@@ -52,7 +52,6 @@ func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	pointers[key] = v
 	res := &State{
 		substitutions: s.substitutions,
-		counter:       s.counter + 1,
 		pointers:      pointers,
 		names:         names,
 		queryVar:      s.queryVar,
@@ -136,7 +135,6 @@ func (s *State) copy() *State {
 	pointers := copyMap(s.pointers)
 	return &State{
 		substitutions: substitutions,
-		counter:       s.counter,
 		pointers:      pointers,
 		queryVar:      s.queryVar,
 		names:         names,
@@ -172,7 +170,7 @@ func (s *State) getName(v Var) string {
 // String returns a string representation of State.
 func (s *State) String() string {
 	if s.substitutions == nil {
-		return fmt.Sprintf("(() . %d)", s.counter)
+		return fmt.Sprintf("(() . %d)", len(s.pointers))
 	}
 	ks := keys(s.substitutions)
 	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
@@ -187,5 +185,5 @@ func (s *State) String() string {
 		kstr = "," + kstr
 		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
 	}
-	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), s.counter)
+	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), len(s.pointers))
 }
