@@ -11,18 +11,18 @@ import (
 //
 // The following is not possible, because we can only Map back to the same types:
 //   - Map([]{1,2,3}, func(x int) string { return fmt.Sprintf("%d", x) }) = []{"1","2","3"}
-func Map(a any, f func(a any) any) any {
-	if IsNil(a) {
-		return a
+func Map(x any, f func(a any) any) any {
+	if IsNil(x) {
+		return x
 	}
-	v := reflect.ValueOf(a)
+	v := reflect.ValueOf(x)
 	switch v.Kind() {
 	case reflect.Ptr:
 		if v.Elem().Kind() == reflect.Struct {
 			r := reflect.New(v.Elem().Type())
 			for i := 0; i < v.Elem().NumField(); i++ {
-				fv := v.Elem().Field(i).Interface()
-				b := f(fv)
+				a := v.Elem().Field(i).Interface()
+				b := f(a)
 				r.Elem().Field(i).Set(reflect.ValueOf(b))
 			}
 			return r.Interface()
@@ -30,35 +30,38 @@ func Map(a any, f func(a any) any) any {
 	case reflect.Slice:
 		r := reflect.MakeSlice(v.Type(), v.Len(), v.Len())
 		for i := 0; i < v.Len(); i++ {
-			fa := f(v.Index(i).Interface())
-			r.Index(i).Set(reflect.ValueOf(fa))
+			a := v.Index(i).Interface()
+			b := f(a)
+			r.Index(i).Set(reflect.ValueOf(b))
 		}
 		return r.Interface()
 	case reflect.Map:
 		r := reflect.MakeMap(v.Type())
 		for _, k := range v.MapKeys() {
-			fa := f(v.MapIndex(k).Interface())
-			r.SetMapIndex(k, reflect.ValueOf(fa))
+			a := v.MapIndex(k).Interface()
+			b := f(a)
+			r.SetMapIndex(k, reflect.ValueOf(b))
 		}
 		return r.Interface()
 	}
-	return a
+	return x
 }
 
 // Any returns true if the predicate is true for any of the elements in the slice of fields of a struct.
 // For example:
 //   - Any([]int{1, 2, 3}, func(x any) bool { return x.(int) == 2 }) = true
 //   - Any([]int{1, 2, 3}, func(x any) bool { return x.(int) == 4 }) = false
-func Any(a any, pred func(a any) bool) bool {
-	if IsNil(a) {
+func Any(x any, pred func(a any) bool) bool {
+	if IsNil(x) {
 		return false
 	}
-	ra := reflect.ValueOf(a)
+	ra := reflect.ValueOf(x)
 	switch ra.Kind() {
 	case reflect.Ptr:
 		if ra.Elem().Kind() == reflect.Struct {
 			for i := 0; i < ra.Elem().NumField(); i++ {
-				if pred(ra.Elem().Field(i).Interface()) {
+				a := ra.Elem().Field(i).Interface()
+				if pred(a) {
 					return true
 				}
 			}
@@ -66,7 +69,8 @@ func Any(a any, pred func(a any) bool) bool {
 		}
 	case reflect.Slice:
 		for i := 0; i < ra.Len(); i++ {
-			if pred(ra.Index(i).Interface()) {
+			a := ra.Index(i).Interface()
+			if pred(a) {
 				return true
 			}
 		}
@@ -80,33 +84,34 @@ func Any(a any, pred func(a any) bool) bool {
 // For example:
 //   - ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true }) = (12, true)
 //   - ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
-func ZipReduce[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bool) {
-	if IsNil(a1) {
-		if IsNil(a2) {
-			return b, true
+func ZipReduce[B any](x, y any, innit B, f func(x, y any, res B) (B, bool)) (B, bool) {
+	if IsNil(x) {
+		if IsNil(y) {
+			return innit, true
 		}
-		return b, false
+		return innit, false
 	}
-	if IsNil(a2) {
-		return b, false
+	if IsNil(y) {
+		return innit, false
 	}
-	ra1 := reflect.ValueOf(a1)
-	ra2 := reflect.ValueOf(a2)
-	if ra1.Kind() != ra2.Kind() {
-		return b, false
+	rx := reflect.ValueOf(x)
+	ry := reflect.ValueOf(y)
+	if rx.Kind() != ry.Kind() {
+		return innit, false
 	}
-	switch ra1.Kind() {
+	switch rx.Kind() {
 	case reflect.Ptr:
-		if ra1.Elem().Kind() != ra2.Elem().Kind() {
-			return b, false
+		if rx.Elem().Kind() != ry.Elem().Kind() {
+			return innit, false
 		}
-		if ra1.Elem().Kind() == reflect.Struct {
-			if ra1.Elem().NumField() != ra2.Elem().NumField() {
-				return b, false
+		if rx.Elem().Kind() == reflect.Struct {
+			if rx.Elem().NumField() != ry.Elem().NumField() {
+				return innit, false
 			}
 			var ok bool
-			for i := 0; i < ra1.Elem().NumField(); i++ {
-				b, ok = f(ra1.Elem().Field(i).Interface(), ra2.Elem().Field(i).Interface(), b)
+			b := innit
+			for i := 0; i < rx.Elem().NumField(); i++ {
+				b, ok = f(rx.Elem().Field(i).Interface(), ry.Elem().Field(i).Interface(), b)
 				if !ok {
 					return b, false
 				}
@@ -114,26 +119,27 @@ func ZipReduce[B any](a1, a2 any, b B, f func(a1, a2 any, b B) (B, bool)) (B, bo
 			return b, true
 		}
 	case reflect.Slice:
-		if ra1.Len() != ra2.Len() {
-			return b, false
+		if rx.Len() != ry.Len() {
+			return innit, false
 		}
 		var ok bool
-		for i := 0; i < ra1.Len(); i++ {
-			b, ok = f(ra1.Index(i).Interface(), ra2.Index(i).Interface(), b)
+		b := innit
+		for i := 0; i < rx.Len(); i++ {
+			b, ok = f(rx.Index(i).Interface(), ry.Index(i).Interface(), b)
 			if !ok {
 				return b, false
 			}
 		}
 		return b, true
 	}
-	return b, false
+	return innit, false
 }
 
-func IsNil(a any) bool {
-	if a == nil {
+func IsNil(x any) bool {
+	if x == nil {
 		return true
 	}
-	v := reflect.ValueOf(a)
+	v := reflect.ValueOf(x)
 	if !v.IsValid() {
 		return true
 	}
