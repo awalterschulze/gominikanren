@@ -116,57 +116,56 @@ func ExampleAny_struct() {
 }
 
 func TestZipReduceSum(t *testing.T) {
-	got, gotok := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true })
-	want, wantok := 12, true
-	if got != want || gotok != wantok {
-		t.Fatalf("expected %v but got %v", want, got)
+	got := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, option(0), func(x1, x2 any, sum *int) *int { return option(*sum + x1.(int) + x2.(int)) })
+	want := 12
+	if *got != want {
+		t.Fatalf("expected %v but got %v", want, *got)
 	}
 }
 
 func TestZipReduceConcat(t *testing.T) {
-	got, gotok := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true })
-	want, wantok := "132231", true
-	if got != want || gotok != wantok {
-		t.Fatalf("expected %v but got %v", want, got)
+	got := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, option(""), func(x1, x2 any, s *string) *string { return option(*s + fmt.Sprintf("%d%d", x1, x2)) })
+	want := "132231"
+	if *got != want {
+		t.Fatalf("expected %v but got %v", want, *got)
 	}
 }
 
 func TestZipReduceFalse(t *testing.T) {
-	got, gotok := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, 0,
-		func(x1, x2 any, sum int) (int, bool) {
+	got := ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, option(0),
+		func(x1, x2 any, sum *int) *int {
 			if x1 == 2 {
-				return 0, false
+				return nil
 			} else {
-				return sum + x1.(int) + x2.(int), true
+				return option(*sum + x1.(int) + x2.(int))
 			}
 		})
-	want, wantok := 0, false
-	if got != want || gotok != wantok {
-		t.Fatalf("expected %v but got %v", want, got)
+	if got != nil {
+		t.Fatalf("expected nil but got %v", got)
 	}
 }
 
 func TestZipReduceStruct(t *testing.T) {
-	got, gotok := ZipReduce(&A{1, "2"}, &A{2, "3"}, 0, func(x1, x2 any, sum int) (int, bool) {
+	got := ZipReduce(&A{1, "2"}, &A{2, "3"}, option(0), func(x1, x2 any, sum *int) *int {
 		switch x1 := x1.(type) {
 		case int:
-			return sum + x1 + x2.(int), true
+			return option(*sum + x1 + x2.(int))
 		case string:
 			x1i, err := strconv.Atoi(x1)
 			if err != nil {
-				return sum, false
+				return nil
 			}
 			x2i, err := strconv.Atoi(x2.(string))
 			if err != nil {
-				return sum, false
+				return nil
 			}
-			return sum + x1i + x2i, true
+			return option(*sum + x1i + x2i)
 		}
-		return sum, false
+		return nil
 	})
-	want, wantok := 8, true
-	if got != want || gotok != wantok {
-		t.Fatalf("expected %v but got %v", want, got)
+	want := 8
+	if *got != want {
+		t.Fatalf("expected %v but got %v", want, *got)
 	}
 }
 
@@ -177,28 +176,28 @@ type MyStruct struct {
 }
 
 func DeepEqualOriginal(x, y any) bool {
-	equalValues, ok := ZipReduce(x, y, true,
-		func(xfield, yfield any, eq bool) (bool, bool) {
+	equalValues := ZipReduce(x, y, option(true),
+		func(xfield, yfield any, eq *bool) *bool {
 			switch xfield := xfield.(type) {
 			case int:
 				if yfield, ok := yfield.(int); ok {
-					return eq && xfield == yfield, true
+					return option(*eq && xfield == yfield)
 				}
-				return eq, false
+				return nil
 			case string:
 				if yfield, ok := yfield.(string); ok {
-					return eq && xfield == yfield, true
+					return option(*eq && xfield == yfield)
 				}
-				return eq, false
+				return nil
 			case *MyStruct:
 				if yfield, ok := yfield.(*MyStruct); ok {
-					return eq && DeepEqualOriginal(xfield, yfield), true
+					return option(*eq && DeepEqualOriginal(xfield, yfield))
 				}
-				return eq, false
+				return nil
 			}
-			return eq, false
+			return nil
 		})
-	return equalValues && ok
+	return equalValues != nil && *equalValues
 }
 
 func TestZipReduceDeepEqualOriginal(t *testing.T) {
@@ -210,19 +209,19 @@ func TestZipReduceDeepEqualOriginal(t *testing.T) {
 }
 
 func DeepEqual[A any](x, y A) bool {
-	eq, ok := ZipReduce(x, y, true,
-		func(xfield, yfield any, eq bool) (bool, bool) {
+	eq := ZipReduce(x, y, option(true),
+		func(xfield, yfield any, eq *bool) *bool {
 			switch xfield := xfield.(type) {
 			case int:
-				return eq && xfield == yfield.(int), true
+				return option(*eq && xfield == yfield.(int))
 			case string:
-				return eq && xfield == yfield.(string), true
+				return option(*eq && xfield == yfield.(string))
 			case *MyStruct:
-				return eq && DeepEqual(xfield, yfield.(*MyStruct)), true
+				return option(*eq && DeepEqual(xfield, yfield.(*MyStruct)))
 			}
-			return eq, false
+			return nil
 		})
-	return eq && ok
+	return eq != nil && *eq
 }
 
 func TestZipReduceDeepEqual(t *testing.T) {

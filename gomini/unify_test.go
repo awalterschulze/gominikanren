@@ -38,11 +38,7 @@ func TestExtsXA(t *testing.T) {
 	got, x = newVarWithName(got, "x", &ast.SExpr{})
 	xvar, _ := got.CastVar(x)
 	want := got.copy()
-	var gotok bool
-	got, gotok = exts(xvar, ast.NewSymbol("a"), got)
-	if !gotok {
-		t.Fatalf("expected ok")
-	}
+	got = exts(xvar, ast.NewSymbol("a"), got)
 	want = want.Set(xvar, ast.NewSymbol("a"))
 	if !got.Equal(want) {
 		t.Fatalf("got %v want %v", got, want)
@@ -54,10 +50,9 @@ func TestExtsXX(t *testing.T) {
 	var x *ast.SExpr
 	got, x = newVarWithName(got, "x", &ast.SExpr{})
 	xvar, _ := got.CastVar(x)
-	var gotok bool
-	_, gotok = exts(xvar, x, got)
-	if gotok {
-		t.Fatalf("expected !ok")
+	res := exts(xvar, x, got)
+	if res != nil {
+		t.Fatalf("expected res == nil")
 	}
 }
 
@@ -68,11 +63,7 @@ func TestExtsXY(t *testing.T) {
 	got, y = newVarWithName(got, "y", &ast.SExpr{})
 	xvar, _ := got.CastVar(x)
 	want := got.copy()
-	var gotok bool
-	got, gotok = exts(xvar, y, got)
-	if !gotok {
-		t.Fatalf("expected ok")
-	}
+	got = exts(xvar, y, got)
 	want = want.Set(xvar, y)
 	if !got.Equal(want) {
 		t.Fatalf("got %v want %v", got, want)
@@ -92,11 +83,7 @@ func TestExtsXYZ(t *testing.T) {
 	got = got.Set(yvar, z)
 
 	want := got.copy()
-	var gotok bool
-	got, gotok = exts(xvar, ast.NewSymbol("e"), got)
-	if !gotok {
-		t.Fatalf("expected ok")
-	}
+	got = exts(xvar, ast.NewSymbol("e"), got)
 	want = want.Set(xvar, ast.NewSymbol("e"))
 	if !got.Equal(want) {
 		t.Fatalf("got %v want %v", got, want)

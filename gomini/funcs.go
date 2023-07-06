@@ -66,3 +66,7 @@ func tuple4[A, B, C, D any](a A, b B, c C, d D) func() (A, B, C, D) {
 type Stringer interface {
 	String() string
 }
+
+func option[A any](x A) *A {
+	return &x
+}
