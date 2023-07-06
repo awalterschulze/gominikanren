@@ -84,7 +84,7 @@ func Any(x any, pred func(a any) bool) bool {
 // For example:
 //   - ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, 0, func(x1, x2 any, sum int) (int, bool) { return sum + x1.(int) + x2.(int), true }) = (12, true)
 //   - ZipReduce([]int{1, 2, 3}, []int{3, 2, 1}, "", func(x1, x2 any, s string) (string, bool) { return s + fmt.Sprintf("%d%d", x1, x2), true }) = ("132231", true)
-func ZipReduce[B any](x, y any, innit B, f func(x, y any, res B) (B, bool)) (B, bool) {
+func ZipReduce[B any](x, y any, innit B, f func(x, y any, acc B) (B, bool)) (B, bool) {
 	if IsNil(x) {
 		if IsNil(y) {
 			return innit, true

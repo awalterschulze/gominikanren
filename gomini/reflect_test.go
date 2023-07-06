@@ -7,6 +7,14 @@ import (
 	"testing"
 )
 
+func ExampleMap() {
+	xs := []int{1, 2, 3}
+	f := func(x any) any { return x.(int) + 1 }
+	ys := Map(xs, f).([]int)
+	fmt.Println(ys)
+	// Output: [2 3 4]
+}
+
 func TestMapInc(t *testing.T) {
 	got := Map([]int{1, 2, 3}, func(x any) any { return x.(int) + 1 }).([]int)
 	want := []int{2, 3, 4}
@@ -34,6 +42,22 @@ func TestMapStruct(t *testing.T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("expected %v but got %v", want, got)
 	}
+}
+
+func ExampleMap_struct() {
+	xs := &A{1, "1"}
+	f := func(x any) any {
+		switch x := x.(type) {
+		case int:
+			return x + 1
+		case string:
+			return x + "+1"
+		}
+		return x
+	}
+	ys := Map(xs, f).(*A)
+	fmt.Printf("%#v\n", ys)
+	// Output: &gomini.A{Field1:2, Field2:"1+1"}
 }
 
 func TestAnyIntTrue(t *testing.T) {
@@ -66,6 +90,29 @@ func TestAnyStruct(t *testing.T) {
 	if got != want {
 		t.Fatalf("expected %v but got %v", want, got)
 	}
+}
+
+type AStruct struct {
+	Field1 int
+	Field2 string
+	Field3 int
+}
+
+func ExampleAny_struct() {
+	xs := &AStruct{1, "2", 3}
+	f := func(x any) bool {
+		switch x := x.(type) {
+		case int:
+			return x == 2
+		case string:
+			return x == "2"
+		}
+		return false
+	}
+	isAny := Any(xs, f)
+	// isAny = true
+	fmt.Println(isAny)
+	// Output: true
 }
 
 func TestZipReduceSum(t *testing.T) {
@@ -123,21 +170,13 @@ func TestZipReduceStruct(t *testing.T) {
 	}
 }
 
-func TestZipReduceDeepEqual(t *testing.T) {
-	got := DeepEqual(&MyStruct{1, "2", &MyStruct{3, "4", nil}}, &MyStruct{1, "2", &MyStruct{3, "4", nil}})
-	want := true
-	if got != want {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
-}
-
 type MyStruct struct {
 	Field1 int
 	Field2 string
 	More   *MyStruct
 }
 
-func DeepEqual(x, y any) bool {
+func DeepEqualOriginal(x, y any) bool {
 	equalValues, ok := ZipReduce(x, y, true,
 		func(xfield, yfield any, eq bool) (bool, bool) {
 			switch xfield := xfield.(type) {
@@ -153,11 +192,43 @@ func DeepEqual(x, y any) bool {
 				return eq, false
 			case *MyStruct:
 				if yfield, ok := yfield.(*MyStruct); ok {
-					return eq && DeepEqual(xfield, yfield), true
+					return eq && DeepEqualOriginal(xfield, yfield), true
 				}
 				return eq, false
 			}
 			return eq, false
 		})
 	return equalValues && ok
+}
+
+func TestZipReduceDeepEqualOriginal(t *testing.T) {
+	got := DeepEqualOriginal(&MyStruct{1, "2", &MyStruct{3, "4", nil}}, &MyStruct{1, "2", &MyStruct{3, "4", nil}})
+	want := true
+	if got != want {
+		t.Fatalf("expected %v but got %v", want, got)
+	}
+}
+
+func DeepEqual[A any](x, y A) bool {
+	eq, ok := ZipReduce(x, y, true,
+		func(xfield, yfield any, eq bool) (bool, bool) {
+			switch xfield := xfield.(type) {
+			case int:
+				return eq && xfield == yfield.(int), true
+			case string:
+				return eq && xfield == yfield.(string), true
+			case *MyStruct:
+				return eq && DeepEqual(xfield, yfield.(*MyStruct)), true
+			}
+			return eq, false
+		})
+	return eq && ok
+}
+
+func TestZipReduceDeepEqual(t *testing.T) {
+	got := DeepEqual(&MyStruct{1, "2", &MyStruct{3, "4", nil}}, &MyStruct{1, "2", &MyStruct{3, "4", nil}})
+	want := true
+	if got != want {
+		t.Fatalf("expected %v but got %v", want, got)
+	}
 }
