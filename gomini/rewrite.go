@@ -6,7 +6,7 @@ func rewrite(v any, s *State) any {
 	if vvar, ok := s.CastVar(v); ok {
 		v = Lookup(vvar, s)
 		if vvar, ok := v.(Var); ok {
-			return s.LookupPlaceholderValue(vvar)
+			return s.GetPlaceHolder(vvar)
 		}
 	}
 	return Map(v, func(a any) any {

@@ -38,7 +38,7 @@ func exts(x Var, v any, s *State) (*State, bool) {
 	if occurs(x, v, s) {
 		return nil, false
 	}
-	return s.AddKeyValue(x, v), true
+	return s.Set(x, v), true
 }
 
 func occurs(x Var, v any, s *State) bool {

@@ -14,7 +14,7 @@ func TestOccurs(t *testing.T) {
 	xvar, _ := s.CastVar(x)
 	yvar, _ := s.CastVar(y)
 
-	sxy := s.AddKeyValue(yvar, x)
+	sxy := s.Set(yvar, x)
 	tests := []func() (Var, *ast.SExpr, *State, bool){
 		tuple4(xvar, x, s, true),
 		tuple4(xvar, y, s, false),
@@ -43,7 +43,7 @@ func TestExtsXA(t *testing.T) {
 	if !gotok {
 		t.Fatalf("expected ok")
 	}
-	want = want.AddKeyValue(xvar, ast.NewSymbol("a"))
+	want = want.Set(xvar, ast.NewSymbol("a"))
 	if !got.Equal(want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
@@ -73,7 +73,7 @@ func TestExtsXY(t *testing.T) {
 	if !gotok {
 		t.Fatalf("expected ok")
 	}
-	want = want.AddKeyValue(xvar, y)
+	want = want.Set(xvar, y)
 	if !got.Equal(want) {
 		t.Fatalf("got %v want %v", got, want)
 	}
@@ -88,8 +88,8 @@ func TestExtsXYZ(t *testing.T) {
 	xvar, _ := got.CastVar(x)
 	yvar, _ := got.CastVar(y)
 	zvar, _ := got.CastVar(z)
-	got = got.AddKeyValue(zvar, x)
-	got = got.AddKeyValue(yvar, z)
+	got = got.Set(zvar, x)
+	got = got.Set(yvar, z)
 
 	want := got.copy()
 	var gotok bool
@@ -97,7 +97,7 @@ func TestExtsXYZ(t *testing.T) {
 	if !gotok {
 		t.Fatalf("expected ok")
 	}
-	want = want.AddKeyValue(xvar, ast.NewSymbol("e"))
+	want = want.Set(xvar, ast.NewSymbol("e"))
 	if !got.Equal(want) {
 		t.Fatalf("got %v want %v", got, want)
 	}

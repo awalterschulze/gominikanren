@@ -31,18 +31,18 @@ func (s *State) GetQueryVar() *Var {
 	return s.queryVar
 }
 
-func (s *State) AddKeyValue(key Var, value any) *State {
+func (s *State) Set(key Var, value any) *State {
 	ss := s.copy()
 	ss.substitutions[key] = value
 	return ss
 }
 
-func (s *State) FindSubstitution(v Var) (any, bool) {
-	a, ok := s.substitutions[v]
+func (s *State) Get(key Var) (any, bool) {
+	a, ok := s.substitutions[key]
 	return a, ok
 }
 
-func (s *State) LookupPlaceholderValue(key Var) any {
+func (s *State) GetPlaceHolder(key Var) any {
 	placeholder, ok := s.placeholders[key]
 	if !ok {
 		panic(fmt.Sprintf("Var %v not found", key))
@@ -50,14 +50,14 @@ func (s *State) LookupPlaceholderValue(key Var) any {
 	return placeholder
 }
 
-func (s *State) CastVar(a any) (Var, bool) {
-	if avar, ok := a.(Var); ok {
+func (s *State) CastVar(x any) (Var, bool) {
+	if avar, ok := x.(Var); ok {
 		return avar, true
 	}
-	if !isPointerValue(a) {
+	if !isPointerValue(x) {
 		return 0, false
 	}
-	key := Var(reflect.ValueOf(a).Pointer())
+	key := Var(reflect.ValueOf(x).Pointer())
 	_, ok := s.placeholders[key]
 	return key, ok
 }

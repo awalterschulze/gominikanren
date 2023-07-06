@@ -21,21 +21,21 @@ func TestLookup(t *testing.T) {
 	vvar, _ := s.CastVar(v)
 
 	zaxwyz, a := newVarWithName(s, "a", &ast.SExpr{})
-	zaxwyz = zaxwyz.AddKeyValue(zvar, a)
-	zaxwyz = zaxwyz.AddKeyValue(xvar, w)
-	zaxwyz = zaxwyz.AddKeyValue(yvar, z)
+	zaxwyz = zaxwyz.Set(zvar, a)
+	zaxwyz = zaxwyz.Set(xvar, w)
+	zaxwyz = zaxwyz.Set(yvar, z)
 
-	xyvxwx := s.AddKeyValue(xvar, y)
-	xyvxwx = xyvxwx.AddKeyValue(vvar, x)
-	xyvxwx = xyvxwx.AddKeyValue(wvar, x)
+	xyvxwx := s.Set(xvar, y)
+	xyvxwx = xyvxwx.Set(vvar, x)
+	xyvxwx = xyvxwx.Set(wvar, x)
 
-	xbxywxe := s.AddKeyValue(xvar, ast.NewSymbol("b"))
-	xbxywxe = xbxywxe.AddKeyValue(zvar, y)
-	xbxywxe = xbxywxe.AddKeyValue(wvar, ast.NewList(x, ast.NewSymbol("e"), z))
+	xbxywxe := s.Set(xvar, ast.NewSymbol("b"))
+	xbxywxe = xbxywxe.Set(zvar, y)
+	xbxywxe = xbxywxe.Set(wvar, ast.NewList(x, ast.NewSymbol("e"), z))
 
-	xezxyz := s.AddKeyValue(xvar, ast.NewSymbol("e"))
-	xezxyz = xezxyz.AddKeyValue(zvar, x)
-	xezxyz = xezxyz.AddKeyValue(yvar, z)
+	xezxyz := s.Set(xvar, ast.NewSymbol("e"))
+	xezxyz = xezxyz.Set(zvar, x)
+	xezxyz = xezxyz.Set(yvar, z)
 	tests := []func() (Var, *State, string){
 		tuple3(zvar, zaxwyz, "a"),
 		tuple3(yvar, zaxwyz, "a"),
