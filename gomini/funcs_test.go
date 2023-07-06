@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestFmap(t *testing.T) {
+func TestFuncsFmap(t *testing.T) {
 	xs := []int{1, 2, 3}
 	f := func(x int) int { return x + 1 }
 	got := fmap(xs, f)
@@ -17,37 +17,28 @@ func TestFmap(t *testing.T) {
 	}
 }
 
-func ExampleFmap() {
-	xs := []int{1, 2, 3}
-	f := func(x int) int { return x + 1 }
-	ys := fmap(xs, f)
-	// ys = []int{1, 2, 3}
-
-	fmt.Println(ys)
-	// Output: [2 3 4]
-}
-
-func ExampleFmap_string() {
+func TestFuncsFmap_string(t *testing.T) {
 	xs := []int{1, 2, 3}
 	f := func(x int) string { return strconv.Itoa(x) }
 	ys := fmap(xs, f)
-	// ys = []string{"1", "2", "3"}
-
-	fmt.Printf("%#v\n", ys)
-	// Output: []string{"1", "2", "3"}
+	want := []string{"1", "2", "3"}
+	if !reflect.DeepEqual(ys, want) {
+		t.Fatalf("expected %v but got %v", want, ys)
+	}
 }
 
-func ExampleAnyOf() {
+func TestFuncsAnyOf(t *testing.T) {
 	xs := []int{1, 2, 3}
 	f := func(x int) bool { return x == 2 }
 	ys := anyOf(xs, f)
-	// ys = true
+	want := true
 
-	fmt.Println(ys)
-	// Output: true
+	if ys != want {
+		t.Fatalf("expected %v but got %v", want, ys)
+	}
 }
 
-func ExampleZip() {
+func TestFuncsZip(t *testing.T) {
 	xs := []int{1, 2, 3}
 	ys := []string{"1", "2", "3"}
 	zs := zip(xs, ys)
@@ -55,18 +46,21 @@ func ExampleZip() {
 		x, y := f()
 		return fmt.Sprintf("%d:%s", x, y)
 	})
-
-	fmt.Printf("%#v\n", zsStrs)
-	// Output: []string{"1:1", "2:2", "3:3"}
+	want := []string{"1:1", "2:2", "3:3"}
+	if !reflect.DeepEqual(zsStrs, want) {
+		t.Fatalf("expected %v but got %v", want, zsStrs)
+	}
 }
 
-func ExampleZipReduce() {
+func TestFuncsZipReduce(t *testing.T) {
 	xs := []int{1, 2, 3}
 	ys := []int{1, 2, 3}
 	zs, ok := zipReduce(xs, ys, true,
 		func(x, y int, acc bool) (bool, bool) { return acc && x == y, true },
 	)
 	equal := zs && ok
-	fmt.Println(equal)
-	// Output: true
+	want := true
+	if equal != want {
+		t.Fatalf("expected %v but got %v", want, equal)
+	}
 }
