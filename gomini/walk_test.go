@@ -6,7 +6,7 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func TestLookup(t *testing.T) {
+func TestWalk(t *testing.T) {
 	s := NewState()
 	var v, w, x, y, z *ast.SExpr
 	s, v = newVarWithName(s, "v", &ast.SExpr{})
@@ -50,7 +50,7 @@ func TestLookup(t *testing.T) {
 		start, state, want := test()
 		startName := state.getName(start)
 		t.Run("(walk "+startName+" "+s.String()+")", func(t *testing.T) {
-			got := Lookup(start, state)
+			got := walk(start, state)
 			if vgot, ok := state.CastVar(got); ok {
 				got = state.getName(vgot)
 			} else {

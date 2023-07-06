@@ -19,9 +19,19 @@ func RunStream[A any](ctx context.Context, s *State, g func(A) Goal) chan any {
 	s, v = NewVar(s, v)
 	ss := NewStreamForGoal(ctx, g(v), s)
 	res := make(chan any, 0)
+	// rw finds rewrites for the first introduced variable.
+	// This means it rewrites all substitutions for the first introduced variable.
+	// For any variables without substitutions, it adds a placeholder value.
+	rw := func(s *State) any {
+		vvar := s.GetQueryVar()
+		if vvar == nil {
+			return nil
+		}
+		return rewrite(*vvar, s)
+	}
 	go func() {
 		defer close(res)
-		MapOverStream(ctx, ss, Rewrite, res)
+		MapOverStream(ctx, ss, rw, res)
 	}()
 	return res
 }
