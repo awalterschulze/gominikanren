@@ -42,14 +42,6 @@ func (s *State) Get(key Var) (any, bool) {
 	return a, ok
 }
 
-func (s *State) GetPlaceHolder(key Var) any {
-	placeholder, ok := s.placeholders[key]
-	if !ok {
-		panic(fmt.Sprintf("Var %v not found", key))
-	}
-	return placeholder
-}
-
 func (s *State) CastVar(x any) (Var, bool) {
 	if avar, ok := x.(Var); ok {
 		return avar, true
