@@ -6,7 +6,7 @@ import (
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func TestOccurs(t *testing.T) {
+func TestHasCycle(t *testing.T) {
 	s := NewState()
 	var x, y *ast.SExpr
 	s, x = newVarWithName(s, "x", &ast.SExpr{})
@@ -23,13 +23,22 @@ func TestOccurs(t *testing.T) {
 	for _, test := range tests {
 		v, w, s, want := test()
 		vname := s.getName(v)
-		t.Run("(occurs "+vname+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
-			got := occurs(v, w, s)
+		t.Run("(hasCycle "+vname+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
+			got := hasCycle(v, w, s)
 			if want != got {
 				t.Fatalf("got %v want %v", got, want)
 			}
 		})
 	}
+}
+
+// exts either extends a substitution s with an association between the variable x and the value v ,
+// or it returns nil if extending the substitution with the pair `(,x . ,v) would create a cycle.
+func exts(x Var, v any, s *State) *State {
+	if hasCycle(x, v, s) {
+		return nil
+	}
+	return s.Set(x, v)
 }
 
 func TestExtsXA(t *testing.T) {

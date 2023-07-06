@@ -4,70 +4,77 @@ import (
 	"reflect"
 )
 
-// unify returns either (ok = false) or the substitution s extended with zero or more associations,
-// where cycles in substitutions can lead to (ok = false)
+// unify returns the substitution s extended with zero or more associations,
+// unify returns nil, if there is a cycle
 func unify(x, y any, s *State) *State {
 	x = walk(x, s)
 	y = walk(y, s)
 	if reflect.DeepEqual(x, y) {
 		return s
 	}
-	if xvar, ok := s.CastVar(x); ok {
-		return exts(xvar, y, s)
-	}
-	if yar, ok := s.CastVar(y); ok {
-		return exts(yar, x, s)
-	}
-	ss := ZipReduce(x, y, s, unify)
-	if ss == nil {
+	if hasAnyCycle(x, y, s) {
 		return nil
 	}
-	return ss
+	if xvar, ok := s.CastVar(x); ok {
+		return s.Set(xvar, y)
+	}
+	if yvar, ok := s.CastVar(y); ok {
+		return s.Set(yvar, x)
+	}
+	return ZipReduce(x, y, s, unify)
 }
 
 // walk returns the value of the variable in the substitutions map.
 // If the value is a variable, it walks, until it finds a final value or variable without a substitution.
-func walk(key any, s *State) any {
-	kvar, ok := s.CastVar(key)
+func walk(x any, s *State) any {
+	xvar, ok := s.CastVar(x)
 	if !ok {
-		return key
+		// This is not a variable, so we can't walk any further.
+		return x
 	}
-	value, ok := s.Get(kvar)
+	xvalue, ok := s.Get(xvar)
 	if !ok {
 		// There are no more substitutions to be made, this variable is the final value.
-		return key
+		return x
 	}
-	return walk(value, s)
+	return walk(xvalue, s)
 }
 
-// exts either extends a substitution s with an association between the variable x and the value v ,
-// or it produces (ok = false)
-// if extending the substitution with the pair `(,x . ,v) would create a cycle.
-func exts(x Var, v any, s *State) *State {
-	if occurs(x, v, s) {
-		return nil
+// hasAnyCycle checks if there is a cycle in either direction.
+func hasAnyCycle(x, y any, s *State) bool {
+	if xvar, ok := s.CastVar(x); ok {
+		if hasCycle(xvar, y, s) {
+			return true
+		}
 	}
-	return s.Set(x, v)
+	if yvar, ok := s.CastVar(y); ok {
+		if hasCycle(yvar, x, s) {
+			return true
+		}
+	}
+	return false
 }
 
-func occurs(x Var, v any, s *State) bool {
-	v = walk(v, s)
-	if vvar, ok := s.CastVar(v); ok {
-		return reflect.DeepEqual(x, vvar)
+// hasCycle checks if there is a cycle from xvar to y.
+func hasCycle(xvar Var, y any, s *State) bool {
+	y = walk(y, s)
+	if yvar, ok := s.CastVar(y); ok {
+		return xvar == yvar
 	}
-	return Any(v, func(a any) bool {
-		return occurs(x, a, s)
+	return Any(y, func(yelem any) bool {
+		return hasCycle(xvar, yelem, s)
 	})
 }
 
 // rewrite replaces all variables with their values, if it finds any in the substitutions map.
 // It only replaces the variables that it finds on it's recursive walk, starting at the input variable.
-func rewrite(v any, s *State) any {
-	v = walk(v, s)
-	if _, ok := s.CastVar(v); ok {
-		return v
+func rewrite(x any, s *State) any {
+	x = walk(x, s)
+	if _, ok := s.CastVar(x); ok {
+		// we walked down and found a variable, but we didn't find a substitution for it.
+		return x
 	}
-	return Map(v, func(a any) any {
-		return rewrite(a, s)
+	return Map(x, func(xelem any) any {
+		return rewrite(xelem, s)
 	})
 }
