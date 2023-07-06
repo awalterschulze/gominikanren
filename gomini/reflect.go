@@ -81,53 +81,54 @@ func Any(x any, pred func(a any) bool) bool {
 
 // ZipReduce reduces a function over the elements of two slices or the fields of two structs together
 // It allows you to shortcircuit the reduce by returning false from the function
-func ZipReduce[B any](x, y any, innit *B, f func(x, y any, acc *B) *B) *B {
+func ZipReduce[B comparable](x, y any, innit B, f func(x, y any, acc B) B) B {
+	var zero B
 	if IsNil(x) {
 		if IsNil(y) {
 			return innit
 		}
-		return nil
+		return zero
 	}
 	if IsNil(y) {
-		return nil
+		return zero
 	}
 	rx := reflect.ValueOf(x)
 	ry := reflect.ValueOf(y)
 	if rx.Kind() != ry.Kind() {
-		return nil
+		return zero
 	}
 	switch rx.Kind() {
 	case reflect.Ptr:
 		if rx.Elem().Kind() != ry.Elem().Kind() {
-			return nil
+			return zero
 		}
 		if rx.Elem().Kind() == reflect.Struct {
 			if rx.Elem().NumField() != ry.Elem().NumField() {
-				return nil
+				return zero
 			}
 			b := innit
 			for i := 0; i < rx.Elem().NumField(); i++ {
 				b = f(rx.Elem().Field(i).Interface(), ry.Elem().Field(i).Interface(), b)
-				if b == nil {
-					return nil
+				if b == zero {
+					return zero
 				}
 			}
 			return b
 		}
 	case reflect.Slice:
 		if rx.Len() != ry.Len() {
-			return nil
+			return zero
 		}
 		b := innit
 		for i := 0; i < rx.Len(); i++ {
 			b = f(rx.Index(i).Interface(), ry.Index(i).Interface(), b)
-			if b == nil {
-				return nil
+			if b == zero {
+				return zero
 			}
 		}
 		return b
 	}
-	return nil
+	return zero
 }
 
 func IsNil(x any) bool {

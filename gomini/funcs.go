@@ -26,19 +26,19 @@ func zip[A, B any](xs []A, ys []B) []func() (A, B) {
 	return zs
 }
 
-func zipReduce[A, B any](xs, ys []A, innit B, f func(x, y A, acc B) (B, bool)) (B, bool) {
+func zipReduce[A any, B comparable](xs, ys []A, innit B, f func(x, y A, acc B) B) B {
+	var zero B
 	if len(xs) != len(ys) {
-		return innit, false
+		return zero
 	}
-	var ok bool
 	b := innit
 	for i := 0; i < len(xs); i++ {
-		b, ok = f(xs[i], ys[i], b)
-		if !ok {
-			return b, false
+		b = f(xs[i], ys[i], b)
+		if b == zero {
+			return zero
 		}
 	}
-	return b, true
+	return b
 }
 
 func keys[A comparable, B any](m map[A]B) []A {

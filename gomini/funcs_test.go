@@ -55,10 +55,10 @@ func TestFuncsZip(t *testing.T) {
 func TestFuncsZipReduce(t *testing.T) {
 	xs := []int{1, 2, 3}
 	ys := []int{1, 2, 3}
-	zs, ok := zipReduce(xs, ys, true,
-		func(x, y int, acc bool) (bool, bool) { return acc && x == y, true },
+	zs := zipReduce(xs, ys, true,
+		func(x, y int, acc bool) bool { return acc && x == y },
 	)
-	equal := zs && ok
+	equal := zs
 	want := true
 	if equal != want {
 		t.Fatalf("expected %v but got %v", want, equal)
