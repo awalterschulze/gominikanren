@@ -7,20 +7,18 @@ import (
 // unify returns either (ok = false) or the substitution s extended with zero or more associations,
 // where cycles in substitutions can lead to (ok = false)
 func unify(x, y any, s *State) *State {
-	var xx any = x
-	xx = walk(xx, s)
-	var yy any = y
-	yy = walk(yy, s)
-	if reflect.DeepEqual(xx, yy) {
+	x = walk(x, s)
+	y = walk(y, s)
+	if reflect.DeepEqual(x, y) {
 		return s
 	}
-	if xvar, ok := s.CastVar(xx); ok {
-		return exts(xvar, yy, s)
+	if xvar, ok := s.CastVar(x); ok {
+		return exts(xvar, y, s)
 	}
-	if yyar, ok := s.CastVar(yy); ok {
-		return exts(yyar, xx, s)
+	if yar, ok := s.CastVar(y); ok {
+		return exts(yar, x, s)
 	}
-	ss := ZipReduce(xx, yy, s, unify)
+	ss := ZipReduce(x, y, s, unify)
 	if ss == nil {
 		return nil
 	}
