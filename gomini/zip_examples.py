@@ -14,7 +14,6 @@ zs = zip(xs, ys)
 zs = None
 
 
-
 def reduce(xs: list[A], init: B, f: Callable[[A, B], B]): B =
     acc = init
 

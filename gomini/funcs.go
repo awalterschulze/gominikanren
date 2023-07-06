@@ -21,7 +21,7 @@ func anyOf[A any](xs []A, f func(A) bool) bool {
 func zip[A, B any](xs []A, ys []B) []func() (A, B) {
 	zs := make([]func() (A, B), len(xs))
 	for i := 0; i < len(xs); i++ {
-		zs[i] = func() (A, B) { return xs[i], ys[i] }
+		zs[i] = func(i int) func() (A, B) { return func() (A, B) { return xs[i], ys[i] } }(i)
 	}
 	return zs
 }

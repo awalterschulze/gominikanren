@@ -57,7 +57,7 @@ func ExampleZip() {
 	})
 
 	fmt.Printf("%#v\n", zsStrs)
-	// Output: []string{1:"1", 2:"2", 3:"3"}
+	// Output: []string{"1:1", "2:2", "3:3"}
 }
 
 func ExampleZipReduce() {
