@@ -12,7 +12,6 @@ import (
 type State struct {
 	substitutions map[Var]any
 	vars          map[Var]struct{}
-	queryVar      *Var
 
 	names       map[Var]string
 	varCreators []VarCreator
@@ -30,10 +29,6 @@ func NewState(varCreators ...VarCreator) *State {
 		vars:          make(map[Var]struct{}),
 		names:         make(map[Var]string),
 	}
-}
-
-func (s *State) GetQueryVar() *Var {
-	return s.queryVar
 }
 
 func (s *State) Set(key Var, value any) *State {
@@ -70,16 +65,12 @@ func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 		substitutions: s.substitutions,
 		vars:          copyMap(s.vars),
 		names:         copyMap(s.names),
-		queryVar:      s.queryVar,
 		varCreators:   s.varCreators,
 	}
 	vvalue := s.newVarValue(typ, name)
 	vvar := Var(reflect.ValueOf(vvalue).Pointer())
 	res.names[vvar] = name
 	res.vars[vvar] = struct{}{}
-	if s.queryVar == nil {
-		res.queryVar = &vvar
-	}
 	return res, vvalue.(A)
 }
 
@@ -99,7 +90,6 @@ func (s *State) copy() *State {
 	return &State{
 		substitutions: copyMap(s.substitutions),
 		vars:          copyMap(s.vars),
-		queryVar:      s.queryVar,
 		names:         copyMap(s.names),
 		varCreators:   s.varCreators,
 	}
