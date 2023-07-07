@@ -127,9 +127,9 @@ func TestConcatOAllCombinations(t *testing.T) {
 	}
 
 	qs := RunStream(context.Background(), NewState(), func(q *Pair) Goal {
-		return Exists(func(x *Node) Goal {
-			return Exists(func(y *Node) Goal {
-				return Conj(
+		return ExistO(func(x *Node) Goal {
+			return ExistO(func(y *Node) Goal {
+				return ConjO(
 					EqualO(&Pair{x, y}, q),
 					ConcatO(
 						x,
@@ -163,9 +163,9 @@ func TestConcatOAllCombinationsCakeAndIcedTea(t *testing.T) {
 	defer cancel()
 	s := NewState(CreateVar)
 	gots := toStrings(Run(ctx, -1, s, func(q *Pair) Goal {
-		return Exists(func(x *Node) Goal {
-			return Exists(func(y *Node) Goal {
-				return Conj(
+		return ExistO(func(x *Node) Goal {
+			return ExistO(func(y *Node) Goal {
+				return ConjO(
 					EqualO(
 						&Pair{x, y},
 						q,

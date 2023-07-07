@@ -10,7 +10,7 @@ import (
 )
 
 func fives(x *ast.SExpr) Goal {
-	return Disj(
+	return DisjO(
 		EqualO(
 			x,
 			ast.NewInt(5),
@@ -20,7 +20,7 @@ func fives(x *ast.SExpr) Goal {
 }
 
 func sixes(x *ast.SExpr) Goal {
-	return Disj(
+	return DisjO(
 		EqualO(
 			x,
 			ast.NewInt(6),
@@ -73,7 +73,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	stream := RunStream(ctx,
 		s,
 		func(x *ast.SExpr) Goal {
-			return Disj(
+			return DisjO(
 				fives(x),
 				sixes(x),
 			)

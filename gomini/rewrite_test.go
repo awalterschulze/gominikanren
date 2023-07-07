@@ -69,7 +69,7 @@ func TestNoRewrites(t *testing.T) {
 		ast.NewSymbol("oil"),
 		x,
 	)
-	g := Disj(e1, e2)
+	g := DisjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, initial)
 	states := Take(ctx, 5, stream)
 	ss := make([]*ast.SExpr, len(states))

@@ -86,7 +86,7 @@ func TestDisj1(t *testing.T) {
 	var x *ast.SExpr
 	initial, x = newVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
-		Disj(
+		DisjO(
 			EqualO(
 				ast.NewSymbol("olive"),
 				x,
@@ -126,7 +126,7 @@ func TestDisj2(t *testing.T) {
 	var x *ast.SExpr
 	initial, x = newVarWithName(initial, "x", &ast.SExpr{})
 	ss := NewStreamForGoal(ctx,
-		Disj(
+		DisjO(
 			NeverO,
 			EqualO(
 				ast.NewSymbol("olive"),
@@ -218,7 +218,7 @@ func TestRunGoalDisj2(t *testing.T) {
 		ast.NewSymbol("oil"),
 		x,
 	)
-	g := Disj(e1, e2)
+	g := DisjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, s)
 	ss := Take(ctx, 5, stream)
 	if len(ss) != 2 {
@@ -240,7 +240,7 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 		ast.NewSymbol("oil"),
 		x,
 	)
-	g := Conj(e1, e2)
+	g := ConjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, s)
 	ss := Take(ctx, 5, stream)
 	if len(ss) != 0 {
@@ -262,7 +262,7 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 		ast.NewSymbol("olive"),
 		x,
 	)
-	g := Conj(e1, e2)
+	g := ConjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, initial)
 	ss := Take(ctx, 5, stream)
 	if len(ss) != 1 {
@@ -290,7 +290,7 @@ scheme code:
 func TestExistsKiwi(t *testing.T) {
 	s := NewState(ast.CreateVar)
 	ss := runGoal(context.Background(), 1, s,
-		Exists(func(fruit *ast.SExpr) Goal {
+		ExistO(func(fruit *ast.SExpr) Goal {
 			return EqualO(
 				ast.NewSymbol("plum"),
 				fruit,

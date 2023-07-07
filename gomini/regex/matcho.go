@@ -8,8 +8,8 @@ func MatchO(r *Regex, s *string, res *Regex) Goal {
 	if s == nil {
 		return NullO(r, res)
 	}
-	return Exists(func(dr *Regex) Goal {
-		return Conj(
+	return ExistO(func(dr *Regex) Goal {
+		return ConjO(
 			SDerivOs(r, *s, dr),
 			NullO(dr, res),
 		)
@@ -27,8 +27,8 @@ func SDerivOs(r *Regex, s string, res *Regex) Goal {
 	}
 	head := ss[0]
 	tail := string(ss[1:])
-	return Exists(func(dr *Regex) Goal {
-		return Conj(
+	return ExistO(func(dr *Regex) Goal {
+		return ConjO(
 			SDerivO(r, &head, dr),
 			SDerivOs(dr, tail, res),
 		)

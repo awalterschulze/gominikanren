@@ -37,15 +37,15 @@ func (n *Node) String() string {
 // (xs = ∅ ∧ ys = zs) ∨
 // (∃ head, xtail, ztail: xs = Prepend(head, xtail) ∧ zs = Prepend(head, ztail) ∧ ConcatO(xtail, ys, ztail))
 func ConcatO(xs, ys, zs *Node) Goal {
-	return Disj(
-		Conj(
+	return DisjO(
+		ConjO(
 			EqualO(xs, nil),
 			EqualO(ys, zs),
 		),
-		Exists(func(head *string) Goal {
-			return Exists(func(xtail *Node) Goal {
-				return Exists(func(ztail *Node) Goal {
-					return Conjs(
+		ExistO(func(head *string) Goal {
+			return ExistO(func(xtail *Node) Goal {
+				return ExistO(func(ztail *Node) Goal {
+					return ConjO(
 						PrependO(head, xtail, xs),
 						PrependO(head, ztail, zs),
 						ConcatO(xtail, ys, ztail),

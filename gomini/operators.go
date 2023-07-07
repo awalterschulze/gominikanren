@@ -27,7 +27,7 @@ func FailureO(ctx context.Context, s *State, ss Stream) {
 }
 
 // Disj is a goal that returns a logical OR of the input goals.
-func Disj(g1, g2 Goal) Goal {
+func Disj2(g1, g2 Goal) Goal {
 	return func(ctx context.Context, s *State, ss Stream) {
 		wait := sync.WaitGroup{}
 		Go(ctx, &wait, func() { g1(ctx, s, ss) })
@@ -45,7 +45,7 @@ func Mplus(ctx context.Context, s1, s2, res Stream) {
 }
 
 // Conj is a goal that returns a logical AND of the input goals.
-func Conj(g1, g2 Goal) Goal {
+func Conj2(g1, g2 Goal) Goal {
 	return func(ctx context.Context, s *State, ss Stream) {
 		g1s := NewStreamForGoal(ctx, g1, s)
 		Bind(ctx, g1s, g2, ss)
@@ -66,7 +66,7 @@ func Bind(ctx context.Context, stream Stream, g Goal, res Stream) {
 }
 
 // Exists expects a function that expects a variable and returns a Goal.
-func Exists[A any](f func(A) Goal) Goal {
+func ExistO[A any](f func(A) Goal) Goal {
 	return func(ctx context.Context, s *State, ss Stream) {
 		var typ A
 		s1, v := NewVar(s, typ)
@@ -75,7 +75,10 @@ func Exists[A any](f func(A) Goal) Goal {
 }
 
 // Disjs is a macro that extends disjunction to arbitrary arguments
-func Disjs(gs ...Goal) Goal {
+func DisjO(gs ...Goal) Goal {
+	if len(gs) == 2 {
+		return Disj2(gs[0], gs[1])
+	}
 	return func(ctx context.Context, s *State, ss Stream) {
 		wait := sync.WaitGroup{}
 		for i := range gs {
@@ -87,15 +90,18 @@ func Disjs(gs ...Goal) Goal {
 }
 
 // Conjs is a macro that extends conjunction to arbitrary arguments
-func Conjs(gs ...Goal) Goal {
+func ConjO(gs ...Goal) Goal {
 	if len(gs) == 0 {
 		return SuccessO
 	}
 	if len(gs) == 1 {
 		return gs[0]
 	}
+	if len(gs) == 2 {
+		return Conj2(gs[0], gs[1])
+	}
 	g1 := gs[0]
-	g2 := Conjs(gs[1:]...)
+	g2 := ConjO(gs[1:]...)
 	return func(ctx context.Context, s *State, ss Stream) {
 		g1s := NewStreamForGoal(ctx, g1, s)
 		Bind(ctx, g1s, g2, ss)

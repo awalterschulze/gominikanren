@@ -5,21 +5,21 @@ import (
 )
 
 func SDerivO(r *Regex, char *rune, out *Regex) Goal {
-	return Disjs(
-		Conj(
+	return DisjO(
+		ConjO(
 			EqualO(r, EmptySet()),
 			EqualO(out, EmptySet()),
 		),
-		Conj(
+		ConjO(
 			EqualO(r, EmptyStr()),
 			EqualO(out, EmptySet()),
 		),
 		DeriveCharO(r, char, out),
-		Exists(func(a *Regex) Goal {
-			return Exists(func(da *Regex) Goal {
-				return Exists(func(b *Regex) Goal {
-					return Exists(func(db *Regex) Goal {
-						return Conjs(
+		ExistO(func(a *Regex) Goal {
+			return ExistO(func(da *Regex) Goal {
+				return ExistO(func(b *Regex) Goal {
+					return ExistO(func(db *Regex) Goal {
+						return ConjO(
 							EqualO(r, Or(a, b)),
 							SDerivO(a, char, da),
 							SDerivO(b, char, db),
@@ -29,14 +29,14 @@ func SDerivO(r *Regex, char *rune, out *Regex) Goal {
 				})
 			})
 		}),
-		Exists(func(a *Regex) Goal {
-			return Exists(func(da *Regex) Goal {
-				return Exists(func(na *Regex) Goal {
-					return Exists(func(b *Regex) Goal {
-						return Exists(func(db *Regex) Goal {
-							return Exists(func(ca *Regex) Goal {
-								return Exists(func(cb *Regex) Goal {
-									return Conjs(
+		ExistO(func(a *Regex) Goal {
+			return ExistO(func(da *Regex) Goal {
+				return ExistO(func(na *Regex) Goal {
+					return ExistO(func(b *Regex) Goal {
+						return ExistO(func(db *Regex) Goal {
+							return ExistO(func(ca *Regex) Goal {
+								return ExistO(func(cb *Regex) Goal {
+									return ConjO(
 										EqualO(r, Concat(a, b)),
 										SDerivO(a, char, da),
 										SDerivO(b, char, db),
@@ -52,9 +52,9 @@ func SDerivO(r *Regex, char *rune, out *Regex) Goal {
 				})
 			})
 		}),
-		Exists(func(a *Regex) Goal {
-			return Exists(func(da *Regex) Goal {
-				return Conjs(
+		ExistO(func(a *Regex) Goal {
+			return ExistO(func(da *Regex) Goal {
+				return ConjO(
 					EqualO(r, Star(a)),
 					SDerivO(a, char, da),
 					SimpleConcatO(da, r, out),
