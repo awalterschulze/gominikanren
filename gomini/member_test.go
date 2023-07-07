@@ -98,7 +98,7 @@ func TestMemberO(t *testing.T) {
 	defer cancel()
 	s := NewState(ast.CreateVar)
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
+	sanys := RunTake(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return MemberO(
 			q,
 			list,
@@ -122,7 +122,7 @@ func TestMapO(t *testing.T) {
 	defer cancel()
 	s := NewState(ast.CreateVar)
 	list := ast.Cons(ast.NewInt(0), ast.Cons(ast.NewInt(1), ast.Cons(ast.NewInt(2), nil)))
-	sexprs := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
+	sexprs := RunTake(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return MapO(
 			func(x, y *ast.SExpr) Goal { return EqualO(x, y) },
 			q,

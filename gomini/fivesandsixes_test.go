@@ -36,7 +36,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	s := NewState(ast.CreateVar)
 
 	// ((call/fresh (λ (q) (≡ q 5))) empty-state)
-	gots := Run(ctx,
+	gots := RunTake(ctx,
 		1,
 		s,
 		func(q *ast.SExpr) Goal {
@@ -55,7 +55,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 
 	// (define (fives x) (disj (≡ x 5) (fives x)))
 	// ((call/fresh fives) empty-state)
-	gots = Run(ctx,
+	gots = RunTake(ctx,
 		2,
 		s,
 		func(x *ast.SExpr) Goal {
@@ -106,7 +106,7 @@ func TestFivesAsInt(t *testing.T) {
 	five := int64(5)
 	pointToFive := &five
 	s := NewState()
-	gots := Run(ctx,
+	gots := RunTake(ctx,
 		1,
 		s,
 		func(q *int64) Goal {

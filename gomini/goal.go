@@ -8,7 +8,7 @@ import (
 type Goal func(context.Context, *State, Stream)
 
 // Run behaves like the default miniKanren run command
-func Run[A any](ctx context.Context, n int, s *State, g func(A) Goal) []any {
+func RunTake[A any](ctx context.Context, n int, s *State, g func(A) Goal) []any {
 	ss := RunStream(ctx, s, g)
 	return Take(ctx, n, ss)
 }
