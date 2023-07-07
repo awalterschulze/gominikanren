@@ -120,7 +120,7 @@ func TestGenDeriveOA(t *testing.T) {
 	g := func(q *rune) Goal {
 		return DerivO(Char('a'), q, EmptyStr())
 	}
-	ss := RunStream(ctx, s, g)
+	ss := Run(ctx, s, g)
 	for {
 		res, ok := ReadFromStream(ctx, ss)
 		if !ok {
@@ -143,7 +143,7 @@ func TestGenDeriveOB(t *testing.T) {
 	g := func(q *rune) Goal {
 		return DerivO(Char('a'), q, EmptySet())
 	}
-	ss := RunStream(ctx, s, g)
+	ss := Run(ctx, s, g)
 	for {
 		res, ok := ReadFromStream(ctx, ss)
 		if !ok {
@@ -164,7 +164,7 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	g := func(q *rune) Goal {
 		return DerivO(Or(Char('a'), Char('b')), q, Or(EmptySet(), EmptyStr()))
 	}
-	ss := RunStream(ctx, s, g)
+	ss := Run(ctx, s, g)
 	for {
 		res, ok := ReadFromStream(ctx, ss)
 		if !ok {
