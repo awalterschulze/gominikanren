@@ -9,17 +9,17 @@ import (
 
 // AppendO is a goal that appends two lists into the third list.
 func AppendO(l, t, out *ast.SExpr) Goal {
-	return Disj(
-		Conj(
+	return DisjO(
+		ConjO(
 			NullO(l),
 			EqualO(t, out),
 		),
-		Exists(func(a *ast.SExpr) Goal {
-			return Exists(func(d *ast.SExpr) Goal {
-				return Exists(func(res *ast.SExpr) Goal {
-					return Conj(
+		ExistO(func(a *ast.SExpr) Goal {
+			return ExistO(func(d *ast.SExpr) Goal {
+				return ExistO(func(res *ast.SExpr) Goal {
+					return ConjO(
 						ConsO(a, d, l),
-						Conj(
+						ConjO(
 							ConsO(a, res, out),
 							AppendO(d, t, res),
 						),
@@ -42,7 +42,7 @@ func ConsO(a, d, p *ast.SExpr) Goal {
 
 // CarO is a goal where the second parameter is the head of the list in the first parameter.
 func CarO(p, a *ast.SExpr) Goal {
-	return Exists(func(d *ast.SExpr) Goal {
+	return ExistO(func(d *ast.SExpr) Goal {
 		return EqualO(ast.Cons(a, d), p)
 	})
 }
@@ -80,9 +80,9 @@ func TestAppendOAllCombinations(t *testing.T) {
 	defer cancel()
 	s := NewState(ast.CreateVar)
 	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
-		return Exists(func(x *ast.SExpr) Goal {
-			return Exists(func(y *ast.SExpr) Goal {
-				return Conj(
+		return ExistO(func(x *ast.SExpr) Goal {
+			return ExistO(func(y *ast.SExpr) Goal {
+				return ConjO(
 					EqualO(
 						ast.Cons(x, ast.Cons(y, nil)),
 						q,

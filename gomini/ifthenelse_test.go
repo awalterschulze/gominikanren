@@ -85,7 +85,7 @@ func TestIfThenElseDisjoint(t *testing.T) {
 	state, x = newVarWithName(state, "x", &ast.SExpr{})
 	state, y = newVarWithName(state, "y", &ast.SExpr{})
 	ifte := IfThenElseO(
-		Disj(
+		DisjO(
 			EqualO(ast.NewSymbol("#t"), x),
 			EqualO(ast.NewSymbol("#f"), x),
 		),

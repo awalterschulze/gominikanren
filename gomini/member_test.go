@@ -33,11 +33,11 @@ but we can optimise if we detect y is bound
 	  )))
 */
 func MemberO(x, y *ast.SExpr) Goal {
-	return Exists(func(a *ast.SExpr) Goal {
-		return Exists(func(d *ast.SExpr) Goal {
-			return Conj(
+	return ExistO(func(a *ast.SExpr) Goal {
+		return ExistO(func(d *ast.SExpr) Goal {
+			return ConjO(
 				EqualO(y, ast.Cons(a, d)),
-				Disj(
+				DisjO(
 					EqualO(x, a),
 					MemberO(x, d),
 				),
@@ -69,17 +69,17 @@ we can detect either and unroll before applying search
 	))
 */
 func MapO(f func(*ast.SExpr, *ast.SExpr) Goal, x, y *ast.SExpr) Goal {
-	return Disjs(
-		Conjs(
+	return DisjO(
+		ConjO(
 			EqualO(x, nil),
 			EqualO(y, nil),
 		),
-		Conjs(
-			Exists(func(xa *ast.SExpr) Goal {
-				return Exists(func(xd *ast.SExpr) Goal {
-					return Exists(func(ya *ast.SExpr) Goal {
-						return Exists(func(yd *ast.SExpr) Goal {
-							return Conjs(
+		ConjO(
+			ExistO(func(xa *ast.SExpr) Goal {
+				return ExistO(func(xd *ast.SExpr) Goal {
+					return ExistO(func(ya *ast.SExpr) Goal {
+						return ExistO(func(yd *ast.SExpr) Goal {
+							return ConjO(
 								EqualO(x, ast.Cons(xa, xd)),
 								EqualO(y, ast.Cons(ya, yd)),
 								f(xa, ya),

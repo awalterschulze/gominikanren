@@ -5,35 +5,35 @@ import (
 )
 
 func NullO(r, out *Regex) Goal {
-	return Disjs(
-		Conj(
+	return DisjO(
+		ConjO(
 			EqualO(r, EmptySet()),
 			EqualO(out, EmptySet()),
 		),
-		Conj(
+		ConjO(
 			EqualO(r, EmptyStr()),
 			EqualO(out, EmptyStr()),
 		),
-		Conj(
-			Exists(func(char *rune) Goal {
+		ConjO(
+			ExistO(func(char *rune) Goal {
 				return EqualO(r, CharPtr(char))
 			}),
 			EqualO(out, EmptySet()),
 		),
-		Exists(func(a *Regex) Goal {
-			return Exists(func(b *Regex) Goal {
-				return Conj(
+		ExistO(func(a *Regex) Goal {
+			return ExistO(func(b *Regex) Goal {
+				return ConjO(
 					EqualO(r, Or(a, b)),
-					Disjs(
-						Conjs(
+					DisjO(
+						ConjO(
 							NullO(a, EmptyStr()),
 							EqualO(out, EmptyStr()),
 						),
-						Conjs(
+						ConjO(
 							NullO(b, EmptyStr()),
 							EqualO(out, EmptyStr()),
 						),
-						Conjs(
+						ConjO(
 							NullO(a, EmptySet()),
 							NullO(b, EmptySet()),
 							EqualO(out, EmptySet()),
@@ -42,20 +42,20 @@ func NullO(r, out *Regex) Goal {
 				)
 			})
 		}),
-		Exists(func(a *Regex) Goal {
-			return Exists(func(b *Regex) Goal {
-				return Conj(
+		ExistO(func(a *Regex) Goal {
+			return ExistO(func(b *Regex) Goal {
+				return ConjO(
 					EqualO(r, Concat(a, b)),
-					Disjs(
-						Conjs(
+					DisjO(
+						ConjO(
 							NullO(a, EmptySet()),
 							EqualO(out, EmptySet()),
 						),
-						Conjs(
+						ConjO(
 							NullO(b, EmptySet()),
 							EqualO(out, EmptySet()),
 						),
-						Conjs(
+						ConjO(
 							NullO(a, EmptyStr()),
 							NullO(b, EmptyStr()),
 							EqualO(out, EmptyStr()),
@@ -64,8 +64,8 @@ func NullO(r, out *Regex) Goal {
 				)
 			})
 		}),
-		Exists(func(a *Regex) Goal {
-			return Conj(
+		ExistO(func(a *Regex) Goal {
+			return ConjO(
 				EqualO(r, Star(a)),
 				EqualO(out, EmptyStr()),
 			)

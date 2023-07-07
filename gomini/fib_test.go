@@ -20,11 +20,11 @@ func benchFib(b *testing.B, num int, f func(...Goal) Goal) {
 }
 
 func BenchmarkFib10Co(b *testing.B) {
-	benchFib(b, 10, Conjs)
+	benchFib(b, 10, ConjO)
 }
 
 func BenchmarkFib15Co(b *testing.B) {
-	benchFib(b, 15, Conjs)
+	benchFib(b, 15, ConjO)
 }
 
 // peano numbers and extralogical convenience functions
@@ -58,12 +58,12 @@ func toList(list []int) *ast.SExpr {
 }
 
 func natplus(x, y, z *ast.SExpr) Goal {
-	return Disjs(
-		Conjs(EqualO(x, zero), EqualO(y, z)),
-		Conjs(
-			Exists(func(a *ast.SExpr) Goal {
-				return Exists(func(b *ast.SExpr) Goal {
-					return Conjs(
+	return DisjO(
+		ConjO(EqualO(x, zero), EqualO(y, z)),
+		ConjO(
+			ExistO(func(a *ast.SExpr) Goal {
+				return ExistO(func(b *ast.SExpr) Goal {
+					return ConjO(
 						succ(a, x),
 						succ(b, z),
 						natplus(a, y, b),
@@ -75,14 +75,14 @@ func natplus(x, y, z *ast.SExpr) Goal {
 }
 
 func fib(conj func(...Goal) Goal, x, y *ast.SExpr) Goal {
-	return Disjs(
-		Conjs(EqualO(x, zero), EqualO(y, zero)),
-		Conjs(EqualO(x, one), EqualO(y, one)),
-		Conjs(
-			Exists(func(n1 *ast.SExpr) Goal {
-				return Exists(func(n2 *ast.SExpr) Goal {
-					return Exists(func(f1 *ast.SExpr) Goal {
-						return Exists(func(f2 *ast.SExpr) Goal {
+	return DisjO(
+		ConjO(EqualO(x, zero), EqualO(y, zero)),
+		ConjO(EqualO(x, one), EqualO(y, one)),
+		ConjO(
+			ExistO(func(n1 *ast.SExpr) Goal {
+				return ExistO(func(n2 *ast.SExpr) Goal {
+					return ExistO(func(f1 *ast.SExpr) Goal {
+						return ExistO(func(f2 *ast.SExpr) Goal {
 							return conj(
 								succ(n1, x),
 								succ(n2, n1),
