@@ -70,7 +70,7 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 		t.Fatalf("expected %#v but got %#v", want, got)
 	}
 
-	stream := RunStream(ctx,
+	stream := Run(ctx,
 		s,
 		func(x *ast.SExpr) Goal {
 			return DisjO(

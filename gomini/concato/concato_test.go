@@ -126,7 +126,7 @@ func TestConcatOAllCombinations(t *testing.T) {
 		return
 	}
 
-	qs := RunStream(context.Background(), NewState(), func(q *Pair) Goal {
+	qs := Run(context.Background(), NewState(), func(q *Pair) Goal {
 		return ExistO(func(x *Node) Goal {
 			return ExistO(func(y *Node) Goal {
 				return ConjO(
