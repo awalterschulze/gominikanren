@@ -68,9 +68,9 @@ func Bind(ctx context.Context, stream Stream, g Goal, res Stream) {
 // Exists expects a function that expects a variable and returns a Goal.
 func ExistO[A any](f func(A) Goal) Goal {
 	return func(ctx context.Context, s *State, ss Stream) {
-		var typ A
-		s1, v := NewVar(s, typ)
-		f(v)(ctx, s1, ss)
+		var v A
+		s, v = NewVar(s, v)
+		f(v)(ctx, s, ss)
 	}
 }
 
