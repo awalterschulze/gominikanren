@@ -6,21 +6,18 @@ import (
 	"strings"
 )
 
-type StreamOfStates chan *State
+type Stream chan *State
 
-func NewEmptyStream() StreamOfStates {
+func NewEmptyStream() Stream {
 	return make(chan *State, 0)
 }
 
-func (ss StreamOfStates) Read(ctx context.Context) (*State, bool) {
+func (ss Stream) Read(ctx context.Context) (*State, bool) {
 	return ReadFromStream(ctx, ss)
 }
 
 func ReadFromStream[A any](ctx context.Context, ss <-chan A) (A, bool) {
 	var zero A
-	if ss == nil {
-		return zero, false
-	}
 	select {
 	case a, ok := <-ss:
 		return a, ok
@@ -29,14 +26,11 @@ func ReadFromStream[A any](ctx context.Context, ss <-chan A) (A, bool) {
 	return zero, false
 }
 
-func (ss StreamOfStates) Write(ctx context.Context, s *State) bool {
+func (ss Stream) Write(ctx context.Context, s *State) bool {
 	return WriteToStream(ctx, s, ss)
 }
 
 func WriteToStream[A any](ctx context.Context, a A, ss chan<- A) bool {
-	if ss == nil {
-		return false
-	}
 	select {
 	case <-ctx.Done():
 		return false
@@ -45,7 +39,7 @@ func WriteToStream[A any](ctx context.Context, a A, ss chan<- A) bool {
 	}
 }
 
-func (ss StreamOfStates) Close() {
+func (ss Stream) Close() {
 	close(ss)
 }
 
@@ -71,7 +65,7 @@ func MapOverStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst
 
 // String returns a string representation of a stream of states.
 // Warning: If the list is infinite this function will not terminate.
-func (ss StreamOfStates) String() string {
+func (ss Stream) String() string {
 	buf := []string{}
 	if ss != nil {
 		for {
@@ -87,7 +81,7 @@ func (ss StreamOfStates) String() string {
 }
 
 // NewSingletonStream returns the input state as a stream of states containing only the head state.
-func NewSingletonStream(ctx context.Context, s *State) StreamOfStates {
+func NewSingletonStream(ctx context.Context, s *State) Stream {
 	ss := NewEmptyStream()
 	Go(ctx, nil, func() {
 		defer close(ss)
@@ -96,7 +90,7 @@ func NewSingletonStream(ctx context.Context, s *State) StreamOfStates {
 	return ss
 }
 
-func NewStreamForGoal(ctx context.Context, g Goal, s *State) StreamOfStates {
+func NewStreamForGoal(ctx context.Context, g Goal, s *State) Stream {
 	ss := NewEmptyStream()
 	Go(ctx, nil, func() {
 		defer close(ss)

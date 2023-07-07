@@ -41,7 +41,7 @@ func empty() *State {
 	return NewState()
 }
 
-func single(ctx context.Context, s *State) StreamOfStates {
+func single(ctx context.Context, s *State) Stream {
 	return NewSingletonStream(ctx, s)
 }
 

@@ -15,7 +15,7 @@ func fives(x *ast.SExpr) Goal {
 			x,
 			ast.NewInt(5),
 		),
-		func(ctx context.Context, s *State, ss StreamOfStates) { fives(x)(ctx, s, ss) },
+		func(ctx context.Context, s *State, ss Stream) { fives(x)(ctx, s, ss) },
 	)
 }
 
@@ -25,7 +25,7 @@ func sixes(x *ast.SExpr) Goal {
 			x,
 			ast.NewInt(6),
 		),
-		func(ctx context.Context, s *State, ss StreamOfStates) { sixes(x)(ctx, s, ss) },
+		func(ctx context.Context, s *State, ss Stream) { sixes(x)(ctx, s, ss) },
 	)
 }
 
