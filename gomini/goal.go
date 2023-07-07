@@ -5,7 +5,7 @@ import (
 )
 
 // Goal is a function that takes a state and returns a stream of states.
-type Goal func(context.Context, *State, StreamOfStates)
+type Goal func(context.Context, *State, Stream)
 
 // Run behaves like the default miniKanren run command
 func Run[A any](ctx context.Context, n int, s *State, g func(A) Goal) []any {

@@ -7,7 +7,7 @@ import (
 
 // EqualO returns a Goal that unifies the input expressions in the output stream.
 func EqualO[A any](x, y A) Goal {
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		unifiedState := unify(x, y, s)
 		if unifiedState == nil {
 			return
@@ -17,18 +17,18 @@ func EqualO[A any](x, y A) Goal {
 }
 
 // SuccessO is a goal that always returns the input state in the resulting stream of states.
-func SuccessO(ctx context.Context, s *State, ss StreamOfStates) {
+func SuccessO(ctx context.Context, s *State, ss Stream) {
 	ss.Write(ctx, s)
 }
 
 // FailureO is a goal that always returns an empty stream of states.
-func FailureO(ctx context.Context, s *State, ss StreamOfStates) {
+func FailureO(ctx context.Context, s *State, ss Stream) {
 	return
 }
 
 // Disj is a goal that returns a logical OR of the input goals.
 func Disj(g1, g2 Goal) Goal {
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		wait := sync.WaitGroup{}
 		Go(ctx, &wait, func() { g1(ctx, s, ss) })
 		Go(ctx, &wait, func() { g2(ctx, s, ss) })
@@ -37,7 +37,7 @@ func Disj(g1, g2 Goal) Goal {
 }
 
 // Mplus is responsible for merging streams
-func Mplus(ctx context.Context, s1, s2, res StreamOfStates) {
+func Mplus(ctx context.Context, s1, s2, res Stream) {
 	wait := sync.WaitGroup{}
 	Go(ctx, &wait, func() { WriteStreamTo(ctx, s1, res) })
 	Go(ctx, &wait, func() { WriteStreamTo(ctx, s2, res) })
@@ -46,14 +46,14 @@ func Mplus(ctx context.Context, s1, s2, res StreamOfStates) {
 
 // Conj is a goal that returns a logical AND of the input goals.
 func Conj(g1, g2 Goal) Goal {
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		g1s := NewStreamForGoal(ctx, g1, s)
 		Bind(ctx, g1s, g2, ss)
 	}
 }
 
 // Bind is the monad bind function for state.
-func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates) {
+func Bind(ctx context.Context, stream Stream, g Goal, res Stream) {
 	wait := sync.WaitGroup{}
 	for {
 		state, ok := stream.Read(ctx)
@@ -67,7 +67,7 @@ func Bind(ctx context.Context, stream StreamOfStates, g Goal, res StreamOfStates
 
 // Exists expects a function that expects a variable and returns a Goal.
 func Exists[A any](f func(A) Goal) Goal {
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		var typ A
 		s1, v := NewVar(s, typ)
 		f(v)(ctx, s1, ss)
@@ -76,7 +76,7 @@ func Exists[A any](f func(A) Goal) Goal {
 
 // Disjs is a macro that extends disjunction to arbitrary arguments
 func Disjs(gs ...Goal) Goal {
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		wait := sync.WaitGroup{}
 		for i := range gs {
 			f := func(i int) func() { return func() { gs[i](ctx, s, ss) } }(i)
@@ -96,7 +96,7 @@ func Conjs(gs ...Goal) Goal {
 	}
 	g1 := gs[0]
 	g2 := Conjs(gs[1:]...)
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		g1s := NewStreamForGoal(ctx, g1, s)
 		Bind(ctx, g1s, g2, ss)
 	}

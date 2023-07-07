@@ -12,7 +12,7 @@ import (
 )
 
 // NeverO is a Goal that returns a never ending stream of suspensions.
-func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
+func NeverO(ctx context.Context, s *State, ss Stream) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -23,7 +23,7 @@ func NeverO(ctx context.Context, s *State, ss StreamOfStates) {
 }
 
 // AlwaysO is a goal that returns a never ending stream of success.
-func AlwaysO(ctx context.Context, s *State, ss StreamOfStates) {
+func AlwaysO(ctx context.Context, s *State, ss Stream) {
 	for {
 		if ok := ss.Write(ctx, s); !ok {
 			return

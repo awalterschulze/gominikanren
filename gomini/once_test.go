@@ -9,7 +9,7 @@ import (
 
 // OnceO is a goal that returns one successful state.
 func OnceO(g Goal) Goal {
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		gs := NewStreamForGoal(ctx, g, s)
 		state, ok := gs.Read(ctx)
 		if !ok {

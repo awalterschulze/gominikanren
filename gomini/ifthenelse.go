@@ -7,13 +7,13 @@ import (
 // IfThenElseO is a goal that evaluates the second goal if the first goal is successful,
 // otherwise it evaluates the third goal.
 func IfThenElseO(cond, thn, els Goal) Goal {
-	return func(ctx context.Context, s *State, ss StreamOfStates) {
+	return func(ctx context.Context, s *State, ss Stream) {
 		conds := NewStreamForGoal(ctx, cond, s)
 		ifThenElseO(ctx, conds, thn, els, s, ss)
 	}
 }
 
-func ifThenElseO(ctx context.Context, conds StreamOfStates, thn, els Goal, s *State, res StreamOfStates) {
+func ifThenElseO(ctx context.Context, conds Stream, thn, els Goal, s *State, res Stream) {
 	headState, ok := conds.Read(ctx)
 	if !ok {
 		els(ctx, s, res)
