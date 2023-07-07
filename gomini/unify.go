@@ -11,14 +11,11 @@ func unify(x, y any, s *State) *State {
 	y = walk(y, s)
 	if reflect.DeepEqual(x, y) {
 		return s
-	}
-	if hasAnyCycle(x, y, s) {
+	} else if haveCycle(x, y, s) {
 		return nil
-	}
-	if xvar, ok := s.CastVar(x); ok {
+	} else if xvar, ok := s.CastVar(x); ok {
 		return s.Set(xvar, y)
-	}
-	if yvar, ok := s.CastVar(y); ok {
+	} else if yvar, ok := s.CastVar(y); ok {
 		return s.Set(yvar, x)
 	}
 	return ZipReduce(x, y, s, unify)
@@ -40,8 +37,8 @@ func walk(x any, s *State) any {
 	return walk(xvalue, s)
 }
 
-// hasAnyCycle checks if there is a cycle in either direction.
-func hasAnyCycle(x, y any, s *State) bool {
+// haveCycle checks if there is a cycle in either direction.
+func haveCycle(x, y any, s *State) bool {
 	if xvar, ok := s.CastVar(x); ok {
 		if hasCycle(xvar, y, s) {
 			return true

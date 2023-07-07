@@ -11,7 +11,7 @@ import (
 // State is a product of a list of substitutions and a variable counter.
 type State struct {
 	substitutions map[Var]any
-	placeholders  map[Var]any
+	vars          map[Var]struct{}
 	queryVar      *Var
 
 	names       map[Var]string
@@ -24,7 +24,12 @@ type VarCreator func(varType any, name string) (any, bool)
 // NewState returns an empty state.
 // Provide optional VarCreator, which is used to give variables printable names for debugging purposes.
 func NewState(varCreators ...VarCreator) *State {
-	return &State{varCreators: varCreators, substitutions: make(map[Var]any), placeholders: make(map[Var]any), names: make(map[Var]string)}
+	return &State{
+		varCreators:   varCreators,
+		substitutions: make(map[Var]any),
+		vars:          make(map[Var]struct{}),
+		names:         make(map[Var]string),
+	}
 }
 
 func (s *State) GetQueryVar() *Var {
@@ -50,20 +55,20 @@ func (s *State) CastVar(x any) (Var, bool) {
 		return 0, false
 	}
 	key := Var(reflect.ValueOf(x).Pointer())
-	_, ok := s.placeholders[key]
+	_, ok := s.vars[key]
 	return key, ok
 }
 
 type Var uintptr
 
 func NewVar[A any](s *State, typ A) (*State, A) {
-	return newVarWithName(s, "v"+strconv.Itoa(len(s.placeholders)), typ)
+	return newVarWithName(s, "v"+strconv.Itoa(len(s.vars)), typ)
 }
 
 func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	res := &State{
 		substitutions: s.substitutions,
-		placeholders:  copyMap(s.placeholders),
+		vars:          copyMap(s.vars),
 		names:         copyMap(s.names),
 		queryVar:      s.queryVar,
 		varCreators:   s.varCreators,
@@ -71,7 +76,7 @@ func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
 	vvalue := s.newVarValue(typ, name)
 	vvar := Var(reflect.ValueOf(vvalue).Pointer())
 	res.names[vvar] = name
-	res.placeholders[vvar] = vvalue
+	res.vars[vvar] = struct{}{}
 	if s.queryVar == nil {
 		res.queryVar = &vvar
 	}
@@ -93,7 +98,7 @@ func (s *State) newVarValue(varType any, name string) any {
 func (s *State) copy() *State {
 	return &State{
 		substitutions: copyMap(s.substitutions),
-		placeholders:  copyMap(s.placeholders),
+		vars:          copyMap(s.vars),
 		queryVar:      s.queryVar,
 		names:         copyMap(s.names),
 		varCreators:   s.varCreators,
@@ -133,7 +138,7 @@ func (s *State) getName(v Var) string {
 // String returns a string representation of State.
 func (s *State) String() string {
 	if len(s.substitutions) == 0 {
-		return fmt.Sprintf("(() . %d)", len(s.placeholders))
+		return fmt.Sprintf("(() . %d)", len(s.vars))
 	}
 	ks := keys(s.substitutions)
 	sort.Slice(ks, func(i, j int) bool { return ks[i] < ks[j] })
@@ -148,5 +153,5 @@ func (s *State) String() string {
 		kstr = "," + kstr
 		ss[i] = fmt.Sprintf("{%s: %s}", kstr, vstr)
 	}
-	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), len(s.placeholders))
+	return fmt.Sprintf("(%s . %d)", strings.Join(ss, ", "), len(s.vars))
 }
