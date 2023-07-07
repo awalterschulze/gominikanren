@@ -57,7 +57,7 @@ func TestPrependO(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(CreateVar)
-	gots := toStrings(Run(ctx, -1, s, func(q *Node) Goal {
+	gots := toStrings(RunTake(ctx, -1, s, func(q *Node) Goal {
 		return EqualO(
 			NewNode("a", NewNode("b", NewNode("c", nil))),
 			q,
@@ -68,7 +68,7 @@ func TestPrependO(t *testing.T) {
 		t.Fatalf("expected list: got %v, want %v", gots, wants)
 	}
 
-	gots = toStrings(Run(ctx, -1, s, func(q *Node) Goal {
+	gots = toStrings(RunTake(ctx, -1, s, func(q *Node) Goal {
 		return PrependO(
 			newString("a"),
 			NewNode("b", NewNode("c", nil)),
@@ -79,7 +79,7 @@ func TestPrependO(t *testing.T) {
 		t.Fatalf("expected consed list: got %v, want %v", gots, wants)
 	}
 
-	gots = toStrings(Run(ctx, -1, s, func(q *string) Goal {
+	gots = toStrings(RunTake(ctx, -1, s, func(q *string) Goal {
 		return PrependO(
 			q,
 			NewNode("b", NewNode("c", nil)),
@@ -91,7 +91,7 @@ func TestPrependO(t *testing.T) {
 		t.Fatalf("expected consed element: got %v, want %v", gots, wants)
 	}
 
-	gots = toStrings(Run(ctx, -1, s, func(q *Node) Goal {
+	gots = toStrings(RunTake(ctx, -1, s, func(q *Node) Goal {
 		return PrependO(
 			newString("a"),
 			q,
@@ -108,7 +108,7 @@ func TestConcatOSingleList(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(CreateVar)
-	gots := toStrings(Run(ctx, -1, s, func(q *Node) Goal {
+	gots := toStrings(RunTake(ctx, -1, s, func(q *Node) Goal {
 		return ConcatO(
 			NewNode("a", nil),
 			NewNode("b", nil),
@@ -162,7 +162,7 @@ func TestConcatOAllCombinationsCakeAndIcedTea(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(CreateVar)
-	gots := toStrings(Run(ctx, -1, s, func(q *Pair) Goal {
+	gots := toStrings(RunTake(ctx, -1, s, func(q *Pair) Goal {
 		return ExistO(func(x *Node) Goal {
 			return ExistO(func(y *Node) Goal {
 				return ConjO(

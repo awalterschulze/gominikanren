@@ -14,7 +14,7 @@ func testo(t *testing.T, f func(q *Regex) Goal, want *Regex) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(CreateVarRegex)
-	exprs := Run(ctx, 1, s, f)
+	exprs := RunTake(ctx, 1, s, f)
 	if len(exprs) != 1 {
 		t.Fatalf("expected len %d result, but got %d instead", 1, len(exprs))
 	}

@@ -315,7 +315,7 @@ func TestPineapple(t *testing.T) {
 		return &name, true
 	}
 	s := NewState(reify)
-	ss := Run(context.Background(), 1, s,
+	ss := RunTake(context.Background(), 1, s,
 		func(fruit *string) Goal {
 			return EqualO(
 				pointy,
@@ -369,7 +369,7 @@ func TestEqualOVarSliceOfPointers(t *testing.T) {
 		return nil, false
 	}
 	s := NewState(reify)
-	ss := Run(context.Background(), 1, s,
+	ss := RunTake(context.Background(), 1, s,
 		func(fruits []*string) Goal {
 			return EqualO(
 				pineapples,
@@ -401,7 +401,7 @@ func TestEqualOVarSliceOfStrings(t *testing.T) {
 		return nil, false
 	}
 	s := NewState(reify)
-	ss := Run(context.Background(), 1, s,
+	ss := RunTake(context.Background(), 1, s,
 		func(fruits []string) Goal {
 			return EqualO(
 				pineapples,
@@ -433,7 +433,7 @@ func TestEqualOSliceOfVarPointer(t *testing.T) {
 		return nil, false
 	}
 	s := NewState(reify)
-	ss := Run(context.Background(), 1, s,
+	ss := RunTake(context.Background(), 1, s,
 		func(fruit *string) Goal {
 			return EqualO(
 				pineapples,

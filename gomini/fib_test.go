@@ -102,7 +102,7 @@ func runFib(n int, f func(...Goal) Goal) []*ast.SExpr {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(ast.CreateVar)
-	return fmap(Run(ctx, -1, s, func(q *ast.SExpr) Goal {
+	return fmap(RunTake(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return fib(f, makenat(n), q)
 	}), func(x any) *ast.SExpr {
 		return x.(*ast.SExpr)

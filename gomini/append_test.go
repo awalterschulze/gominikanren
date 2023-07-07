@@ -79,7 +79,7 @@ func TestAppendOAllCombinations(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(ast.CreateVar)
-	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
+	sanys := RunTake(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return ExistO(func(x *ast.SExpr) Goal {
 			return ExistO(func(y *ast.SExpr) Goal {
 				return ConjO(
@@ -116,7 +116,7 @@ func TestAppendOSingleList(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(ast.CreateVar)
-	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
+	sanys := RunTake(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.Cons(ast.NewSymbol("b"), nil),
@@ -137,7 +137,7 @@ func TestAppendOSingleAtom(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(ast.CreateVar)
-	sanys := Run(ctx, -1, s, func(q *ast.SExpr) Goal {
+	sanys := RunTake(ctx, -1, s, func(q *ast.SExpr) Goal {
 		return AppendO(
 			ast.Cons(ast.NewSymbol("a"), nil),
 			ast.NewSymbol("b"),
