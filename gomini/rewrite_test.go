@@ -129,7 +129,7 @@ func TestRewriteInternal(t *testing.T) {
 	for _, test := range tests {
 		start, state, want := test()
 		startName := state.getName(start)
-		t.Run("(walk "+startName+" "+state.String()+")", func(t *testing.T) {
+		t.Run("(rewrite "+startName+" "+state.String()+")", func(t *testing.T) {
 			got := rewrite(start, state)
 			if vgot, ok := state.CastVar(got); ok {
 				got = state.getName(vgot)
