@@ -305,7 +305,6 @@ func TestRewriteWY(t *testing.T) {
 	}
 }
 
-// Good Example
 func TestWalkYE(t *testing.T) {
 	substs := map[string]any{
 		"x": "e",
@@ -315,6 +314,35 @@ func TestWalkYE(t *testing.T) {
 	s := newState(substs)
 	got := walks("y", s)
 	want := "e"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestWalkABCDE(t *testing.T) {
+	substs := map[string]any{
+		"a": "b",
+		"b": "c",
+		"c": "d",
+		"e": []string{"a", "b", "c"},
+	}
+	got := walks("e", newState(substs))
+	want := "[a b c]"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestRewriteABCDE(t *testing.T) {
+	substs := map[string]any{
+		"a": "b",
+		"b": "c",
+		"c": "d",
+		"e": []string{"a", "b", "c"},
+	}
+	s := newState(substs)
+	got := rewrites("e", s)
+	want := "[d d d]"
 	if got != want {
 		t.Fatalf("got %s want %s", got, want)
 	}
