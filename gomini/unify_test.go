@@ -18,23 +18,38 @@ func newState(substs map[string]any) *State {
 		kvar, _ := s.CastVar(kvalue)
 		vars[k] = kvar
 	}
+	for _, v := range substs {
+		switch v := v.(type) {
+		case string:
+			if _, ok := values[v]; !ok {
+				var vvalue any
+				s, vvalue = newVarWithName(s, v, &ast.SExpr{})
+				values[v] = vvalue
+				vvar, _ := s.CastVar(vvalue)
+				vars[v] = vvar
+			}
+		case []string:
+			for i := 0; i < len(v); i++ {
+				velem := v[i]
+				if _, ok := values[velem]; !ok {
+					var vvalue any
+					s, vvalue = newVarWithName(s, velem, &ast.SExpr{})
+					values[velem] = vvalue
+					vvar, _ := s.CastVar(vvalue)
+					vars[velem] = vvar
+				}
+			}
+		}
+	}
 	for k, v := range substs {
 		switch v := v.(type) {
 		case string:
-			if vvar, ok := values[v]; ok {
-				s = s.Set(vars[k], vvar)
-			} else {
-				s = s.Set(vars[k], ast.NewSymbol(v))
-			}
+			s = s.Set(vars[k], values[v])
 		case []string:
 			sexprs := make([]*ast.SExpr, len(v))
 			for i := 0; i < len(v); i++ {
 				velem := v[i]
-				if vvar, ok := values[velem]; ok {
-					sexprs[i] = vvar.(*ast.SExpr)
-				} else {
-					sexprs[i] = ast.NewSymbol(velem)
-				}
+				sexprs[i] = values[velem].(*ast.SExpr)
 			}
 			s = s.Set(vars[k], ast.NewList(sexprs...))
 		}
