@@ -1,100 +1,334 @@
 package gomini
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func TestHasCycle(t *testing.T) {
-	s := NewState()
-	var x, y *ast.SExpr
-	s, x = newVarWithName(s, "x", &ast.SExpr{})
-	s, y = newVarWithName(s, "y", &ast.SExpr{})
-	xvar, _ := s.CastVar(x)
-	yvar, _ := s.CastVar(y)
-
-	sxy := s.Set(yvar, x)
-	tests := []func() (Var, *ast.SExpr, *State, bool){
-		tuple4(xvar, x, s, true),
-		tuple4(xvar, y, s, false),
-		tuple4(xvar, ast.NewList(y), sxy, true),
+func newState(substs map[string]any) *State {
+	s := NewState(ast.CreateVar)
+	values := make(map[string]any)
+	vars := make(map[string]Var)
+	for k := range substs {
+		var kvalue any
+		s, kvalue = newVarWithName(s, k, &ast.SExpr{})
+		values[k] = kvalue
+		kvar, _ := s.CastVar(kvalue)
+		vars[k] = kvar
 	}
-	for _, test := range tests {
-		v, w, s, want := test()
-		vname := s.getName(v)
-		t.Run("(hasCycle "+vname+" "+w.String()+" "+s.String()+")", func(t *testing.T) {
-			got := hasCycle(v, w, s)
-			if want != got {
-				t.Fatalf("got %v want %v", got, want)
+	for k, v := range substs {
+		switch v := v.(type) {
+		case string:
+			if vvar, ok := values[v]; ok {
+				s = s.Set(vars[k], vvar)
+			} else {
+				s = s.Set(vars[k], ast.NewSymbol(v))
 			}
-		})
+		case []string:
+			sexprs := make([]*ast.SExpr, len(v))
+			for i := 0; i < len(v); i++ {
+				velem := v[i]
+				if vvar, ok := values[velem]; ok {
+					sexprs[i] = vvar.(*ast.SExpr)
+				} else {
+					sexprs[i] = ast.NewSymbol(velem)
+				}
+			}
+			s = s.Set(vars[k], ast.NewList(sexprs...))
+		}
+	}
+	return s
+}
+
+func toString(s *State, v any) string {
+	if vvar, ok := s.CastVar(v); ok {
+		return s.getName(vvar)
+	}
+	switch v := v.(type) {
+	case *ast.SExpr:
+		if v.IsPair() {
+			ss := []string{}
+			for v.IsPair() {
+				car := v.Car()
+				cdr := v.Cdr()
+				v = cdr
+				ss = append(ss, car.String())
+			}
+			return "[" + strings.Join(ss, " ") + "]"
+		}
+	}
+	return v.(interface{ String() string }).String()
+}
+
+func walks(start string, s *State) string {
+	vars := make(map[string]Var)
+	for k, v := range s.names {
+		vars[v] = k
+	}
+	startvar := vars[start]
+	return toString(s, walk(startvar, s))
+}
+
+func rewrites(start string, s *State) string {
+	vars := make(map[string]Var)
+	for k, v := range s.names {
+		vars[v] = k
+	}
+	startvar := vars[start]
+	return toString(s, rewrite(startvar, s))
+}
+
+func TestWalkZA(t *testing.T) {
+	substs := map[string]any{
+		"z": "a",
+		"x": "w",
+		"y": "z",
+	}
+	s := newState(substs)
+	got := walks("z", s)
+	want := "a"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
 
-// exts either extends a substitution s with an association between the variable x and the value v ,
-// or it returns nil if extending the substitution with the pair `(,x . ,v) would create a cycle.
-func exts(x Var, v any, s *State) *State {
-	if hasCycle(x, v, s) {
-		return nil
+func TestRewriteZA(t *testing.T) {
+	substs := map[string]any{
+		"z": "a",
+		"x": "w",
+		"y": "z",
 	}
-	return s.Set(x, v)
-}
-
-func TestExtsXA(t *testing.T) {
-	got := NewState()
-	var x *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
-	xvar, _ := got.CastVar(x)
-	want := got.copy()
-	got = exts(xvar, ast.NewSymbol("a"), got)
-	want = want.Set(xvar, ast.NewSymbol("a"))
-	if !got.Equal(want) {
-		t.Fatalf("got %v want %v", got, want)
+	s := newState(substs)
+	got := rewrites("z", s)
+	want := "a"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
 
-func TestExtsXX(t *testing.T) {
-	got := NewState()
-	var x *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
-	xvar, _ := got.CastVar(x)
-	res := exts(xvar, x, got)
-	if res != nil {
-		t.Fatalf("expected res == nil")
+func TestWalkYA(t *testing.T) {
+	substs := map[string]any{
+		"z": "a",
+		"x": "w",
+		"y": "z",
+	}
+	s := newState(substs)
+	got := walks("y", s)
+	want := "a"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
 
-func TestExtsXY(t *testing.T) {
-	got := NewState()
-	var x, y *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
-	got, y = newVarWithName(got, "y", &ast.SExpr{})
-	xvar, _ := got.CastVar(x)
-	want := got.copy()
-	got = exts(xvar, y, got)
-	want = want.Set(xvar, y)
-	if !got.Equal(want) {
-		t.Fatalf("got %v want %v", got, want)
+func TestRewriteYA(t *testing.T) {
+	substs := map[string]any{
+		"z": "a",
+		"x": "w",
+		"y": "z",
+	}
+	s := newState(substs)
+	got := rewrites("y", s)
+	want := "a"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
 
-func TestExtsXYZ(t *testing.T) {
-	got := NewState()
-	var x, y, z *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
-	got, y = newVarWithName(got, "y", &ast.SExpr{})
-	got, z = newVarWithName(got, "z", &ast.SExpr{})
-	xvar, _ := got.CastVar(x)
-	yvar, _ := got.CastVar(y)
-	zvar, _ := got.CastVar(z)
-	got = got.Set(zvar, x)
-	got = got.Set(yvar, z)
+func TestWalkXW(t *testing.T) {
+	substs := map[string]any{
+		"z": "a",
+		"x": "w",
+		"y": "z",
+	}
+	s := newState(substs)
+	got := walks("x", s)
+	want := "w"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
 
-	want := got.copy()
-	got = exts(xvar, ast.NewSymbol("e"), got)
-	want = want.Set(xvar, ast.NewSymbol("e"))
-	if !got.Equal(want) {
-		t.Fatalf("got %v want %v", got, want)
+func TestRewriteXW(t *testing.T) {
+	substs := map[string]any{
+		"z": "a",
+		"x": "w",
+		"y": "z",
+	}
+	s := newState(substs)
+	got := rewrites("x", s)
+	want := "w"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestWalkXY(t *testing.T) {
+	substs := map[string]any{
+		"x": "y",
+		"v": "x",
+		"w": "x",
+	}
+	s := newState(substs)
+	got := walks("x", s)
+	want := "y"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestRewriteXY(t *testing.T) {
+	substs := map[string]any{
+		"x": "y",
+		"v": "x",
+		"w": "x",
+	}
+	s := newState(substs)
+	got := rewrites("x", s)
+	want := "y"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestWalkVY(t *testing.T) {
+	substs := map[string]any{
+		"x": "y",
+		"v": "x",
+		"w": "x",
+	}
+	s := newState(substs)
+	got := walks("v", s)
+	want := "y"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestRewriteVY(t *testing.T) {
+	substs := map[string]any{
+		"x": "y",
+		"v": "x",
+		"w": "x",
+	}
+	s := newState(substs)
+	got := rewrites("v", s)
+	want := "y"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestWalkWY(t *testing.T) {
+	substs := map[string]any{
+		"x": "y",
+		"v": "x",
+		"w": "x",
+	}
+	s := newState(substs)
+	got := walks("w", s)
+	want := "y"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestRewriteWY(t *testing.T) {
+	substs := map[string]any{
+		"x": "y",
+		"v": "x",
+		"w": "x",
+	}
+	s := newState(substs)
+	got := rewrites("w", s)
+	want := "y"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestWalkYE(t *testing.T) {
+	substs := map[string]any{
+		"x": "e",
+		"z": "x",
+		"y": "z",
+	}
+	s := newState(substs)
+	got := walks("y", s)
+	want := "e"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestWalkABCDE(t *testing.T) {
+	substs := map[string]any{
+		"a": "b",
+		"b": "c",
+		"c": "d",
+		"e": []string{"a", "b", "c"},
+	}
+	got := walks("e", newState(substs))
+	want := "[a b c]"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestRewriteABCDE(t *testing.T) {
+	substs := map[string]any{
+		"a": "b",
+		"b": "c",
+		"c": "d",
+		"e": []string{"a", "b", "c"},
+	}
+	s := newState(substs)
+	got := rewrites("e", s)
+	want := "[d d d]"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestRewriteYE(t *testing.T) {
+	substs := map[string]any{
+		"x": "e",
+		"z": "x",
+		"y": "z",
+	}
+	s := newState(substs)
+	got := rewrites("y", s)
+	want := "e"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestWalkList(t *testing.T) {
+	substs := map[string]any{
+		"x": "b",
+		"z": "y",
+		"w": []string{"x", "e", "z"},
+	}
+	s := newState(substs)
+	got := walks("w", s)
+	want := "[x e z]"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestRewriteList(t *testing.T) {
+	substs := map[string]any{
+		"x": "b",
+		"z": "y",
+		"w": []string{"x", "e", "z"},
+	}
+	s := newState(substs)
+	got := rewrites("w", s)
+	want := "[b e y]"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
