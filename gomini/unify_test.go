@@ -1,58 +1,73 @@
 package gomini
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/awalterschulze/gominikanren/sexpr/ast"
 )
 
-func newState(substs map[string]any) *State {
-	s := NewState(ast.CreateVar)
-	values := make(map[string]any)
+func getVars(s *State) map[string]Var {
 	vars := make(map[string]Var)
+	for k, v := range s.names {
+		vars[v] = k
+	}
+	return vars
+}
+
+func addVars(s *state, v any) (*state, any) {
+	switch v := v.(type) {
+	case string:
+		if _, ok := s.values[v]; !ok {
+			fmt.Printf("adding %s\n", v)
+			var vvar *ast.SExpr
+			s.State, vvar = newVarWithName(s.State, v, &ast.SExpr{})
+			s.values[v] = vvar
+			return s, vvar
+		} else {
+			fmt.Printf("already added %s\n", v)
+			return s, s.values[v]
+		}
+	case []string:
+		xs := make([]*ast.SExpr, len(v))
+		for i := 0; i < len(v); i++ {
+			if _, ok := s.values[v[i]]; !ok {
+				fmt.Printf("adding %s\n", v[i])
+				var vvar *ast.SExpr
+				s.State, vvar = newVarWithName(s.State, v[i], &ast.SExpr{})
+				s.values[v[i]] = vvar
+				xs[i] = vvar
+			} else {
+				fmt.Printf("already added %s\n", v[i])
+				xs[i] = s.values[v[i]].(*ast.SExpr)
+			}
+		}
+		return s, ast.NewList(xs...)
+	}
+	panic("unreachable")
+}
+
+type state struct {
+	*State
+	values map[string]any
+}
+
+func newState(substs map[string]any) *state {
+	s := &state{NewState(ast.CreateVar), make(map[string]any)}
 	for k := range substs {
-		var kvalue any
-		s, kvalue = newVarWithName(s, k, &ast.SExpr{})
-		values[k] = kvalue
-		kvar, _ := s.CastVar(kvalue)
-		vars[k] = kvar
+		s, _ = addVars(s, k)
 	}
-	for _, v := range substs {
-		switch v := v.(type) {
-		case string:
-			if _, ok := values[v]; !ok {
-				var vvalue any
-				s, vvalue = newVarWithName(s, v, &ast.SExpr{})
-				values[v] = vvalue
-				vvar, _ := s.CastVar(vvalue)
-				vars[v] = vvar
-			}
-		case []string:
-			for i := 0; i < len(v); i++ {
-				velem := v[i]
-				if _, ok := values[velem]; !ok {
-					var vvalue any
-					s, vvalue = newVarWithName(s, velem, &ast.SExpr{})
-					values[velem] = vvalue
-					vvar, _ := s.CastVar(vvalue)
-					vars[velem] = vvar
-				}
-			}
-		}
-	}
+	vars := getVars(s.State)
+	m := make(map[Var]any)
 	for k, v := range substs {
-		switch v := v.(type) {
-		case string:
-			s = s.Set(vars[k], values[v])
-		case []string:
-			sexprs := make([]*ast.SExpr, len(v))
-			for i := 0; i < len(v); i++ {
-				velem := v[i]
-				sexprs[i] = values[velem].(*ast.SExpr)
-			}
-			s = s.Set(vars[k], ast.NewList(sexprs...))
-		}
+		var value any
+		s, value = addVars(s, v)
+		m[vars[k]] = value
+	}
+	for k, v := range m {
+		s.State = s.State.Set(k, v)
 	}
 	return s
 }
@@ -77,22 +92,84 @@ func toString(s *State, v any) string {
 	return v.(interface{ String() string }).String()
 }
 
-func walks(start string, s *State) string {
-	vars := make(map[string]Var)
-	for k, v := range s.names {
-		vars[v] = k
-	}
+func walks(start string, s *state) string {
+	vars := getVars(s.State)
 	startvar := vars[start]
-	return toString(s, walk(startvar, s))
+	return toString(s.State, walk(startvar, s.State))
 }
 
-func rewrites(start string, s *State) string {
-	vars := make(map[string]Var)
-	for k, v := range s.names {
-		vars[v] = k
-	}
+func rewrites(start string, s *state) string {
+	vars := getVars(s.State)
 	startvar := vars[start]
-	return toString(s, rewrite(startvar, s))
+	return toString(s.State, rewrite(startvar, s.State))
+}
+
+func unifys(x, y any, s *state) map[string]string {
+	var xvalue, yvalue any
+	s, xvalue = addVars(s, x)
+	s, yvalue = addVars(s, y)
+	s.State = unify(xvalue, yvalue, s.State)
+	if s.State == nil {
+		return nil
+	}
+	ms := make(map[string]string)
+	for k, v := range s.substitutions {
+		ms[toString(s.State, k)] = toString(s.State, v)
+	}
+	return ms
+}
+func TestUnifyDeep(t *testing.T) {
+	substs := map[string]any{
+		"a": "b",
+	}
+	s := newState(substs)
+	got := unifys([]string{"a", "c"}, []string{"a", "d"}, s)
+	want := map[string]string{
+		"a": "b",
+		"c": "d",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
+func TestUnifyNoCycle(t *testing.T) {
+	substs := map[string]any{
+		"a": "b",
+	}
+	s := newState(substs)
+	got := unifys("b", "c", s)
+	want := map[string]string{
+		"a": "b",
+		"b": "c",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
+func TestUnifyHasCycle1(t *testing.T) {
+	substs := map[string]any{
+		"x": []string{"y"},
+	}
+	s := newState(substs)
+	got := unifys("y", "x", s)
+	var want map[string]string = nil
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
+func TestUnifyHasCycle2(t *testing.T) {
+	substs := map[string]any{
+		"x": []string{"y"},
+	}
+	s := newState(substs)
+	got := unifys("x", "y", s)
+	var want map[string]string = nil
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v want %v", got, want)
+	}
 }
 
 func TestWalkZA(t *testing.T) {
