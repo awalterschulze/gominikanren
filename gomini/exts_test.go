@@ -18,7 +18,7 @@ func exts(x Var, v any, s *State) *State {
 func TestExtsXA(t *testing.T) {
 	got := NewState()
 	var x *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
+	got, x = newVarWithName[*ast.SExpr](got, "x")
 	xvar, _ := got.CastVar(x)
 	want := got.copy()
 	got = exts(xvar, ast.NewSymbol("a"), got)
@@ -31,7 +31,7 @@ func TestExtsXA(t *testing.T) {
 func TestExtsXX(t *testing.T) {
 	got := NewState()
 	var x *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
+	got, x = newVarWithName[*ast.SExpr](got, "x")
 	xvar, _ := got.CastVar(x)
 	res := exts(xvar, x, got)
 	if res != nil {
@@ -42,8 +42,8 @@ func TestExtsXX(t *testing.T) {
 func TestExtsXY(t *testing.T) {
 	got := NewState()
 	var x, y *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
-	got, y = newVarWithName(got, "y", &ast.SExpr{})
+	got, x = newVarWithName[*ast.SExpr](got, "x")
+	got, y = newVarWithName[*ast.SExpr](got, "y")
 	xvar, _ := got.CastVar(x)
 	want := got.copy()
 	got = exts(xvar, y, got)
@@ -56,9 +56,9 @@ func TestExtsXY(t *testing.T) {
 func TestExtsXYZ(t *testing.T) {
 	got := NewState()
 	var x, y, z *ast.SExpr
-	got, x = newVarWithName(got, "x", &ast.SExpr{})
-	got, y = newVarWithName(got, "y", &ast.SExpr{})
-	got, z = newVarWithName(got, "z", &ast.SExpr{})
+	got, x = newVarWithName[*ast.SExpr](got, "x")
+	got, y = newVarWithName[*ast.SExpr](got, "y")
+	got, z = newVarWithName[*ast.SExpr](got, "z")
 	xvar, _ := got.CastVar(x)
 	yvar, _ := got.CastVar(y)
 	zvar, _ := got.CastVar(z)

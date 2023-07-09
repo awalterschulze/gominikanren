@@ -162,7 +162,7 @@ func TestCarO(t *testing.T) {
 	defer cancel()
 	state := NewState()
 	var y *ast.SExpr
-	state, y = newVarWithName(state, "y", &ast.SExpr{})
+	state, y = newVarWithName[*ast.SExpr](state, "y")
 	ifte := IfThenElseO(
 		CarO(
 			ast.NewList(

@@ -56,17 +56,18 @@ func (s *State) CastVar(x any) (Var, bool) {
 
 type Var uintptr
 
-func NewVar[A any](s *State, typ A) (*State, A) {
-	return newVarWithName(s, "v"+strconv.Itoa(len(s.vars)), typ)
+func NewVar[A any](s *State) (*State, A) {
+	return newVarWithName[A](s, "v"+strconv.Itoa(len(s.vars)))
 }
 
-func newVarWithName[A any](s *State, name string, typ A) (*State, A) {
+func newVarWithName[A any](s *State, name string) (*State, A) {
 	res := &State{
 		substitutions: s.substitutions,
 		vars:          copyMap(s.vars),
 		names:         copyMap(s.names),
 		varCreators:   s.varCreators,
 	}
+	var typ A
 	vvalue := s.newVarValue(typ, name)
 	vvar := Var(reflect.ValueOf(vvalue).Pointer())
 	res.names[vvar] = name

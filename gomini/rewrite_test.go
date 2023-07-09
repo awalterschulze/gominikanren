@@ -30,12 +30,12 @@ scheme code:
 func TestRewrite1(t *testing.T) {
 	s := NewState(ast.CreateVar)
 	var x, u, v, w, y, z *ast.SExpr
-	s, u = NewVar(s, &ast.SExpr{})
-	s, v = NewVar(s, &ast.SExpr{})
-	s, w = NewVar(s, &ast.SExpr{})
-	s, x = NewVar(s, &ast.SExpr{})
-	s, y = NewVar(s, &ast.SExpr{})
-	s, z = NewVar(s, &ast.SExpr{})
+	s, u = NewVar[*ast.SExpr](s)
+	s, v = NewVar[*ast.SExpr](s)
+	s, w = NewVar[*ast.SExpr](s)
+	s, x = NewVar[*ast.SExpr](s)
+	s, y = NewVar[*ast.SExpr](s)
+	s, z = NewVar[*ast.SExpr](s)
 	xvar, _ := s.CastVar(x)
 	yvar, _ := s.CastVar(y)
 	wvar, _ := s.CastVar(w)
@@ -59,7 +59,7 @@ func TestNoRewrites(t *testing.T) {
 	defer cancel()
 	initial := NewState(ast.CreateVar)
 	var x *ast.SExpr
-	initial, x = newVarWithName(initial, "x", &ast.SExpr{})
+	initial, x = newVarWithName[*ast.SExpr](initial, "x")
 	xvar, _ := initial.CastVar(x)
 	e1 := EqualO(
 		ast.NewSymbol("olive"),
@@ -89,18 +89,18 @@ func TestNoRewrites(t *testing.T) {
 func TestRewriteInternal(t *testing.T) {
 	s := NewState()
 	var v, w, x, y, z *ast.SExpr
-	s, v = newVarWithName(s, "v", &ast.SExpr{})
-	s, w = newVarWithName(s, "w", &ast.SExpr{})
-	s, x = newVarWithName(s, "x", &ast.SExpr{})
-	s, y = newVarWithName(s, "y", &ast.SExpr{})
-	s, z = newVarWithName(s, "z", &ast.SExpr{})
+	s, v = newVarWithName[*ast.SExpr](s, "v")
+	s, w = newVarWithName[*ast.SExpr](s, "w")
+	s, x = newVarWithName[*ast.SExpr](s, "x")
+	s, y = newVarWithName[*ast.SExpr](s, "y")
+	s, z = newVarWithName[*ast.SExpr](s, "z")
 	xvar, _ := s.CastVar(x)
 	yvar, _ := s.CastVar(y)
 	zvar, _ := s.CastVar(z)
 	wvar, _ := s.CastVar(w)
 	vvar, _ := s.CastVar(v)
 
-	zaxwyz, a := newVarWithName(s, "a", &ast.SExpr{})
+	zaxwyz, a := newVarWithName[*ast.SExpr](s, "a")
 	zaxwyz = zaxwyz.Set(zvar, a)
 	zaxwyz = zaxwyz.Set(xvar, w)
 	zaxwyz = zaxwyz.Set(yvar, z)

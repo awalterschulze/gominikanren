@@ -52,6 +52,11 @@ func conj2(g1, g2 Goal) Goal {
 	}
 }
 
+//	Original: func Bind(s *StreamOfStates, g Goal) *StreamOfStates {
+//	          where type Goal = func(*State) *StreamOfStates
+//
+// Haskell:  (>>=)  :: m a -> (  a -> m b) -> m b
+
 // Bind is the monad bind function for state.
 func Bind(ctx context.Context, stream Stream, g Goal, res Stream) {
 	wait := sync.WaitGroup{}
@@ -69,7 +74,7 @@ func Bind(ctx context.Context, stream Stream, g Goal, res Stream) {
 func ExistO[A any](f func(A) Goal) Goal {
 	return func(ctx context.Context, s *State, ss Stream) {
 		var v A
-		s, v = NewVar(s, v)
+		s, v = NewVar[A](s)
 		f(v)(ctx, s, ss)
 	}
 }

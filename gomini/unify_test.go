@@ -23,7 +23,7 @@ func addVars(s *state, v any) (*state, any) {
 		if _, ok := s.values[v]; !ok {
 			fmt.Printf("adding %s\n", v)
 			var vvar *ast.SExpr
-			s.State, vvar = newVarWithName(s.State, v, &ast.SExpr{})
+			s.State, vvar = newVarWithName[*ast.SExpr](s.State, v)
 			s.values[v] = vvar
 			return s, vvar
 		} else {
@@ -36,7 +36,7 @@ func addVars(s *state, v any) (*state, any) {
 			if _, ok := s.values[v[i]]; !ok {
 				fmt.Printf("adding %s\n", v[i])
 				var vvar *ast.SExpr
-				s.State, vvar = newVarWithName(s.State, v[i], &ast.SExpr{})
+				s.State, vvar = newVarWithName[*ast.SExpr](s.State, v[i])
 				s.values[v[i]] = vvar
 				xs[i] = vvar
 			} else {

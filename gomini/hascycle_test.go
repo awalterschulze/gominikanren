@@ -9,8 +9,8 @@ import (
 func TestHasCycle(t *testing.T) {
 	s := NewState()
 	var x, y *ast.SExpr
-	s, x = newVarWithName(s, "x", &ast.SExpr{})
-	s, y = newVarWithName(s, "y", &ast.SExpr{})
+	s, x = newVarWithName[*ast.SExpr](s, "x")
+	s, y = newVarWithName[*ast.SExpr](s, "y")
 	xvar, _ := s.CastVar(x)
 	yvar, _ := s.CastVar(y)
 

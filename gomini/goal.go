@@ -16,7 +16,7 @@ func RunTake[A any](ctx context.Context, n int, s *State, g func(A) Goal) []any 
 // Run behaves like the default miniKanren run command, but returns a stream of answers
 func Run[A any](ctx context.Context, s *State, g func(A) Goal) chan any {
 	var v A
-	s, v = NewVar(s, v)
+	s, v = NewVar[A](s)
 	key, _ := s.CastVar(v)
 	ss := NewStreamForGoal(ctx, g(v), s)
 	res := make(chan any, 0)

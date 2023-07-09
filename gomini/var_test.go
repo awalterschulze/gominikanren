@@ -7,9 +7,8 @@ import (
 )
 
 func TestIntIsVar(t *testing.T) {
-	varTyp := int(0)
 	s := NewState()
-	s, v := NewVar(s, &varTyp)
+	s, v := NewVar[*int](s)
 	if _, ok := s.CastVar(v); !ok {
 		t.Fatalf("expected %v to be a var", v)
 	}
@@ -17,7 +16,7 @@ func TestIntIsVar(t *testing.T) {
 
 func TestSExprIsVar(t *testing.T) {
 	s := NewState()
-	s, v := NewVar(s, &ast.SExpr{})
+	s, v := NewVar[*ast.SExpr](s)
 	if _, ok := s.CastVar(v); !ok {
 		t.Fatalf("expected %v to be a var", v)
 	}

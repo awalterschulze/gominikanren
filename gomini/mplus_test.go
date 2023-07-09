@@ -10,7 +10,7 @@ import (
 func s_x1() *State {
 	s := NewState()
 	var x *ast.SExpr
-	s, x = newVarWithName(s, "x", &ast.SExpr{})
+	s, x = newVarWithName[*ast.SExpr](s, "x")
 	xvar, _ := s.CastVar(x)
 	s = s.Set(xvar, ast.NewSymbol("1"))
 	return s
@@ -19,8 +19,8 @@ func s_x1() *State {
 func s_xy_y1() *State {
 	s := NewState()
 	var x, y *ast.SExpr
-	s, x = newVarWithName(s, "x", &ast.SExpr{})
-	s, y = newVarWithName(s, "y", &ast.SExpr{})
+	s, x = newVarWithName[*ast.SExpr](s, "x")
+	s, y = newVarWithName[*ast.SExpr](s, "y")
 	xvar, _ := s.CastVar(x)
 	yvar, _ := s.CastVar(y)
 	s = s.Set(xvar, y)
@@ -31,7 +31,7 @@ func s_xy_y1() *State {
 func s_x2() *State {
 	s := NewState()
 	var x *ast.SExpr
-	s, x = newVarWithName(s, "x", &ast.SExpr{})
+	s, x = newVarWithName[*ast.SExpr](s, "x")
 	xvar, _ := s.CastVar(x)
 	s = s.Set(xvar, ast.NewSymbol("2"))
 	return s
