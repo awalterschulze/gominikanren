@@ -41,8 +41,18 @@ func empty() *State {
 	return NewState()
 }
 
+// newSingletonStream returns the input state as a stream of states containing only the head state.
+func newSingletonStream(ctx context.Context, s *State) Stream {
+	ss := NewEmptyStream()
+	Go(ctx, nil, func() {
+		defer close(ss)
+		ss.Write(ctx, s)
+	})
+	return ss
+}
+
 func single(ctx context.Context, s *State) Stream {
-	return NewSingletonStream(ctx, s)
+	return newSingletonStream(ctx, s)
 }
 
 func TestMplus1(t *testing.T) {

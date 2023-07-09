@@ -71,7 +71,7 @@ func TestNoRewrites(t *testing.T) {
 	)
 	g := DisjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, initial)
-	states := Take(ctx, 5, stream)
+	states := take(ctx, 5, stream)
 	ss := make([]*ast.SExpr, len(states))
 	strs := make([]string, len(states))
 	for i, s := range states {

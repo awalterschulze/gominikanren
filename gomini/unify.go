@@ -2,6 +2,8 @@ package gomini
 
 import (
 	"reflect"
+
+	"github.com/awalterschulze/gominikanren/gomini/reflecttools"
 )
 
 // unify returns the substitution s extended with zero or more associations,
@@ -18,7 +20,7 @@ func unify(x, y any, s *State) *State {
 	} else if yvar, ok := s.CastVar(y); ok {
 		return s.Set(yvar, x)
 	}
-	return ZipReduce(x, y, s, unify)
+	return reflecttools.ZipReduce(x, y, s, unify)
 }
 
 // walk returns the value of the variable in the substitutions map.
@@ -58,7 +60,7 @@ func hasCycle(xvar Var, y any, s *State) bool {
 	if yvar, ok := s.CastVar(y); ok {
 		return xvar == yvar
 	}
-	return Any(y, func(yelem any) bool {
+	return reflecttools.Any(y, func(yelem any) bool {
 		return hasCycle(xvar, yelem, s)
 	})
 }
@@ -71,7 +73,7 @@ func rewrite(x any, s *State) any {
 		// we walked down and found a variable, but we didn't find a substitution for it.
 		return x
 	}
-	return Map(x, func(xelem any) any {
+	return reflecttools.Map(x, func(xelem any) any {
 		return rewrite(xelem, s)
 	})
 }

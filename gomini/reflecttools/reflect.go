@@ -1,4 +1,4 @@
-package gomini
+package reflecttools
 
 import (
 	"reflect"

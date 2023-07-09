@@ -40,13 +40,17 @@ func fmap[A, B any](list []A, f func(A) B) []B {
 	return out
 }
 
+type stringer interface {
+	String() string
+}
+
 func toStrings(xs []any) []string {
 	res := fmap(xs, func(a any) string {
 		switch a := a.(type) {
 		case *string:
 			return *a
 		default:
-			return a.(Stringer).String()
+			return a.(stringer).String()
 		}
 	})
 	sort.Strings(res)
@@ -126,14 +130,13 @@ func TestConcatOOut(t *testing.T) {
 		return
 	}
 
-	qs := Run(context.Background(), NewState(), func(q *Node) Goal {
+	gots := toStrings(RunTake(context.Background(), -1, NewState(), func(q *Node) Goal {
 		return ConcatO(
 			NewNode("a", NewNode("b", nil)),
 			NewNode("c", NewNode("d", nil)),
 			q,
 		)
-	})
-	gots := toStrings(Take(context.Background(), -1, qs))
+	}))
 	wants := []string{
 		`[a,b,c,d]`,
 	}
@@ -148,7 +151,7 @@ func TestConcatOAllCombinations(t *testing.T) {
 		return
 	}
 
-	qs := Run(context.Background(), NewState(), func(q *Pair) Goal {
+	gots := toStrings(RunTake(context.Background(), -1, NewState(), func(q *Pair) Goal {
 		return ExistO(func(x *Node) Goal {
 			return ExistO(func(y *Node) Goal {
 				return ConjO(
@@ -161,8 +164,7 @@ func TestConcatOAllCombinations(t *testing.T) {
 				)
 			})
 		})
-	})
-	gots := toStrings(Take(context.Background(), -1, qs))
+	}))
 	wants := []string{
 		`{[], [a,b,c,d]}`,
 		`{[a,b,c,d], []}`,

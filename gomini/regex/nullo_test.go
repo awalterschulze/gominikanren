@@ -142,7 +142,7 @@ func TestGenNullO(t *testing.T) {
 	ss := Run(ctx, s, g)
 	count := 0
 	for {
-		res, ok := ReadFromStream(ctx, ss)
+		res, ok := <-ss
 		if !ok {
 			return
 		}

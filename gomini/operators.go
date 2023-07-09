@@ -39,8 +39,8 @@ func Disj2(g1, g2 Goal) Goal {
 // Mplus is responsible for merging streams
 func Mplus(ctx context.Context, s1, s2, res Stream) {
 	wait := sync.WaitGroup{}
-	Go(ctx, &wait, func() { WriteStreamTo(ctx, s1, res) })
-	Go(ctx, &wait, func() { WriteStreamTo(ctx, s2, res) })
+	Go(ctx, &wait, func() { writeStreamTo(ctx, s1, res) })
+	Go(ctx, &wait, func() { writeStreamTo(ctx, s2, res) })
 	wait.Wait()
 }
 

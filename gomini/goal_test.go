@@ -181,7 +181,7 @@ func TestAlwaysO(t *testing.T) {
 
 func runGoal(ctx context.Context, n int, s *State, g Goal) []*State {
 	ss := NewStreamForGoal(ctx, g, s)
-	return Take(ctx, n, ss)
+	return take(ctx, n, ss)
 }
 
 func TestRunGoalAlways3(t *testing.T) {
@@ -220,7 +220,7 @@ func TestRunGoalDisj2(t *testing.T) {
 	)
 	g := DisjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, s)
-	ss := Take(ctx, 5, stream)
+	ss := take(ctx, 5, stream)
 	if len(ss) != 2 {
 		t.Fatalf("expected 2, got %d: %v", len(ss), ss)
 	}
@@ -242,7 +242,7 @@ func TestRunGoalConj2NoResults(t *testing.T) {
 	)
 	g := ConjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, s)
-	ss := Take(ctx, 5, stream)
+	ss := take(ctx, 5, stream)
 	if len(ss) != 0 {
 		t.Fatalf("expected 0, got %d: %v", len(ss), ss)
 	}
@@ -264,7 +264,7 @@ func TestRunGoalConj2OneResults(t *testing.T) {
 	)
 	g := ConjO(e1, e2)
 	stream := NewStreamForGoal(ctx, g, initial)
-	ss := Take(ctx, 5, stream)
+	ss := take(ctx, 5, stream)
 	if len(ss) != 1 {
 		t.Fatalf("expected 1, got %d: %v", len(ss), ss)
 	}

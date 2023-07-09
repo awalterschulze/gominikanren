@@ -1,4 +1,4 @@
-package gomini
+package reflecttools
 
 import (
 	"fmt"
@@ -57,7 +57,7 @@ func ExampleMap_struct() {
 	}
 	ys := Map(xs, f).(*A)
 	fmt.Printf("%#v\n", ys)
-	// Output: &gomini.A{Field1:2, Field2:"1+1"}
+	// Output: &reflecttools.A{Field1:2, Field2:"1+1"}
 }
 
 func TestAnyIntTrue(t *testing.T) {
@@ -113,6 +113,10 @@ func ExampleAny_struct() {
 	// isAny = true
 	fmt.Println(isAny)
 	// Output: true
+}
+
+func option[A any](x A) *A {
+	return &x
 }
 
 func TestZipReduceSum(t *testing.T) {

@@ -13,10 +13,10 @@ func NewEmptyStream() Stream {
 }
 
 func (ss Stream) Read(ctx context.Context) (*State, bool) {
-	return ReadFromStream(ctx, ss)
+	return readFromStream(ctx, ss)
 }
 
-func ReadFromStream[A any](ctx context.Context, ss <-chan A) (A, bool) {
+func readFromStream[A any](ctx context.Context, ss <-chan A) (A, bool) {
 	var zero A
 	select {
 	case a, ok := <-ss:
@@ -27,10 +27,10 @@ func ReadFromStream[A any](ctx context.Context, ss <-chan A) (A, bool) {
 }
 
 func (ss Stream) Write(ctx context.Context, s *State) bool {
-	return WriteToStream(ctx, s, ss)
+	return writeToStream(ctx, s, ss)
 }
 
-func WriteToStream[A any](ctx context.Context, a A, ss chan<- A) bool {
+func writeToStream[A any](ctx context.Context, a A, ss chan<- A) bool {
 	select {
 	case <-ctx.Done():
 		return false
@@ -43,21 +43,21 @@ func (ss Stream) Close() {
 	close(ss)
 }
 
-func WriteStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
+func writeStreamTo[A any](ctx context.Context, src <-chan A, dst chan<- A) {
 	identity := func(a A) A {
 		return a
 	}
-	MapOverStream(ctx, src, identity, dst)
+	mapOverStream(ctx, src, identity, dst)
 }
 
-func MapOverStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
+func mapOverStream[A, B any](ctx context.Context, src <-chan A, f func(A) B, dst chan<- B) {
 	for {
-		a, ok := ReadFromStream(ctx, src)
+		a, ok := readFromStream(ctx, src)
 		if !ok {
 			return
 		}
 		b := f(a)
-		if ok := WriteToStream(ctx, b, dst); !ok {
+		if ok := writeToStream(ctx, b, dst); !ok {
 			return
 		}
 	}
@@ -80,16 +80,6 @@ func (ss Stream) String() string {
 	return "(" + strings.Join(buf, " ") + ")"
 }
 
-// NewSingletonStream returns the input state as a stream of states containing only the head state.
-func NewSingletonStream(ctx context.Context, s *State) Stream {
-	ss := NewEmptyStream()
-	Go(ctx, nil, func() {
-		defer close(ss)
-		ss.Write(ctx, s)
-	})
-	return ss
-}
-
 func NewStreamForGoal(ctx context.Context, g Goal, s *State) Stream {
 	ss := NewEmptyStream()
 	Go(ctx, nil, func() {
@@ -99,7 +89,7 @@ func NewStreamForGoal(ctx context.Context, g Goal, s *State) Stream {
 	return ss
 }
 
-func Take[A any](ctx context.Context, n int, ss chan A) []A {
+func take[A any](ctx context.Context, n int, ss chan A) []A {
 	if n == 0 {
 		return nil
 	}
@@ -115,7 +105,7 @@ func Take[A any](ctx context.Context, n int, ss chan A) []A {
 		if i == n {
 			break
 		}
-		a, ok := ReadFromStream(ctx, ss)
+		a, ok := readFromStream(ctx, ss)
 		if !ok {
 			break
 		}

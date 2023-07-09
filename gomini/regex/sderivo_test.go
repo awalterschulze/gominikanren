@@ -123,7 +123,7 @@ func TestGenSDerivO(t *testing.T) {
 	ss := Run(ctx, s, g)
 	count := 0
 	for {
-		res, ok := ReadFromStream(ctx, ss)
+		res, ok := <-ss
 		if !ok {
 			break
 		}
@@ -149,7 +149,7 @@ func TestGenSDerivOB(t *testing.T) {
 	ss := Run(ctx, s, g)
 	count := 0
 	for {
-		res, ok := ReadFromStream(ctx, ss)
+		res, ok := <-ss
 		if !ok {
 			break
 		}
@@ -175,7 +175,7 @@ func TestGenSDerivOAOrB(t *testing.T) {
 	ss := Run(ctx, s, g)
 	count := 0
 	for {
-		res, ok := ReadFromStream(ctx, ss)
+		res, ok := <-ss
 		if !ok {
 			break
 		}

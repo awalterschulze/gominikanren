@@ -122,7 +122,7 @@ func TestGenDeriveOA(t *testing.T) {
 	}
 	ss := Run(ctx, s, g)
 	for {
-		res, ok := ReadFromStream(ctx, ss)
+		res, ok := <-ss
 		if !ok {
 			return
 		}
@@ -145,7 +145,7 @@ func TestGenDeriveOB(t *testing.T) {
 	}
 	ss := Run(ctx, s, g)
 	for {
-		res, ok := ReadFromStream(ctx, ss)
+		res, ok := <-ss
 		if !ok {
 			return
 		}
@@ -166,7 +166,7 @@ func TestGenDeriveOAOrB(t *testing.T) {
 	}
 	ss := Run(ctx, s, g)
 	for {
-		res, ok := ReadFromStream(ctx, ss)
+		res, ok := <-ss
 		if !ok {
 			return
 		}

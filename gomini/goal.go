@@ -10,7 +10,7 @@ type Goal func(context.Context, *State, Stream)
 // Run behaves like the default miniKanren run command
 func RunTake[A any](ctx context.Context, n int, s *State, g func(A) Goal) []any {
 	ss := Run(ctx, s, g)
-	return Take(ctx, n, ss)
+	return take(ctx, n, ss)
 }
 
 // Run behaves like the default miniKanren run command, but returns a stream of answers
@@ -28,7 +28,7 @@ func Run[A any](ctx context.Context, s *State, g func(A) Goal) chan any {
 	}
 	go func() {
 		defer close(res)
-		MapOverStream(ctx, ss, rw, res)
+		mapOverStream(ctx, ss, rw, res)
 	}()
 	return res
 }

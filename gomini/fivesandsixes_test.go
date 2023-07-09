@@ -82,10 +82,10 @@ func TestFivesAndSixesSExpr(t *testing.T) {
 	has5 := false
 	has6 := false
 	for s := range stream {
-		if !has5 && strings.Contains(s.(Stringer).String(), "5") {
+		if !has5 && strings.Contains(s.(stringer).String(), "5") {
 			has5 = true
 		}
-		if !has6 && strings.Contains(s.(Stringer).String(), "6") {
+		if !has6 && strings.Contains(s.(stringer).String(), "6") {
 			has6 = true
 		}
 		if has5 && has6 {

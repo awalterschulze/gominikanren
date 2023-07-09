@@ -10,7 +10,7 @@ import (
 )
 
 func Go(ctx context.Context, w *sync.WaitGroup, f func()) {
-	WaitForRoutine(ctx)
+	waitForRoutine(ctx)
 	if w != nil {
 		w.Add(1)
 	}
@@ -18,7 +18,7 @@ func Go(ctx context.Context, w *sync.WaitGroup, f func()) {
 		if w != nil {
 			defer w.Done()
 		}
-		defer ReleaseRoutine(ctx)
+		defer releaseRoutine(ctx)
 		f()
 	}()
 }
@@ -34,7 +34,7 @@ func SetMaxRoutines(ctx context.Context, max int) context.Context {
 				return
 			case <-time.After(20 * time.Millisecond):
 				limitChan <- struct{}{}
-				count, ok := GetCount(ctx)
+				count, ok := getCount(ctx)
 				if ok {
 					if rand.Intn(100) == 0 {
 						fmt.Printf("Go Routines: %v\n", count.Load())
@@ -51,7 +51,7 @@ func SetMaxRoutines(ctx context.Context, max int) context.Context {
 
 // Slows down the creation of go routines, by waiting for a routine to finish if the max has been reached.
 // It will only wait for 1 second before giving up.
-func WaitForRoutine(ctx context.Context) bool {
+func waitForRoutine(ctx context.Context) bool {
 	limitChan, ok := ctx.Value("limit").(chan struct{})
 	if !ok {
 		return true
@@ -68,7 +68,7 @@ func WaitForRoutine(ctx context.Context) bool {
 	return true
 }
 
-func ReleaseRoutine(ctx context.Context) bool {
+func releaseRoutine(ctx context.Context) bool {
 	limitChan, ok := ctx.Value("limit").(chan struct{})
 	if !ok {
 		return true
@@ -78,14 +78,14 @@ func ReleaseRoutine(ctx context.Context) bool {
 	case <-ctx.Done():
 		return false
 	}
-	count, ok := GetCount(ctx)
+	count, ok := getCount(ctx)
 	if ok {
 		count.Add(-1)
 	}
 	return true
 }
 
-func GetCount(ctx context.Context) (*atomic.Int32, bool) {
+func getCount(ctx context.Context) (*atomic.Int32, bool) {
 	c, ok := ctx.Value("count").(*atomic.Int32)
 	return c, ok
 }
