@@ -30,18 +30,18 @@ func DerivO(r *Regex, char *rune, dr *Regex) Goal {
 			})
 		}),
 		ExistO(func(a *Regex) Goal {
-			return ExistO(func(da *Regex) Goal {
-				return ExistO(func(na *Regex) Goal {
-					return ExistO(func(b *Regex) Goal {
-						return ExistO(func(db *Regex) Goal {
-							return ConjO(
-								EqualO(r, Concat(a, b)),
-								DerivO(a, char, da),
-								DerivO(b, char, db),
-								NullO(a, na),
-								EqualO(dr, Or(Concat(da, b), Concat(na, db))),
-							)
-						})
+			return ExistO(func(b *Regex) Goal {
+				return ExistO(func(da *Regex) Goal {
+					return ExistO(func(db *Regex) Goal {
+						return ConjO(
+							EqualO(r, Concat(a, b)),
+							DerivO(a, char, da),
+							DerivO(b, char, db),
+							DisjO(
+								ConjO(IsNullO(a), EqualO(dr, Or(Concat(da, b), db))),
+								EqualO(dr, Concat(da, b)),
+							),
+						)
 					})
 				})
 			})
@@ -61,7 +61,6 @@ func DerivO(r *Regex, char *rune, dr *Regex) Goal {
 func DeriveCharO(r *Regex, char *rune, dr *Regex) Goal {
 	a := rune('a')
 	b := rune('b')
-	c := rune('c')
 	return DisjO(
 		ConjO(
 			EqualO(char, &a),
@@ -74,11 +73,6 @@ func DeriveCharO(r *Regex, char *rune, dr *Regex) Goal {
 			EqualO(dr, EmptySet()),
 		),
 		ConjO(
-			EqualO(char, &a),
-			EqualO(r, Char('c')),
-			EqualO(dr, EmptySet()),
-		),
-		ConjO(
 			EqualO(char, &b),
 			EqualO(r, Char('a')),
 			EqualO(dr, EmptySet()),
@@ -86,26 +80,6 @@ func DeriveCharO(r *Regex, char *rune, dr *Regex) Goal {
 		ConjO(
 			EqualO(char, &b),
 			EqualO(r, Char('b')),
-			EqualO(dr, EmptyStr()),
-		),
-		ConjO(
-			EqualO(char, &b),
-			EqualO(r, Char('c')),
-			EqualO(dr, EmptySet()),
-		),
-		ConjO(
-			EqualO(char, &c),
-			EqualO(r, Char('a')),
-			EqualO(dr, EmptySet()),
-		),
-		ConjO(
-			EqualO(char, &c),
-			EqualO(r, Char('b')),
-			EqualO(dr, EmptySet()),
-		),
-		ConjO(
-			EqualO(char, &c),
-			EqualO(r, Char('c')),
 			EqualO(dr, EmptyStr()),
 		),
 	)

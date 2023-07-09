@@ -81,7 +81,7 @@ func TestDerivOConcatAB(t *testing.T) {
 		func(q *Regex) Goal {
 			return DerivO(Concat(Char('a'), Char('b')), &a, q)
 		},
-		Or(Concat(EmptyStr(), Char('b')), Concat(EmptySet(), EmptySet())),
+		Concat(EmptyStr(), Char('b')),
 	)
 }
 
@@ -104,7 +104,7 @@ func TestDerivOStarAB(t *testing.T) {
 			return DerivO(Star(Concat(Char('a'), Char('b'))), &a, q)
 		},
 		Concat(
-			Or(Concat(EmptyStr(), Char('b')), Concat(EmptySet(), EmptySet())),
+			Concat(EmptyStr(), Char('b')),
 			Star(Concat(Char('a'), Char('b'))),
 		),
 	)

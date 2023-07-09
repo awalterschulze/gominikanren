@@ -74,5 +74,30 @@ func NullO(r, out *Regex) Goal {
 }
 
 func IsNullO(r *Regex) Goal {
-	return NullO(r, EmptyStr())
+	return DisjO(
+		EqualO(r, EmptyStr()),
+		ExistO(func(a *Regex) Goal {
+			return ExistO(func(b *Regex) Goal {
+				return ConjO(
+					EqualO(r, Or(a, b)),
+					DisjO(
+						NullO(a, EmptyStr()),
+						NullO(b, EmptyStr()),
+					),
+				)
+			})
+		}),
+		ExistO(func(a *Regex) Goal {
+			return ExistO(func(b *Regex) Goal {
+				return ConjO(
+					EqualO(r, Concat(a, b)),
+					NullO(a, EmptyStr()),
+					NullO(b, EmptyStr()),
+				)
+			})
+		}),
+		ExistO(func(a *Regex) Goal {
+			return EqualO(r, Star(a))
+		}),
+	)
 }

@@ -32,7 +32,7 @@ func SetMaxRoutines(ctx context.Context, max int) context.Context {
 			select {
 			case <-ctx.Done():
 				return
-			case <-time.After(20 * time.Millisecond):
+			case <-time.After(10 * time.Millisecond):
 				limitChan <- struct{}{}
 				count, ok := getCount(ctx)
 				if ok {

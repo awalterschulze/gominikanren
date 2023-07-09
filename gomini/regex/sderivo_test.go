@@ -157,8 +157,8 @@ func TestGenSDerivOB(t *testing.T) {
 		r := res.(*rune)
 		fmt.Printf("%c\n", *r)
 	}
-	if count < 2 {
-		t.Fatalf("expected at least 2 solutions, got %d", count)
+	if count < 1 {
+		t.Fatalf("expected at least 1 solutions, got %d", count)
 	}
 }
 

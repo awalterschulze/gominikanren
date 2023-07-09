@@ -118,11 +118,11 @@ func TestMatchOOrCharB(t *testing.T) {
 	)
 }
 
-func TestMatchOOrCharC(t *testing.T) {
+func TestMatchOOrCharAAB(t *testing.T) {
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Or(Char('a'), Char('b')), NewString("c"), q)
+			return MatchO(Or(Char('a'), Char('a')), NewString("b"), q)
 		},
 		EmptySet(),
 	)
@@ -158,11 +158,11 @@ func TestMatchOConcatCharAB(t *testing.T) {
 	)
 }
 
-func TestMatchOConcatCharAC(t *testing.T) {
+func TestMatchOConcatCharAAB(t *testing.T) {
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Concat(Char('a'), Char('b')), NewString("ac"), q)
+			return MatchO(Concat(Char('a'), Char('a')), NewString("ab"), q)
 		},
 		EmptySet(),
 	)
