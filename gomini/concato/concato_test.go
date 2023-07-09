@@ -121,6 +121,28 @@ func TestConcatOSingleList(t *testing.T) {
 	}
 }
 
+func TestConcatOOut(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+
+	qs := Run(context.Background(), NewState(), func(q *Node) Goal {
+		return ConcatO(
+			NewNode("a", NewNode("b", nil)),
+			NewNode("c", NewNode("d", nil)),
+			q,
+		)
+	})
+	gots := toStrings(Take(context.Background(), -1, qs))
+	wants := []string{
+		`[a,b,c,d]`,
+	}
+
+	if !reflect.DeepEqual(gots, wants) {
+		t.Fatalf("got %s != want %s", gots, wants)
+	}
+}
+
 func TestConcatOAllCombinations(t *testing.T) {
 	if testing.Short() {
 		return

@@ -46,8 +46,8 @@ func ConcatO(xs, ys, zs *Node) Goal {
 			return ExistO(func(xtail *Node) Goal {
 				return ExistO(func(ztail *Node) Goal {
 					return ConjO(
-						PrependO(head, xtail, xs),
-						PrependO(head, ztail, zs),
+						EqualO(xs, &Node{head, xtail}),
+						EqualO(zs, &Node{head, ztail}),
 						ConcatO(xtail, ys, ztail),
 					)
 				})
