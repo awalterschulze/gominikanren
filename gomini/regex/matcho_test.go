@@ -2,6 +2,7 @@ package regex
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	. "github.com/awalterschulze/gominikanren/gomini"
@@ -210,55 +211,57 @@ func TestMatchOStarABCharAB(t *testing.T) {
 	)
 }
 
-// func TestGenSDerivOs(t *testing.T) {
-// 	if testing.Short() {
-// 		return
-// 	}
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	ctx = SetMaxRoutines(ctx, 10000)
-// 	defer cancel()
-// 	g := func(q *Regex) Goal {
-// 		return SDerivOs(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
-// 	}
-// 	ss := RunStream(ctx, g)
-// 	count := 0
-// 	for {
-// 		s, ok := ReadNonNull(ctx, ss)
-// 		if !ok {
-// 			return
-// 		}
-// 		count++
-// 		fmt.Printf("%s\n", s.String())
-// 		if count > 10 {
-// 			return
-// 		}
-// 	}
-// }
+func TestGenSDerivOs(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	ctx = SetMaxRoutines(ctx, 100)
+	defer cancel()
+	g := func(q *Regex) Goal {
+		return SDerivOs(q, NewString("a"), EmptyStr())
+	}
+	s := NewState(CreateVarRegex)
+	ss := Run(ctx, s, g)
+	count := 0
+	for {
+		res, ok := <-ss
+		if !ok {
+			return
+		}
+		count++
+		fmt.Printf("%s\n", res.(stringer).String())
+		if count > 0 {
+			return
+		}
+	}
+}
 
-// func TestGenMatchO(t *testing.T) {
-// 	if testing.Short() {
-// 		return
-// 	}
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	ctx = SetMaxRoutines(ctx, 100)
-// 	defer cancel()
-// 	g := func(q *Regex) Goal {
-// 		return MatchO(q, ast.Cons(CharSymbol('a'), nil), EmptyStr())
-// 	}
-// 	ss := RunStream(ctx, g)
-// 	count := 0
-// 	for {
-// 		s, ok := ReadNonNull(ctx, ss)
-// 		if !ok {
-// 			return
-// 		}
-// 		count++
-// 		fmt.Printf("%s\n", s.String())
-// 		if count > 10 {
-// 			return
-// 		}
-// 	}
-// }
+func TestGenIsMatchO(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	ctx = SetMaxRoutines(ctx, 100)
+	defer cancel()
+	g := func(q *Regex) Goal {
+		return IsMatchO(q, NewString("a"))
+	}
+	s := NewState(CreateVarRegex)
+	ss := Run(ctx, s, g)
+	count := 0
+	for {
+		res, ok := <-ss
+		if !ok {
+			return
+		}
+		count++
+		fmt.Printf("%s\n", res.(stringer).String())
+		if count > 0 {
+			return
+		}
+	}
+}
 
 func TestIsMatchOStarABCharAB(t *testing.T) {
 	if testing.Short() {
