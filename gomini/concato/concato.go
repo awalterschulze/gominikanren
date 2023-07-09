@@ -7,8 +7,8 @@ import (
 )
 
 type Node struct {
-	Val  *string
-	Next *Node
+	Value *string
+	Next  *Node
 }
 
 func NewNode(v string, n *Node) *Node {
@@ -20,8 +20,8 @@ func (n *Node) String() string {
 		return "[]"
 	}
 	res := "<nil>"
-	if n.Val != nil {
-		res = *n.Val
+	if n.Value != nil {
+		res = *n.Value
 	}
 	if n.Next != nil {
 		next := n.Next.String()

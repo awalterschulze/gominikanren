@@ -125,20 +125,45 @@ func TestConcatOSingleList(t *testing.T) {
 	}
 }
 
+func run[A any](f func(A) Goal) []string {
+	return toStrings(RunTake(context.Background(), -1, NewState(), f))
+}
+
 func TestConcatOOut(t *testing.T) {
 	if testing.Short() {
 		return
 	}
 
-	gots := toStrings(RunTake(context.Background(), -1, NewState(), func(q *Node) Goal {
+	gots := run(func(query *Node) Goal {
 		return ConcatO(
 			NewNode("a", NewNode("b", nil)),
 			NewNode("c", NewNode("d", nil)),
-			q,
+			query,
 		)
-	}))
+	})
 	wants := []string{
 		`[a,b,c,d]`,
+	}
+
+	if !reflect.DeepEqual(gots, wants) {
+		t.Fatalf("got %s != want %s", gots, wants)
+	}
+}
+
+func TestConcatOSuffix(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+
+	gots := run(func(query *Node) Goal {
+		return ConcatO(
+			NewNode("a", NewNode("b", nil)),
+			query,
+			NewNode("a", NewNode("b", NewNode("c", NewNode("d", nil)))),
+		)
+	})
+	wants := []string{
+		`[c,d]`,
 	}
 
 	if !reflect.DeepEqual(gots, wants) {
@@ -151,11 +176,11 @@ func TestConcatOAllCombinations(t *testing.T) {
 		return
 	}
 
-	gots := toStrings(RunTake(context.Background(), -1, NewState(), func(q *Pair) Goal {
+	gots := run(func(query *Pair) Goal {
 		return ExistO(func(x *Node) Goal {
 			return ExistO(func(y *Node) Goal {
 				return ConjO(
-					EqualO(&Pair{x, y}, q),
+					EqualO(&Pair{x, y}, query),
 					ConcatO(
 						x,
 						y,
@@ -164,7 +189,7 @@ func TestConcatOAllCombinations(t *testing.T) {
 				)
 			})
 		})
-	}))
+	})
 	wants := []string{
 		`{[], [a,b,c,d]}`,
 		`{[a,b,c,d], []}`,
