@@ -1,6 +1,7 @@
 package regex
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/awalterschulze/gominikanren/gomini"
@@ -272,3 +273,39 @@ func TestMatchOStarABCharAB(t *testing.T) {
 // 		}
 // 	}
 // }
+
+func TestIsMatchOStarABCharAB(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ab := "ab"
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s := NewState(CreateVarRegex)
+	g := IsMatchO(Star(Concat(Char('a'), Char('b'))), &ab)
+	ss := Run(ctx, s, func(q *Regex) Goal {
+		return g
+	})
+	_, ok := <-ss
+	if !ok {
+		t.Errorf("IsMatchO failed")
+	}
+}
+
+func TestIsMatchOStarABCharBA(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ab := "ba"
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s := NewState(CreateVarRegex)
+	g := IsMatchO(Star(Concat(Char('a'), Char('b'))), &ab)
+	ss := Run(ctx, s, func(q *Regex) Goal {
+		return g
+	})
+	_, ok := <-ss
+	if ok {
+		t.Errorf("IsMatchO should have failed")
+	}
+}

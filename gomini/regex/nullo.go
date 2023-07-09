@@ -72,3 +72,7 @@ func NullO(r, out *Regex) Goal {
 		}),
 	)
 }
+
+func IsNullO(r *Regex) Goal {
+	return NullO(r, EmptyStr())
+}

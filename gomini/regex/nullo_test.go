@@ -153,3 +153,45 @@ func TestGenNullO(t *testing.T) {
 		}
 	}
 }
+
+func TestIsNullOEmptyStr(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s := NewState(CreateVarRegex)
+	g := IsNullO(EmptyStr())
+	ss := Run(ctx, s, func(q *Regex) Goal {
+		return g
+	})
+	_, ok := <-ss
+	if !ok {
+		t.Errorf("IsNullO failed")
+	}
+}
+
+func TestIsNullOEmptySet(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s := NewState(CreateVarRegex)
+	g := IsNullO(EmptySet())
+	ss := Run(ctx, s, func(q *Regex) Goal {
+		return g
+	})
+	_, ok := <-ss
+	if ok {
+		t.Errorf("expected IsNullO to fail")
+	}
+}
+
+func TestIsNullOOrNilA(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s := NewState(CreateVarRegex)
+	g := IsNullO(Or(EmptyStr(), Char('a')))
+	ss := Run(ctx, s, func(q *Regex) Goal {
+		return g
+	})
+	_, ok := <-ss
+	if !ok {
+		t.Errorf("IsNullO failed")
+	}
+}

@@ -16,6 +16,18 @@ func MatchO(r *Regex, s *string, res *Regex) Goal {
 	})
 }
 
+func IsMatchO(r *Regex, s *string) Goal {
+	if s == nil {
+		return IsNullO(r)
+	}
+	return ExistO(func(dr *Regex) Goal {
+		return ConjO(
+			SDerivOs(r, *s, dr),
+			IsNullO(dr),
+		)
+	})
+}
+
 func SDerivOs(r *Regex, s string, res *Regex) Goal {
 	ss := []rune(s)
 	if len(ss) == 0 {
