@@ -4,17 +4,17 @@ import (
 	. "github.com/awalterschulze/gominikanren/gomini"
 )
 
-func DerivO(r *Regex, char *rune, out *Regex) Goal {
+func DerivO(r *Regex, char *rune, dr *Regex) Goal {
 	return DisjO(
 		ConjO(
 			EqualO(r, EmptySet()),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
 		ConjO(
 			EqualO(r, EmptyStr()),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
-		DeriveCharO(r, char, out),
+		DeriveCharO(r, char, dr),
 		ExistO(func(a *Regex) Goal {
 			return ExistO(func(da *Regex) Goal {
 				return ExistO(func(b *Regex) Goal {
@@ -23,7 +23,7 @@ func DerivO(r *Regex, char *rune, out *Regex) Goal {
 							EqualO(r, Or(a, b)),
 							DerivO(a, char, da),
 							DerivO(b, char, db),
-							EqualO(out, Or(da, db)),
+							EqualO(dr, Or(da, db)),
 						)
 					})
 				})
@@ -39,7 +39,7 @@ func DerivO(r *Regex, char *rune, out *Regex) Goal {
 								DerivO(a, char, da),
 								DerivO(b, char, db),
 								NullO(a, na),
-								EqualO(out, Or(Concat(da, b), Concat(na, db))),
+								EqualO(dr, Or(Concat(da, b), Concat(na, db))),
 							)
 						})
 					})
@@ -51,14 +51,14 @@ func DerivO(r *Regex, char *rune, out *Regex) Goal {
 				return ConjO(
 					EqualO(r, Star(a)),
 					DerivO(a, char, da),
-					EqualO(out, Concat(da, Star(a))),
+					EqualO(dr, Concat(da, Star(a))),
 				)
 			})
 		}),
 	)
 }
 
-func DeriveCharO(r *Regex, char *rune, out *Regex) Goal {
+func DeriveCharO(r *Regex, char *rune, dr *Regex) Goal {
 	a := rune('a')
 	b := rune('b')
 	c := rune('c')
@@ -66,47 +66,47 @@ func DeriveCharO(r *Regex, char *rune, out *Regex) Goal {
 		ConjO(
 			EqualO(char, &a),
 			EqualO(r, Char('a')),
-			EqualO(out, EmptyStr()),
+			EqualO(dr, EmptyStr()),
 		),
 		ConjO(
 			EqualO(char, &a),
 			EqualO(r, Char('b')),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
 		ConjO(
 			EqualO(char, &a),
 			EqualO(r, Char('c')),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
 		ConjO(
 			EqualO(char, &b),
 			EqualO(r, Char('a')),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
 		ConjO(
 			EqualO(char, &b),
 			EqualO(r, Char('b')),
-			EqualO(out, EmptyStr()),
+			EqualO(dr, EmptyStr()),
 		),
 		ConjO(
 			EqualO(char, &b),
 			EqualO(r, Char('c')),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
 		ConjO(
 			EqualO(char, &c),
 			EqualO(r, Char('a')),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
 		ConjO(
 			EqualO(char, &c),
 			EqualO(r, Char('b')),
-			EqualO(out, EmptySet()),
+			EqualO(dr, EmptySet()),
 		),
 		ConjO(
 			EqualO(char, &c),
 			EqualO(r, Char('c')),
-			EqualO(out, EmptyStr()),
+			EqualO(dr, EmptyStr()),
 		),
 	)
 }
