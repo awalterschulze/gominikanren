@@ -67,24 +67,24 @@ func newVarWithName[A any](s *State, name string) (*State, A) {
 		names:         copyMap(s.names),
 		varCreators:   s.varCreators,
 	}
-	var typ A
-	vvalue := s.newVarValue(typ, name)
+	vvalue := newVarValue[A](s, name)
 	vvar := Var(reflect.ValueOf(vvalue).Pointer())
 	res.names[vvar] = name
 	res.vars[vvar] = struct{}{}
-	return res, vvalue.(A)
+	return res, vvalue
 }
 
-func (s *State) newVarValue(varType any, name string) any {
+func newVarValue[A any](s *State, name string) A {
+	var varType A
 	for _, create := range s.varCreators {
 		if val, ok := create(varType, name); ok {
 			if !isPointerValue(val) {
 				panic(fmt.Sprintf("cannot make a variable that is not a pointer, slice or map: %#v", val))
 			}
-			return val
+			return val.(A)
 		}
 	}
-	return reflect.New(reflect.TypeOf(varType).Elem()).Interface()
+	return reflect.New(reflect.TypeOf(varType).Elem()).Interface().(A)
 }
 
 func (s *State) copy() *State {
