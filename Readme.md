@@ -41,25 +41,25 @@ import (
 )
 
 type Pair struct {
-	Left  *Node
-	Right *Node
+    Left  *Node
+    Right *Node
 }
 
 func main() {
-	pairs := toStrings(RunTake(context.Background(), -1, NewState(), func(q *Pair) Goal {
-		return ExistO(func(x *Node) Goal {
-			return ExistO(func(y *Node) Goal {
-				return ConjO(
-					EqualO(&Pair{x, y}, q),
-					ConcatO(
-						x,
-						y,
-						NewNode("a", NewNode("b", NewNode("c", NewNode("d", nil)))),
-					),
-				)
-			})
-		})
-	}))
+    pairs := toStrings(RunTake(context.Background(), -1, NewState(), func(q *Pair) Goal {
+        return ExistO(func(x *Node) Goal {
+            return ExistO(func(y *Node) Goal {
+                return ConjO(
+                    EqualO(&Pair{x, y}, q),
+                    ConcatO(
+                        x,
+                        y,
+                        NewNode("a", NewNode("b", NewNode("c", NewNode("d", nil)))),
+                    ),
+                )
+            })
+        })
+    }))
     fmt.Println(pairs)
 }
 
@@ -118,28 +118,28 @@ Then we can use this to translate it to gominikanren:
 
 ```go
 type Node struct {
-	Val  *string
-	Next *Node
+    Value  *string
+    Next   *Node
 }
 
 func ConcatO(xs, ys, zs *Node) Goal {
-	return DisjO(
-		ConjO(
-			EqualO(xs, nil),
-			EqualO(ys, zs),
-		),
-		ExistO(func(head *string) Goal {
-			return ExistO(func(xtail *Node) Goal {
-				return ExistO(func(ztail *Node) Goal {
-					return ConjO(
-						EqualO(xs, &Node{head, xtail}),
-						EqualO(zs, &Node{head, ztail}),
-						ConcatO(xtail, ys, ztail),
-					)
-				})
-			})
-		}),
-	)
+    return DisjO(
+        ConjO(
+            EqualO(xs, nil),
+            EqualO(ys, zs),
+        ),
+        ExistO(func(head *string) Goal {
+            return ExistO(func(xtail *Node) Goal {
+                return ExistO(func(ztail *Node) Goal {
+                    return ConjO(
+                        EqualO(xs, &Node{head, xtail}),
+                        EqualO(zs, &Node{head, ztail}),
+                        ConcatO(xtail, ys, ztail),
+                    )
+                })
+            })
+        }),
+    )
 }
 ```
 
