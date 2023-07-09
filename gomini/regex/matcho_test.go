@@ -18,11 +18,10 @@ func TestMatchOEmptySetNil(t *testing.T) {
 }
 
 func TestMatchOEmptySetChar(t *testing.T) {
-	a := "a"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(EmptySet(), &a, q)
+			return MatchO(EmptySet(), NewString("a"), q)
 		},
 		EmptySet(),
 	)
@@ -39,11 +38,10 @@ func TestMatchOEmptyStrNil(t *testing.T) {
 }
 
 func TestMatchOEmptyStrChar(t *testing.T) {
-	a := "a"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(EmptyStr(), &a, q)
+			return MatchO(EmptyStr(), NewString("a"), q)
 		},
 		EmptySet(),
 	)
@@ -60,33 +58,30 @@ func TestMatchOCharNil(t *testing.T) {
 }
 
 func TestMatchOCharAChar(t *testing.T) {
-	a := "a"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Char('a'), &a, q)
+			return MatchO(Char('a'), NewString("a"), q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOCharBChar(t *testing.T) {
-	b := "b"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Char('a'), &b, q)
+			return MatchO(Char('a'), NewString("b"), q)
 		},
 		EmptySet(),
 	)
 }
 
 func TestMatchOCharStr(t *testing.T) {
-	aa := "aa"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Char('a'), &aa, q)
+			return MatchO(Char('a'), NewString("aa"), q)
 		},
 		EmptySet(),
 	)
@@ -103,33 +98,30 @@ func TestMatchOOrNil(t *testing.T) {
 }
 
 func TestMatchOOrCharA(t *testing.T) {
-	a := "a"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Or(Char('a'), Char('b')), &a, q)
+			return MatchO(Or(Char('a'), Char('b')), NewString("a"), q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOOrCharB(t *testing.T) {
-	b := "b"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Or(Char('a'), Char('b')), &b, q)
+			return MatchO(Or(Char('a'), Char('b')), NewString("b"), q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOOrCharC(t *testing.T) {
-	c := "c"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Or(Char('a'), Char('b')), &c, q)
+			return MatchO(Or(Char('a'), Char('b')), NewString("c"), q)
 		},
 		EmptySet(),
 	)
@@ -146,44 +138,40 @@ func TestMatchOConcatNil(t *testing.T) {
 }
 
 func TestMatchOConcatCharA(t *testing.T) {
-	a := "a"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Concat(Char('a'), Char('b')), &a, q)
+			return MatchO(Concat(Char('a'), Char('b')), NewString("a"), q)
 		},
 		EmptySet(),
 	)
 }
 
 func TestMatchOConcatCharAB(t *testing.T) {
-	ab := "ab"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Concat(Char('a'), Char('b')), &ab, q)
+			return MatchO(Concat(Char('a'), Char('b')), NewString("ab"), q)
 		},
 		EmptyStr(),
 	)
 }
 
 func TestMatchOConcatCharAC(t *testing.T) {
-	ac := "ac"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Concat(Char('a'), Char('b')), &ac, q)
+			return MatchO(Concat(Char('a'), Char('b')), NewString("ac"), q)
 		},
 		EmptySet(),
 	)
 }
 
 func TestMatchOConcatCharABC(t *testing.T) {
-	abc := "abc"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Concat(Char('a'), Char('b')), &abc, q)
+			return MatchO(Concat(Char('a'), Char('b')), NewString("abc"), q)
 		},
 		EmptySet(),
 	)
@@ -200,11 +188,10 @@ func TestMatchOStarANil(t *testing.T) {
 }
 
 func TestMatchOStarABCharA(t *testing.T) {
-	a := "a"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Star(Concat(Char('a'), Char('b'))), &a, q)
+			return MatchO(Star(Concat(Char('a'), Char('b'))), NewString("a"), q)
 		},
 		EmptySet(),
 	)
@@ -214,11 +201,10 @@ func TestMatchOStarABCharAB(t *testing.T) {
 	if testing.Short() {
 		return
 	}
-	ab := "ab"
 	testo(
 		t,
 		func(q *Regex) Goal {
-			return MatchO(Star(Concat(Char('a'), Char('b'))), &ab, q)
+			return MatchO(Star(Concat(Char('a'), Char('b'))), NewString("ab"), q)
 		},
 		EmptyStr(),
 	)
@@ -278,11 +264,10 @@ func TestIsMatchOStarABCharAB(t *testing.T) {
 	if testing.Short() {
 		return
 	}
-	ab := "ab"
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(CreateVarRegex)
-	g := IsMatchO(Star(Concat(Char('a'), Char('b'))), &ab)
+	g := IsMatchO(Star(Concat(Char('a'), Char('b'))), NewString("ab"))
 	ss := Run(ctx, s, func(q *Regex) Goal {
 		return g
 	})
@@ -296,11 +281,10 @@ func TestIsMatchOStarABCharBA(t *testing.T) {
 	if testing.Short() {
 		return
 	}
-	ab := "ba"
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	s := NewState(CreateVarRegex)
-	g := IsMatchO(Star(Concat(Char('a'), Char('b'))), &ab)
+	g := IsMatchO(Star(Concat(Char('a'), Char('b'))), NewString("ba"))
 	ss := Run(ctx, s, func(q *Regex) Goal {
 		return g
 	})

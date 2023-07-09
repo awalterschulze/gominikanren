@@ -4,44 +4,43 @@ import (
 	. "github.com/awalterschulze/gominikanren/gomini"
 )
 
-func MatchO(r *Regex, s *string, res *Regex) Goal {
+func MatchO(r *Regex, s *String, res *Regex) Goal {
 	if s == nil {
 		return NullO(r, res)
 	}
 	return ExistO(func(dr *Regex) Goal {
 		return ConjO(
-			SDerivOs(r, *s, dr),
+			SDerivOs(r, s, dr),
 			NullO(dr, res),
 		)
 	})
 }
 
-func IsMatchO(r *Regex, s *string) Goal {
+func IsMatchO(r *Regex, s *String) Goal {
 	if s == nil {
 		return IsNullO(r)
 	}
 	return ExistO(func(dr *Regex) Goal {
 		return ConjO(
-			SDerivOs(r, *s, dr),
+			SDerivOs(r, s, dr),
 			IsNullO(dr),
 		)
 	})
 }
 
-func SDerivOs(r *Regex, s string, res *Regex) Goal {
-	ss := []rune(s)
-	if len(ss) == 0 {
+func SDerivOs(r *Regex, s *String, res *Regex) Goal {
+	if s.Value == nil {
 		return EqualO(res, r)
 	}
-	if len(ss) == 1 {
-		c := ss[0]
-		return SDerivO(r, &c, res)
+	if s.Next == nil {
+		c := s.Value
+		return SDerivO(r, c, res)
 	}
-	head := ss[0]
-	tail := string(ss[1:])
+	head := s.Value
+	tail := s.Next
 	return ExistO(func(dr *Regex) Goal {
 		return ConjO(
-			SDerivO(r, &head, dr),
+			SDerivO(r, head, dr),
 			SDerivOs(dr, tail, res),
 		)
 	})
