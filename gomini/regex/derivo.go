@@ -32,17 +32,20 @@ func DerivO(r *Regex, char *rune, dr *Regex) Goal {
 		ExistO(func(a *Regex) Goal {
 			return ExistO(func(b *Regex) Goal {
 				return ExistO(func(da *Regex) Goal {
-					return ExistO(func(db *Regex) Goal {
-						return ConjO(
-							EqualO(r, Concat(a, b)),
-							DerivO(a, char, da),
-							DerivO(b, char, db),
-							DisjO(
-								ConjO(IsNullO(a), EqualO(dr, Or(Concat(da, b), db))),
-								EqualO(dr, Concat(da, b)),
-							),
-						)
-					})
+					return ConjO(
+						EqualO(r, Concat(a, b)),
+						DerivO(a, char, da),
+						DisjO(
+							ExistO(func(db *Regex) Goal {
+								return ConjO(
+									IsNullO(a),
+									DerivO(b, char, db),
+									EqualO(dr, Or(Concat(da, b), db)),
+								)
+							}),
+							EqualO(dr, Concat(da, b)),
+						),
+					)
 				})
 			})
 		}),

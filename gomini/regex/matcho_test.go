@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	. "github.com/awalterschulze/gominikanren/gomini"
 )
@@ -234,6 +235,52 @@ func TestGenSDerivOs(t *testing.T) {
 		if count > 0 {
 			return
 		}
+	}
+}
+
+func TestGenStrIsMatchOStarAOrB(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	start := time.Now()
+	s := NewState(CreateVarRegex)
+	ctx = SetMaxRoutines(ctx, 100)
+	g := func(q *String) Goal {
+		return IsMatchO(Star(Or(Char('a'), Char('b'))), q)
+	}
+	ss := Run(ctx, s, g)
+	count := 0
+	for {
+		res, ok := <-ss
+		if !ok {
+			return
+		}
+		count++
+		t := time.Now()
+		elapsed := t.Sub(start)
+		fmt.Printf("Generated, %v, %d, %s\n", elapsed, count, res.(stringer).String())
+		if count >= 10 {
+			return
+		}
+	}
+}
+
+func TestStrIsMatchO(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	ctx = SetMaxRoutines(ctx, 100)
+	defer cancel()
+	g := func(q *String) Goal {
+		return IsMatchO(Star(Char('a')), NewString("ab11122233334b"))
+	}
+	s := NewState(CreateVarRegex)
+	ss := Run(ctx, s, g)
+	if res, ok := <-ss; ok {
+		t.Fatalf("did expect result %s\n", res.(stringer).String())
 	}
 }
 
