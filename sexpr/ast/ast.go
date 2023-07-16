@@ -76,7 +76,7 @@ func (s *SExpr) GoString() string {
 func goStringSExpr(this *SExpr) string {
 	buf := bytes.NewBuffer(nil)
 	if this == nil {
-		fmt.Fprintf(buf, "nil\n")
+		fmt.Fprintf(buf, "nil")
 	} else {
 		fmt.Fprintf(buf, "&ast.SExpr{\n")
 		if this.Pair != nil {
@@ -85,7 +85,7 @@ func goStringSExpr(this *SExpr) string {
 		if this.Atom != nil {
 			fmt.Fprintf(buf, "Atom: %s,\n", goStringAtom(this.Atom))
 		}
-		fmt.Fprintf(buf, "}\n")
+		fmt.Fprintf(buf, "}")
 	}
 	return buf.String()
 }
@@ -113,7 +113,7 @@ func (a *Atom) GoString() string {
 func goStringAtom(this *Atom) string {
 	buf := bytes.NewBuffer(nil)
 	if this == nil {
-		fmt.Fprintf(buf, "nil\n")
+		fmt.Fprintf(buf, "nil")
 	} else {
 		fmt.Fprintf(buf, "&ast.Atom{\n")
 		if this.Str != nil {
@@ -131,7 +131,7 @@ func goStringAtom(this *Atom) string {
 		if this.Var != nil {
 			fmt.Fprintf(buf, "Var: %s,\n", goStringVar(this.Var))
 		}
-		fmt.Fprintf(buf, "}\n")
+		fmt.Fprintf(buf, "}")
 	}
 	return buf.String()
 }
@@ -275,7 +275,7 @@ func NewList(ss ...*SExpr) *SExpr {
 func goStringPair(this *Pair) string {
 	buf := bytes.NewBuffer(nil)
 	if this == nil {
-		fmt.Fprintf(buf, "nil\n")
+		fmt.Fprintf(buf, "nil")
 	} else {
 		fmt.Fprintf(buf, "&ast.Pair{\n")
 		if this.Car != nil {
@@ -284,7 +284,7 @@ func goStringPair(this *Pair) string {
 		if this.Cdr != nil {
 			fmt.Fprintf(buf, "Cdr: %s,\n", goStringSExpr(this.Cdr))
 		}
-		fmt.Fprintf(buf, "}\n")
+		fmt.Fprintf(buf, "}")
 	}
 	return buf.String()
 }
