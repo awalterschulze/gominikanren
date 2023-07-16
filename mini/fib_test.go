@@ -10,21 +10,21 @@ import (
 
 var result []*ast.SExpr
 
-func benchFib(b *testing.B, num int, f func(...micro.Goal) micro.Goal) {
+func benchFib(b *testing.B, num int) {
 	var r []*ast.SExpr
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		r = runFib(num, f)
+		r = runFib(num)
 	}
 	result = r
 }
 
 func BenchmarkFib10Seq(b *testing.B) {
-	benchFib(b, 10, mini.ConjPlus)
+	benchFib(b, 10)
 }
 
 func BenchmarkFib15Seq(b *testing.B) {
-	benchFib(b, 15, mini.ConjPlus)
+	benchFib(b, 15)
 }
 
 // peano numbers and extralogical convenience functions
@@ -74,7 +74,7 @@ func natplus(x, y, z *ast.SExpr) micro.Goal {
 	)
 }
 
-func fib(conj func(...micro.Goal) micro.Goal, x, y *ast.SExpr) micro.Goal {
+func fib(x, y *ast.SExpr) micro.Goal {
 	return mini.Conde(
 		[]micro.Goal{micro.EqualO(x, zero), micro.EqualO(y, zero)},
 		[]micro.Goal{micro.EqualO(x, one), micro.EqualO(y, one)},
@@ -83,11 +83,11 @@ func fib(conj func(...micro.Goal) micro.Goal, x, y *ast.SExpr) micro.Goal {
 				return micro.CallFresh(func(n2 *ast.SExpr) micro.Goal {
 					return micro.CallFresh(func(f1 *ast.SExpr) micro.Goal {
 						return micro.CallFresh(func(f2 *ast.SExpr) micro.Goal {
-							return conj(
+							return mini.ConjPlus(
 								succ(n1, x),
 								succ(n2, n1),
-								fib(conj, n1, f1),
-								fib(conj, n2, f2),
+								fib(n1, f1),
+								fib(n2, f2),
 								natplus(f1, f2, y),
 							)
 						})
@@ -98,8 +98,8 @@ func fib(conj func(...micro.Goal) micro.Goal, x, y *ast.SExpr) micro.Goal {
 	)
 }
 
-func runFib(n int, f func(...micro.Goal) micro.Goal) []*ast.SExpr {
+func runFib(n int) []*ast.SExpr {
 	return micro.Run(-1, func(q *ast.SExpr) micro.Goal {
-		return fib(f, makenat(n), q)
+		return fib(makenat(n), q)
 	})
 }
