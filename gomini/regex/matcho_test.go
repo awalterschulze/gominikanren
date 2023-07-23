@@ -238,6 +238,35 @@ func TestGenSDerivOs(t *testing.T) {
 	}
 }
 
+func TestGenMatchOEmptyStr(t *testing.T) {
+	if testing.Short() {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	start := time.Now()
+	s := NewState(CreateVarRegex)
+	ctx = SetMaxRoutines(ctx, 100)
+	g := func(q *Regex) Goal {
+		return IsMatchO(q, NewString(""))
+	}
+	ss := Run(ctx, s, g)
+	count := 0
+	for {
+		res, ok := <-ss
+		if !ok {
+			return
+		}
+		count++
+		t := time.Now()
+		elapsed := t.Sub(start)
+		fmt.Printf("Generated, %v, %d, %s\n", elapsed, count, res.(stringer).String())
+		if count >= 10 {
+			return
+		}
+	}
+}
+
 func TestGenStrIsMatchOStarAOrB(t *testing.T) {
 	if testing.Short() {
 		return
