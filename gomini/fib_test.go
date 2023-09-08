@@ -2,6 +2,7 @@ package gomini_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	. "github.com/awalterschulze/gominikanren/gomini"
@@ -27,6 +28,38 @@ func BenchmarkFib15Co(b *testing.B) {
 	benchFib(b, 15)
 }
 
+func checkfib(t *testing.T, input, want int) {
+	t.Run(fmt.Sprintf("fib(%v)", input), func(t *testing.T) {
+		got := getfib(input)
+		if got == nil {
+			t.Fatalf("fib(%v) = no answer was returned", input)
+		}
+		if *got != want {
+			t.Fatalf("fib(%v) = %v, but wanted %v", input, *got, want)
+		}
+	})
+}
+
+func getfib(n int) *int {
+	ans := fmap(runFib(n), func(s *ast.SExpr) int {
+		n := parsenat(s)
+		return n
+	})
+	if len(ans) == 0 {
+		return nil
+	}
+	return &ans[0]
+}
+
+func TestFibBasic(t *testing.T) {
+	checkfib(t, 1, 1)
+	checkfib(t, 2, 1)
+	checkfib(t, 3, 2)
+	checkfib(t, 4, 3)
+	checkfib(t, 5, 5)
+	checkfib(t, 6, 8)
+}
+
 // peano numbers and extralogical convenience functions
 var zero = ast.NewInt(0)
 var one = makenat(1)
@@ -43,7 +76,7 @@ func makenat(n int) *ast.SExpr {
 }
 
 func parsenat(x *ast.SExpr) int {
-	if x == zero {
+	if x.Atom != nil && x.Atom.Int != nil && *x.Atom.Int == 0 {
 		return 0
 	}
 	return parsenat(x.Car()) + 1
