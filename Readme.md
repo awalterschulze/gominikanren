@@ -7,7 +7,7 @@
 gominikarnen is an implementation of [miniKanren](http://minikanren.org/) in Go.
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=qDjia_U1Kfg" target="_blank">
- <img src="https://img.youtube.com/vi/qDjia_U1Kfg/maxres2.jpg" alt="Watch the video" width="480" border="10" />
+ <img src="https://img.youtube.com/vi/qDjia_U1Kfg/maxres3.jpg" alt="Watch the video" width="480" border="10" />
 </a>
 
 miniKanren is an embedded Domain Specific Language for logic programming.
