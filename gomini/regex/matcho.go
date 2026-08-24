@@ -1,7 +1,7 @@
 package regex
 
 import (
-	. "github.com/awalterschulze/gominikanren/gomini"
+	. "awalterschulze.org/go/gominikanren/gomini"
 )
 
 func MatchO(r *Regex, s *String, res *Regex) Goal {

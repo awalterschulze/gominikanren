@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 // State is a product of a list of substitutions and a variable counter.

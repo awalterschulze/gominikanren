@@ -27,7 +27,7 @@ First [install Go](https://golang.org/doc/install)
 And then run on the command line
 
 ```
-$ go get github.com/awalterschulze/gominikanren
+$ go get awalterschulze.org/go/gominikanren
 ```
 
 ## Example: ConcatO using gomini
@@ -41,8 +41,8 @@ package main
 import (
     "context"
 
-    . "github.com/awalterschulze/gominikanren/gomini"
-    . "github.com/awalterschulze/gominikanren/gomini/concato"
+    . "awalterschulze.org/go/gominikanren/gomini"
+    . "awalterschulze.org/go/gominikanren/gomini/concato"
 )
 
 type Pair struct {
@@ -158,9 +158,9 @@ In this example we use AppendO to get all the combinations that can produce the 
 package main
 
 import (
-    "github.com/awalterschulze/gominikanren/sexpr/ast"
-    "github.com/awalterschulze/gominikanren/micro"
-    "github.com/awalterschulze/gominikanren/mini"
+    "awalterschulze.org/go/gominikanren/sexpr/ast"
+    "awalterschulze.org/go/gominikanren/micro"
+    "awalterschulze.org/go/gominikanren/mini"
 )
 
 func main() {

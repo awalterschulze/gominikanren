@@ -3,7 +3,7 @@ package sexpr
 import (
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 func TestCons(t *testing.T) {

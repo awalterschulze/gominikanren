@@ -3,9 +3,9 @@ package concurrent
 import (
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/micro"
-	"github.com/awalterschulze/gominikanren/mini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/mini"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 func benchFib(b *testing.B, num int, f func(...micro.Goal) micro.Goal) {

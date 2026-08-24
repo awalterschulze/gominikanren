@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"unicode/utf8"
 
-	"github.com/awalterschulze/gominikanren/sexpr/token"
+	"awalterschulze.org/go/gominikanren/sexpr/token"
 )
 
 const (

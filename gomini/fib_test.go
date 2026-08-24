@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	. "github.com/awalterschulze/gominikanren/gomini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	. "awalterschulze.org/go/gominikanren/gomini"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 var result []*ast.SExpr

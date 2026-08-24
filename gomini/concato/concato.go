@@ -3,7 +3,7 @@ package concato
 import (
 	"strings"
 
-	. "github.com/awalterschulze/gominikanren/gomini"
+	. "awalterschulze.org/go/gominikanren/gomini"
 )
 
 type Node struct {

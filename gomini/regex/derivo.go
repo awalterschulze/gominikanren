@@ -1,7 +1,7 @@
 package regex
 
 import (
-	. "github.com/awalterschulze/gominikanren/gomini"
+	. "awalterschulze.org/go/gominikanren/gomini"
 )
 
 func DerivO(r *Regex, char *rune, dr *Regex) Goal {

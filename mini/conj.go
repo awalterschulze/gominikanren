@@ -1,7 +1,7 @@
 package mini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/micro"
 )
 
 /*
@@ -9,8 +9,9 @@ ConjPlus is a macro that extends conjunction to arbitrary arguments
 
 (define- syntax conj+
 (syntax- rules ()
-    ((_ g) (Zzz g))
-    ((_ g0 g . . . ) (conj (Zzz g0) (conj+ g . . . )))))
+
+	((_ g) (Zzz g))
+	((_ g0 g . . . ) (conj (Zzz g0) (conj+ g . . . )))))
 */
 func ConjPlus(gs ...micro.Goal) micro.Goal {
 	if len(gs) == 0 {

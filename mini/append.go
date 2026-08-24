@@ -1,8 +1,8 @@
 package mini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 /*

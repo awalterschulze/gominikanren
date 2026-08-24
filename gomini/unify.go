@@ -3,7 +3,7 @@ package gomini
 import (
 	"reflect"
 
-	"github.com/awalterschulze/gominikanren/gomini/reflecttools"
+	"awalterschulze.org/go/gominikanren/gomini/reflecttools"
 )
 
 // unify returns the substitution s extended with zero or more associations,

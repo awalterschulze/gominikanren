@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 func TestIfThenElseSuccess(t *testing.T) {

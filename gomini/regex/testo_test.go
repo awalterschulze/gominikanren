@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/awalterschulze/gominikanren/gomini"
+	. "awalterschulze.org/go/gominikanren/gomini"
 )
 
 func testo(t *testing.T, f func(q *Regex) Goal, want *Regex) {

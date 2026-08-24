@@ -3,7 +3,7 @@ package micro
 import (
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 // helper func used in all tests that use Substitution of vars

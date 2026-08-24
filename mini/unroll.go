@@ -1,8 +1,8 @@
 package mini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 // defines two candidate functions for unrolling
@@ -21,12 +21,13 @@ unrolling when x is bound but y is unbound does not make sense
 but we can optimise if we detect y is bound
 
 (define (membero x y)
-  (fresh (a d)
-  (== y `(,a . ,d))
-  (conde
-    [(== x a)]
-    [(membero x d)]
-    )))
+
+	(fresh (a d)
+	(== y `(,a . ,d))
+	(conde
+	  [(== x a)]
+	  [(membero x d)]
+	  )))
 */
 func MemberO(x, y *ast.SExpr) micro.Goal {
 	return micro.Zzz(micro.CallFresh(func(a *ast.SExpr) micro.Goal {
@@ -77,15 +78,16 @@ here unrolling makes sense whether x or y is bound
 we can detect either and unroll before applying search
 
 (define (mapo f x y)
-  (conde
-    [(== x '()) (== y '())]
-    [(fresh (xa xd ya yd)
-        (== `(,xa . ,xd) x)
-        (== `(,ya . ,yd) y)
-        (f xa ya)
-        (mapo f xd yd)
-      )]
-  ))
+
+	(conde
+	  [(== x '()) (== y '())]
+	  [(fresh (xa xd ya yd)
+	      (== `(,xa . ,xd) x)
+	      (== `(,ya . ,yd) y)
+	      (f xa ya)
+	      (mapo f xd yd)
+	    )]
+	))
 */
 func MapO(f func(*ast.SExpr, *ast.SExpr) micro.Goal, x, y *ast.SExpr) micro.Goal {
 	return Conde(

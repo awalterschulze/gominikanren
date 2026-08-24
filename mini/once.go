@@ -1,7 +1,7 @@
 package mini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/micro"
 )
 
 /*

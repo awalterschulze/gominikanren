@@ -2,7 +2,7 @@
 package gominikanren
 
 import (
-	_ "github.com/awalterschulze/gominikanren/micro"
-	_ "github.com/awalterschulze/gominikanren/mini"
-	_ "github.com/awalterschulze/gominikanren/sexpr"
+	_ "awalterschulze.org/go/gominikanren/micro"
+	_ "awalterschulze.org/go/gominikanren/mini"
+	_ "awalterschulze.org/go/gominikanren/sexpr"
 )

@@ -1,7 +1,7 @@
 package mini
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/micro"
 )
 
 /*
@@ -9,8 +9,9 @@ DisjPlus is a macro that extends disjunction to arbitrary arguments
 
 (define- syntax disj+
 (syntax-rules ()
-    ((_ g) (Zzz g))
-    ((_ g0 g . . . ) (disj (Zzz g0) (disj+ g . . . )))))
+
+	((_ g) (Zzz g))
+	((_ g0 g . . . ) (disj (Zzz g0) (disj+ g . . . )))))
 */
 func DisjPlus(gs ...micro.Goal) micro.Goal {
 	if len(gs) == 0 {

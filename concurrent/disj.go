@@ -1,7 +1,7 @@
 package concurrent
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/micro"
 )
 
 type answer struct {

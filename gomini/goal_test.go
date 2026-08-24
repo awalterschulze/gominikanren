@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/awalterschulze/gominikanren/sexpr"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/sexpr"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 // NeverO is a Goal that returns a never ending stream of suspensions.

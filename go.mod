@@ -1,4 +1,4 @@
-module github.com/awalterschulze/gominikanren
+module awalterschulze.org/go/gominikanren
 
 go 1.20
 

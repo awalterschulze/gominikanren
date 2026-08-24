@@ -3,10 +3,10 @@ package example
 import (
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/example/peano"
-	"github.com/awalterschulze/gominikanren/micro"
-	"github.com/awalterschulze/gominikanren/mini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/example/peano"
+	"awalterschulze.org/go/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/mini"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 /*

@@ -1,9 +1,9 @@
 package peano
 
 import (
-	"github.com/awalterschulze/gominikanren/micro"
-	"github.com/awalterschulze/gominikanren/mini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/mini"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 // peano numbers and extralogical convenience functions
@@ -11,8 +11,9 @@ var Zero = ast.NewInt(0)
 var One = Makenat(1)
 
 /*
-   (define (succ x y)
-       (== y `(,x)))
+(define (succ x y)
+
+	(== y `(,x)))
 */
 func Succ(prev, next *ast.SExpr) micro.Goal {
 	return micro.EqualO(next, ast.Cons(prev, nil))
@@ -41,12 +42,14 @@ func ToList(list []int) *ast.SExpr {
 }
 
 /*
-   ;; x + y = z
-   (define (nat-plus x y z)
-   (conde
-       [(== x 0) (== y z)]
-       [(fresh (a b) (succ a x) (succ b z) (nat-plus a y b))]
-   ))
+;; x + y = z
+(define (nat-plus x y z)
+(conde
+
+	[(== x 0) (== y z)]
+	[(fresh (a b) (succ a x) (succ b z) (nat-plus a y b))]
+
+))
 */
 func Natplus(x, y, z *ast.SExpr) micro.Goal {
 	return mini.Conde(
@@ -67,14 +70,15 @@ func Natplus(x, y, z *ast.SExpr) micro.Goal {
 
 /*
 (define (leq x y)
-  (conde
-    [(== x 0)]
-    [(fresh (n m)
-        (succ n x)
-        (succ m y)
-        (leq n m)
-    )]
-  ))
+
+	(conde
+	  [(== x 0)]
+	  [(fresh (n m)
+	      (succ n x)
+	      (succ m y)
+	      (leq n m)
+	  )]
+	))
 */
 func Leq(x, y *ast.SExpr) micro.Goal {
 	return mini.Conde(
@@ -96,16 +100,17 @@ func Leq(x, y *ast.SExpr) micro.Goal {
 /*
 ;; y = x // 2, integer division rounding down
 (define (half x y)
-    (conde
-    [(== x 0) (== y 0)]
-    [(== x (make-nat 1)) (== y 0)]
-    [(fresh (n m z)
-        (succ m y)
-        (succ z x)
-        (succ n z)
-        (half n m)
-    )]
-  ))
+
+	  (conde
+	  [(== x 0) (== y 0)]
+	  [(== x (make-nat 1)) (== y 0)]
+	  [(fresh (n m z)
+	      (succ m y)
+	      (succ z x)
+	      (succ n z)
+	      (half n m)
+	  )]
+	))
 */
 func Half(x, y *ast.SExpr) micro.Goal {
 	return mini.Conde(

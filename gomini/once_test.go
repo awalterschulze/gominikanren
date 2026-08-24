@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 // OnceO is a goal that returns one successful state.

@@ -5,21 +5,22 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/awalterschulze/gominikanren/example/peano"
-	"github.com/awalterschulze/gominikanren/micro"
-	"github.com/awalterschulze/gominikanren/mini"
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/example/peano"
+	"awalterschulze.org/go/gominikanren/micro"
+	"awalterschulze.org/go/gominikanren/mini"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 /*
 (define (len x y)
-    (conde
-    [(== x '()) (== y 0)]
-    [(fresh (a d z)
-        (succ z y)
-        (== x `(,a . ,d))
-        (len d z))]
-  ))
+
+	  (conde
+	  [(== x '()) (== y 0)]
+	  [(fresh (a d z)
+	      (succ z y)
+	      (== x `(,a . ,d))
+	      (len d z))]
+	))
 */
 func length(x, y *ast.SExpr) micro.Goal {
 	return mini.Conde(
@@ -73,10 +74,11 @@ func TestLength(t *testing.T) {
 /*
 ;; split a list x into a list y of len n and a list z
 (define (split-at x n y z)
-  (conde
-    [(len y n)
-    (appendo y z x)]
-  ))
+
+	(conde
+	  [(len y n)
+	  (appendo y z x)]
+	))
 */
 func splitAt(x, n, y, z *ast.SExpr) micro.Goal {
 	return mini.ConjPlus(
@@ -88,11 +90,12 @@ func splitAt(x, n, y, z *ast.SExpr) micro.Goal {
 
 /*
 (define (split-in-half x y z)
-  (fresh (l h)
-    (len x l)
-    (half l h)
-    (split-at x h y z)
-  ))
+
+	(fresh (l h)
+	  (len x l)
+	  (half l h)
+	  (split-at x h y z)
+	))
 */
 func splitInHalf(x, y, z *ast.SExpr) micro.Goal {
 	return micro.CallFresh(func(l *ast.SExpr) micro.Goal {
@@ -129,24 +132,25 @@ func TestSplitInHalf(t *testing.T) {
 
 /*
 (define (merge a b c)
-  (conde
-    [(== a '()) (== b c)]
-    [(fresh (aa da)
-        (== a `(,aa . ,da))
-        (conde
-            [(== b '()) (== c a)]
-            [(fresh (ab db res)
-                (== b `(,ab . ,db))
-                (conde
-                    [(leq aa ab)
-                     (== c `(,aa . ,res))
-                     (merge da b res)]
-                    [(leq ab aa)
-                     (== c `(,ab . ,res))
-                     (merge a db res)]
-            ))]
-        ))]
-  ))
+
+	(conde
+	  [(== a '()) (== b c)]
+	  [(fresh (aa da)
+	      (== a `(,aa . ,da))
+	      (conde
+	          [(== b '()) (== c a)]
+	          [(fresh (ab db res)
+	              (== b `(,ab . ,db))
+	              (conde
+	                  [(leq aa ab)
+	                   (== c `(,aa . ,res))
+	                   (merge da b res)]
+	                  [(leq ab aa)
+	                   (== c `(,ab . ,res))
+	                   (merge a db res)]
+	          ))]
+	      ))]
+	))
 */
 func merge(a, b, c *ast.SExpr) micro.Goal {
 	return mini.Conde(
@@ -206,18 +210,19 @@ func TestMerge(t *testing.T) {
 
 /*
 (define (merge-sort a b)
-  (conde
-    [(== a '()) (== b '())]
-    [(fresh (x) (== a `(,x)) (== b `(,x)))]
-    [(fresh (x y res a1 a2 s1 s2)
-        (== a `(,x ,y . ,res))
-        (split-in-half a a1 a2)
-        ;; candidates for parallelisation
-        (merge-sort a1 s1)
-        (merge-sort a2 s2)
-        (merge s1 s2 b)
-    )]
-  ))
+
+	(conde
+	  [(== a '()) (== b '())]
+	  [(fresh (x) (== a `(,x)) (== b `(,x)))]
+	  [(fresh (x y res a1 a2 s1 s2)
+	      (== a `(,x ,y . ,res))
+	      (split-in-half a a1 a2)
+	      ;; candidates for parallelisation
+	      (merge-sort a1 s1)
+	      (merge-sort a2 s2)
+	      (merge s1 s2 b)
+	  )]
+	))
 */
 func mergeSort(a, b *ast.SExpr) micro.Goal {
 	return mini.Conde(

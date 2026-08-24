@@ -1,7 +1,7 @@
 package micro
 
 import (
-	"github.com/awalterschulze/gominikanren/sexpr/ast"
+	"awalterschulze.org/go/gominikanren/sexpr/ast"
 )
 
 /*
