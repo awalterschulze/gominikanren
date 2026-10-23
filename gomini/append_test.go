@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 // AppendO is a goal that appends two lists into the third list.

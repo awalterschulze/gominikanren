@@ -3,7 +3,7 @@ package gomini
 import (
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 func TestIntIsVar(t *testing.T) {

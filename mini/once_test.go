@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/micro"
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/micro"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 func TestOnce(t *testing.T) {

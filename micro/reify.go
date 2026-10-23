@@ -3,7 +3,7 @@ package micro
 import (
 	"strconv"
 
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 /*

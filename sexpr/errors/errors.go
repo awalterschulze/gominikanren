@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	"awalterschulze.org/go/gominikanren/sexpr/token"
+	"go.awalterschulze.org/gominikanren/sexpr/token"
 )
 
 type ErrorSymbol interface {

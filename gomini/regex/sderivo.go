@@ -1,7 +1,7 @@
 package regex
 
 import (
-	. "awalterschulze.org/go/gominikanren/gomini"
+	. "go.awalterschulze.org/gominikanren/gomini"
 )
 
 func SDerivO(r *Regex, char *rune, dr *Regex) Goal {

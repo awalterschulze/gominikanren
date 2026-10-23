@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 func fives(x *ast.SExpr) Goal {

@@ -3,7 +3,7 @@ package mini
 import (
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/micro"
+	"go.awalterschulze.org/gominikanren/micro"
 )
 
 /*

@@ -2,9 +2,9 @@
 package sexpr
 
 import (
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
-	"awalterschulze.org/go/gominikanren/sexpr/lexer"
-	"awalterschulze.org/go/gominikanren/sexpr/parser"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/lexer"
+	"go.awalterschulze.org/gominikanren/sexpr/parser"
 )
 
 // Parse parses an symbol expression.

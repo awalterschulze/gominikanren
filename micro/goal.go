@@ -1,7 +1,7 @@
 package micro
 
 import (
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 // Goal is a function that takes a state and returns a stream of states.

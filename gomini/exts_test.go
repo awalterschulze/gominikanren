@@ -3,7 +3,7 @@ package gomini
 import (
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 // exts either extends a substitution s with an association between the variable x and the value v ,

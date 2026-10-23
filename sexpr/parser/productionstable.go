@@ -3,8 +3,8 @@
 package parser
 
 import (
-    . "awalterschulze.org/go/gominikanren/sexpr/ast"
-    "awalterschulze.org/go/gominikanren/sexpr/token"
+    . "go.awalterschulze.org/gominikanren/sexpr/ast"
+    "go.awalterschulze.org/gominikanren/sexpr/token"
 )
 
 func getStr(v interface{}) string {

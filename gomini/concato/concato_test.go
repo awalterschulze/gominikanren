@@ -6,7 +6,7 @@ import (
 	"sort"
 	"testing"
 
-	. "awalterschulze.org/go/gominikanren/gomini"
+	. "go.awalterschulze.org/gominikanren/gomini"
 )
 
 func CreateVar(varTyp any, name string) (any, bool) {

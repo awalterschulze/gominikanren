@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/sexpr"
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 func TestEqualO(t *testing.T) {

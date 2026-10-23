@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	parseError "awalterschulze.org/go/gominikanren/sexpr/errors"
-	"awalterschulze.org/go/gominikanren/sexpr/token"
+	parseError "go.awalterschulze.org/gominikanren/sexpr/errors"
+	"go.awalterschulze.org/gominikanren/sexpr/token"
 )
 
 const (

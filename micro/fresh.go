@@ -3,7 +3,7 @@ package micro
 import (
 	"fmt"
 
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 // Var creates a new variable as the string vC

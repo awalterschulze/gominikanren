@@ -1,7 +1,7 @@
 package regex
 
 import (
-	. "awalterschulze.org/go/gominikanren/gomini"
+	. "go.awalterschulze.org/gominikanren/gomini"
 )
 
 func SimpleOrO(r1, r2, res *Regex) Goal {

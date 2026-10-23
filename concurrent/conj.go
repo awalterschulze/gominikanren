@@ -1,8 +1,8 @@
 package concurrent
 
 import (
-	"awalterschulze.org/go/gominikanren/micro"
-	"awalterschulze.org/go/gominikanren/mini"
+	"go.awalterschulze.org/gominikanren/micro"
+	"go.awalterschulze.org/gominikanren/mini"
 )
 
 /*

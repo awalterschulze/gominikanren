@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	. "awalterschulze.org/go/gominikanren/gomini"
+	. "go.awalterschulze.org/gominikanren/gomini"
 )
 
 func TestMatchOEmptySetNil(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"awalterschulze.org/go/gominikanren/sexpr/ast"
+	"go.awalterschulze.org/gominikanren/sexpr/ast"
 )
 
 // defines two candidate functions for unrolling

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "awalterschulze.org/go/gominikanren/gomini"
+	. "go.awalterschulze.org/gominikanren/gomini"
 )
 
 func TestDerivOEmptySet(t *testing.T) {
